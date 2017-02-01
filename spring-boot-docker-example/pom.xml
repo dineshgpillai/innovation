@@ -14,7 +14,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<docker.image.prefix>springio</docker.image.prefix>
+		<docker.image.prefix>dineshpillai/spring-boot-example-service</docker.image.prefix>
 	</properties>
 
 	<dependencies>
@@ -37,12 +37,15 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>docker-maven-plugin</artifactId>
-				<version>0.4.11</version>
+				<groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.18.1</version>
 				<configuration>
-					<imageName>${docker.image.prefix}/${project.artifactId}</imageName>
-					<dockerDirectory>src/main/docker</dockerDirectory>
+					<imageName>${docker.image.prefix}</imageName>
+					<baseImage>java:openjdk-8-jdk-alpine</baseImage>
+					<entryPoint>["java","-jar","/${project.build.finalName}.jar"]</entryPoint>					
+					<!-- dockerHost>https://138.68.168.237:2376</dockerHost-->
+					<serverId>docker-hub</serverId>					
 					<resources>
 						<resource>
 							<targetPath>/</targetPath>
