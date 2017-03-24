@@ -49,7 +49,7 @@ public class GenerateTradeData {
 		if (partyList.isEmpty())
 			return null;
 		else
-			return partyList.get((int) (Math.random() * partyList.size() + 1));
+			return partyList.get((int) (Math.random() * partyList.size()-1 + 1));
 
 	}
 
@@ -58,7 +58,7 @@ public class GenerateTradeData {
 		if (insList.isEmpty())
 			return null;
 		else
-			return insList.get((int) (Math.random() * insList.size() + 1));
+			return insList.get((int) (Math.random() * insList.size()-1 + 1));
 
 	}
 
