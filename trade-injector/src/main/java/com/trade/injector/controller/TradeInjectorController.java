@@ -34,12 +34,20 @@ public class TradeInjectorController {
 
 	@Autowired
 	GenerateTradeData tradeData;
+	
+	private static boolean isKill = false;
+	
+	@RequestMapping(value="/tradeMessageStop",method = RequestMethod.POST)
+	public void tradeStop(){
+		isKill=true;
+	}
 
 	@MessageMapping("/tradeMessageInject")
 	// @RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<?> tradeInject(
 			@RequestBody TradeInjectorMessage message) throws Exception {
 
+		isKill = false;
 		int numberOfTrades = new Integer(message.getNoOfTrades());
 		int numberOfClients = new Integer(message.getNoOfClients());
 		int numberOfInstruments = new Integer(message.getNoOfInstruments());
@@ -70,6 +78,10 @@ public class TradeInjectorController {
 			LOG.debug(("Following trade was generated " + aTrade.toString()));
 			LOG.debug("Sleeping for " + timedelay + " ms");
 			Thread.sleep(timedelay);
+			
+			//if the kill flag is set by the UI return the process.
+			if(isKill)
+				return ResponseEntity.ok().build();
 
 		}
 

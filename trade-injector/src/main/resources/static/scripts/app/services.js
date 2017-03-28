@@ -56,6 +56,14 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 		socket.stomp.onclose = reconnect;
 	};
 	
+	var disconnect = function disconnect() {
+	    if (socket.stomp.connect != null) {
+	    	socket.stomp.connect.disconnect();
+	    }
+	    //setConnected(false);
+	    console.log("Disconnected");
+	}
+	
 	initialize();
 	return service;
 });

@@ -2,7 +2,7 @@ angular
 		.module("TradeInjectorApp.controllers")
 		.controller(
 				"TradeInjectCtrl",
-				function($scope, TradeInjectorService) {
+				function($scope, $http, TradeInjectorService) {
 
 					$scope.tradeAcks = [];
 					// $scope.tradeInjectorMessage = [];
@@ -24,6 +24,11 @@ angular
 					$scope.datasetOverride = {
 						fill : false
 					};
+					
+					$scope.stop = function(){
+						$http.post('/tradeInjector/tradeMessageStop');
+
+					}
 
 					$scope.injectTrades = function() {
 						$scope.tradeAcks = [];
