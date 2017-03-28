@@ -7,7 +7,9 @@ angular.module("TradeInjectorApp.controllers").controller(
 			$scope.labels = [];
 			$scope.data = [];
 			$scope.tradeCount = [];
-
+			$scope.showGeneration=false;
+			$scope.totalMsgCount=[0];
+				
 			$scope.options = {
 				responsive : true,
 				responsiveAnimationDuration : 1000,
@@ -26,15 +28,18 @@ angular.module("TradeInjectorApp.controllers").controller(
 				$scope.labels = [];
 				$scope.data = [];
 				$scope.tradeCount = [];
+				$scope.totalMsgCount=[0];
 				console.log('Before sending ' + $scope.tradeInjectorMessage);
 				TradeInjectorService.send($scope.tradeInjectorMessage);
 			};
 
 			// Receives the trade ack and summarises the trade count
 			TradeInjectorService.receive().then(
+					
 					null,
 					null,
 					function(data) {
+						$scope.showGeneration=true;
 						$scope.tradeAcks.push(data);
 						var clientNameIndex = $scope.labels
 								.indexOf(data.clientName)
@@ -51,7 +56,12 @@ angular.module("TradeInjectorApp.controllers").controller(
 							$scope.labels.splice(clientNameIndex, 1,
 									data.clientName);
 						}
+						//increment the msg count
+						$scope.totalMsgCount.splice(0,1,$scope.totalMsgCount[0]+1);
+						
 					});
+				
+			$scope.showGeneration=false;
 
 		}
 
