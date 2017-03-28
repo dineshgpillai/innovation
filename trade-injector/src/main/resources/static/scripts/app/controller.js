@@ -2,7 +2,7 @@ angular.module("TradeInjectorApp.controllers").controller("TradeInjectCtrl",
 		function($scope, TradeInjectorService) {
 
 			$scope.tradeAcks = [];
-			$scope.tradeInjectorMessage = [];
+			//$scope.tradeInjectorMessage = [];
 			$scope.labels=[];
 			$scope.data=[];
 			
@@ -21,7 +21,7 @@ angular.module("TradeInjectorApp.controllers").controller("TradeInjectCtrl",
 				$scope.tradeAcks = [];
 				$scope.labels=[];
 				$scope.data=[];
-				
+				console.log('Before sending '+$scope.tradeInjectorMessage);	
 				TradeInjectorService.send($scope.tradeInjectorMessage);
 			};
 			

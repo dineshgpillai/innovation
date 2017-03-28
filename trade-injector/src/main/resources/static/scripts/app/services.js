@@ -12,7 +12,7 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 	service.RECONNECT_TIMEOUT=30000;
 	service.SOCKET_URL="/tradeInjector/injectorUI";
 	service.TRADE_TOPIC="/topic/tradeAck";
-	service.TRADE_BROKER="/app/tradeInjector";
+	service.TRADE_BROKER="/tradeInjector/tradeMessageInject";
 	
 	service.receive = function(){
 		return listenerTrades.promise;
@@ -22,10 +22,10 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 		var id = Math.floor(Math.random() * 1000000);
 		socket.stomp.send(service.TRADE_BROKER, 
 				{priority: 9},
-				JSON.stringify({
-					injectMessage: injectMessage,
-					id: id
-				})
+				JSON.stringify(
+					injectMessage
+					
+				)
 		);
 		messageIds.push(id);
 	};
