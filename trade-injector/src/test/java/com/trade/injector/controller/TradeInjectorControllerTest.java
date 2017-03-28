@@ -87,7 +87,7 @@ public class TradeInjectorControllerTest {
 		String jsonMessage = this.json(msg);
 		
 		mockMvc.perform(
-				post("/tradeInject/").content(jsonMessage)
+				get("/tradeInjector/tradeMessageInject").content(jsonMessage)
 						.contentType(contentType)).andExpect(
 				status().isOk());
 
