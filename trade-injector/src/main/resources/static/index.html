@@ -163,24 +163,29 @@
 					Wait Time (in secs)</span> <input type="text"
 					ng-model="tradeInjectorMessage.timeDelay" class="form-control"
 					size="10" placeholder="Enter a Number"
-					aria-describedby="basic-addon1"> <span
-					class="input-group-addon" id="basic-addon1">Trade Date</span> <input
-					type="text" class="form-control" size="10" placeholder="DD-MM-YYYY"
-					aria-describedby="basic-addon1">
+					aria-describedby="basic-addon1"> 
 
 			</div>
 		</div>
 		<div class="panel-body">
-			<div class="button-group">
-				<a class="btn btn-success" ng-click="injectTrades()" role="button"><i
-					class="fa fa-cogs fa-fw"></i> Generate</a> <a class="btn btn-primary"
-					href="#"><i class="fa fa-adjust fa-fw"></i> Reset</a>
-				
-				<div ng-show="showGeneration">
-				<i
-					class="fa fa-cog fa-spin fa-3x fa-fw"></i> Generating...<span class="badge">{{totalMsgCount}}/{{tradeInjectorMessage.noOfTrades}}</span>
+			<div class="row">
+				<div class="button-group">
+					<a class="btn btn-success" ng-click="injectTrades()" role="button"><i
+						class="fa fa-cogs fa-fw"></i> Generate</a> 
+					<a class="btn btn-primary"
+						href="#"><i class="fa fa-adjust fa-fw"></i> Reset</a>
 				</div>
-				
+				<div ng-show="showGeneration" align="right">
+					
+					<button class="btn btn-danger" type="button">
+					<i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+  						Stop <span
+						class="badge">{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
+					</button>
+					 
+				</div>
+
+
 			</div>
 
 			<div>
