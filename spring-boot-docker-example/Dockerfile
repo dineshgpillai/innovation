@@ -1,4 +1,4 @@
-FROM maven:3.2-jdk-7-onbuild
+FROM maven:3.2.5-jdk-8u40-onbuild
 FROM frolvlad/alpine-oraclejdk8:slim
 VOLUME /tmp
 ADD dp-spring-boot-docker-0.1.0.jar dp-app.jar
