@@ -8,16 +8,18 @@ angular
 					// $scope.tradeInjectorMessage = [];
 					$scope.labels = [];
 					$scope.data = [];
-					$scope.tradeCount = [];
+					$scope.labels_instrument = [];
+					$scope.instrumentCount = [];
+					$scope.clientCount = [];
 					$scope.showGeneration = false;
 					$scope.totalMsgCount = [ 0 ];
-					$scope.tab=1;
-					
-					$scope.setTab=function(newTab){
-						$scope.tab=newTab;
+					$scope.tab = 1;
+
+					$scope.setTab = function(newTab) {
+						$scope.tab = newTab;
 					}
-					
-					$scope.isSet = function(tabNum){
+
+					$scope.isSet = function(tabNum) {
 						return $scope.tab === tabNum;
 					}
 
@@ -26,15 +28,24 @@ angular
 						responsiveAnimationDuration : 1000,
 						title : {
 							display : true,
-							text : 'Trade Count Chart'
+							text : 'Trade Count by Client Chart'
+						}
+					};
+
+					$scope.options_instrument = {
+						responsive : true,
+						responsiveAnimationDuration : 1000,
+						title : {
+							display : true,
+							text : 'Trade Count by Instrument Chart'
 						}
 					};
 
 					$scope.datasetOverride = {
 						fill : false
 					};
-					
-					$scope.stop = function(){
+
+					$scope.stop = function() {
 						$http.post('/tradeInjector/tradeMessageStop');
 						$scope.showGeneration = false;
 
@@ -44,7 +55,9 @@ angular
 						$scope.tradeAcks = [];
 						$scope.labels = [];
 						$scope.data = [];
-						$scope.tradeCount = [];
+						$scope.labels_instrument = [];
+						$scope.instrumentCount = [];
+						$scope.clientCount = [];
 						$scope.totalMsgCount = [ 0 ];
 						console.log('Before sending '
 								+ $scope.tradeInjectorMessage);
@@ -68,26 +81,47 @@ angular
 											// this is a new client set the
 											// trade count
 											// appropriately
-											$scope.tradeCount.push(1);
-											$scope.labels.push(data.clientName);
+											$scope.clientCount.push(1);
+											$scope.labels.push(data.clientName);											
 										} else {
 											// existing client, update the trade
 											// count
-											$scope.tradeCount
+											$scope.clientCount
 													.splice(
 															clientNameIndex,
 															1,
-															$scope.tradeCount[clientNameIndex] + 1);
+															$scope.clientCount[clientNameIndex] + 1);
 											$scope.labels.splice(
 													clientNameIndex, 1,
 													data.clientName);
 										}
+
+										// do the same for instruments
+										var instrumentIdIndex = $scope.labels_instrument
+												.indexOf(data.instrumentId)
+
+										if (instrumentIdIndex == -1) {
+											$scope.instrumentCount.push(1);
+											$scope.labels_instrument
+													.push(data.instrumentId);
+										} else {
+											$scope.instrumentCount
+													.splice(
+															instrumentIdIndex,
+															1,
+															$scope.instrumentCount[instrumentIdIndex] + 1);
+											$scope.labels_instrument.splice(
+													instrumentIdIndex, 1,
+													data.instrumentId)
+										}
+										
+
 										// increment the msg count
 										$scope.totalMsgCount.splice(0, 1,
 												$scope.totalMsgCount[0] + 1);
 
-										
-										//kill the generation message once we reach end
+										// kill the generation message once we
+										// reach end
 										if ($scope.totalMsgCount[0] == $scope.tradeInjectorMessage.noOfTrades) {
 											$scope.showGeneration = false;
 										}
