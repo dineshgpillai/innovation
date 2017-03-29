@@ -11,6 +11,15 @@ angular
 					$scope.tradeCount = [];
 					$scope.showGeneration = false;
 					$scope.totalMsgCount = [ 0 ];
+					$scope.tab=1;
+					
+					$scope.setTab=function(newTab){
+						$scope.tab=newTab;
+					}
+					
+					$scope.isSet = function(tabNum){
+						return $scope.tab === tabNum;
+					}
 
 					$scope.options = {
 						responsive : true,
@@ -27,6 +36,7 @@ angular
 					
 					$scope.stop = function(){
 						$http.post('/tradeInjector/tradeMessageStop');
+						$scope.showGeneration = false;
 
 					}
 

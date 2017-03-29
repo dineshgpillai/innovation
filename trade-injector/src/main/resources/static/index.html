@@ -124,87 +124,102 @@
 		</ol>
 	</div>	
 	-->
-	<div class="container">
-		<ul class="nav nav-pills">
-			<li role="presentation" class="active"><a href="#"><i
-					class="fa fa-line-chart fa-fw" aria-hidden="true"></i>Generate
-					Trades</a></li>
-			<li role="presentation"><a href="#"><i
-					class="fa fa-database fa-fw" aria-hidden="true"></i>Messages</a></li>
-			<li role="presentation"><a href="#"><i
-					class="fa fa-pie-chart fa-fw" aria-hidden="true"></i></i>Charts</a></li>
-			<li role="presentation"><a href="#"><i
-					class="fa fa-tachometer fa-fw" aria-hidden="true"></i>Dashboard</a></li>
+	<div ng-controller="TradeInjectCtrl">
+		<div class="container">
+			<ul class="nav nav-pills">
+				<li role="presentation" ng-class="{active: isSet(1)}"
+					ng-click="setTab(1)"><a href="#"><i
+						class="fa fa-line-chart fa-fw" aria-hidden="true"></i>Generate
+						Trades</a></li>
+				<li role="presentation" ng-class="{active: isSet(2)}"
+					ng-click="setTab(2)"><a href="#"><i
+						class="fa fa-database fa-fw" aria-hidden="true"></i>Messages</a></li>
+				<li role="presentation" ng-class="{active: isSet(3)}"
+					ng-click="setTab(3)"><a href="#"><i
+						class="fa fa-pie-chart fa-fw" aria-hidden="true"></i></i>Charts</a></li>
+				<li role="presentation" ng-class="{active: isSet(4)}"
+					ng-click="setTab(4)"><a href="#"><i
+						class="fa fa-tachometer fa-fw" aria-hidden="true"></i>Dashboard</a></li>
 
-		</ul>
-	</div>
-	<div ng-controller="TradeInjectCtrl"
-		class="container panel panel-default">
-
-
-		<div class="panel-body">
-			<div class="input-group">
-				<span class="input-group-addon" id="basic-addon1">Trades</span> <input
-					type="text" ng-model="tradeInjectorMessage.noOfTrades"
-					class="form-control" size="10" placeholder="Enter a Number"
-					aria-describedby="basic-addon1"> <span
-					class="input-group-addon" id="basic-addon1">Clients</span> <input
-					type="text" ng-model="tradeInjectorMessage.noOfClients"
-					class="form-control" size="10" placeholder="Enter a Number"
-					aria-describedby="basic-addon1"> <span
-					class="input-group-addon" id="basic-addon1">Instruments</span> <input
-					type="text" ng-model="tradeInjectorMessage.noOfInstruments"
-					class="form-control" size="10" placeholder="Enter a Number"
-					aria-describedby="basic-addon1">
-			</div>
-
-			<div class="input-group">
-				<span class="input-group-addon" id="basic-addon1">Simulated
-					Wait Time (in secs)</span> <input type="text"
-					ng-model="tradeInjectorMessage.timeDelay" class="form-control"
-					size="10" placeholder="Enter a Number"
-					aria-describedby="basic-addon1"> 
-
-			</div>
+			</ul>
 		</div>
-		<div class="panel-body">
-			<div class="row">
-				<div class="button-group">
-					<a class="btn btn-success" ng-click="injectTrades()" role="button"><i
-						class="fa fa-cogs fa-fw"></i> Generate</a> 
-					<a class="btn btn-primary"
-						href="#"><i class="fa fa-adjust fa-fw"></i> Reset</a>
+		<div class="container panel panel-default">
+
+			<div ng-show="isSet(1)">
+				<div class="panel-body">
+					<div class="input-group">
+						<span class="input-group-addon" id="basic-addon1">Trades</span> <input
+							type="text" ng-model="tradeInjectorMessage.noOfTrades"
+							class="form-control" size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1"> <span
+							class="input-group-addon" id="basic-addon1">Clients</span> <input
+							type="text" ng-model="tradeInjectorMessage.noOfClients"
+							class="form-control" size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1"> <span
+							class="input-group-addon" id="basic-addon1">Instruments</span> <input
+							type="text" ng-model="tradeInjectorMessage.noOfInstruments"
+							class="form-control" size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1">
+					</div>
+
+					<div class="input-group">
+						<span class="input-group-addon" id="basic-addon1">Simulated
+							Wait Time (in secs)</span> <input type="text"
+							ng-model="tradeInjectorMessage.timeDelay" class="form-control"
+							size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1">
+
+					</div>
 				</div>
-				<div ng-show="showGeneration" align="right">
-					
-					<button class="btn btn-danger" ng-click="stop()" type="button">
-					<i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
-  						Stop <span
-						class="badge">{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
-					</button>
-					 
-				</div>
+				<!-- End of Panel body for input fields -->
+				<div class="panel-body">
+					<div class="row">
+						<div class="button-group">
+							<a class="btn btn-success" ng-click="injectTrades()"
+								role="button"><i class="fa fa-cogs fa-fw"></i> Generate</a> <a
+								class="btn btn-primary" href="#"><i
+								class="fa fa-adjust fa-fw"></i> Reset</a>
+						</div>
+						<div ng-show="showGeneration" align="right">
+
+							<button class="btn btn-danger" ng-click="stop()" type="button">
+								<i class="fa fa-cog fa-spin fa-2x fa-fw"></i> Stop <span
+									class="badge">{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
+							</button>
+
+						</div>
 
 
+					</div>
+
+
+				</div>
+				<!-- End of Panel Body for Buttons -->
+			</div>
+			<!-- End of ng show for Generate Trades -->
+			<div ng-show="isSet(2)">
+				<h2>Construction in progress</h2>
 			</div>
 
-			<div>
-				<canvas id="bar" class="chart chart-bar" chart-data="tradeCount"
-					chart-labels="labels" chart-options="options"></canvas>
+			<div ng-show="isSet(3)">
+				<div>
+					<canvas id="bar" class="chart chart-bar" chart-data="tradeCount"
+						chart-labels="labels" chart-options="options"></canvas>
+				</div>
 			</div>
-
-
-
-
+			<!-- End of ng show for charts -->
+			<div ng-show="isSet(4)">
+				<h2>Construction in progress</h2>
+			</div>
+			<!-- End of ng show Dashboard -->
 		</div>
+		<!-- End of Controller -->
 
-	</div>
+		<hr>
 
-	<hr>
-
-	<footer>
-		<p>&copy; 2016 Company, Inc.</p>
-	</footer>
+		<footer>
+			<p>&copy; 2016 Company, Inc.</p>
+		</footer>
 	</div>
 	<!-- /container -->
 
