@@ -50,6 +50,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
+		<start-class>com.trade.injector.application.Application</start-class>
 	</properties>
 
 	<build>
@@ -63,61 +64,18 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<finalName>tradeInjectorUI</finalName>
-					<archive>
-						           
-						<manifest>
-							             
-							<addClasspath>true</addClasspath>
-							             
-							<mainClass>com.trade.injector.application.Application</mainClass>
-							             
-							<classpathPrefix>dependency-jars/</classpathPrefix>
-							           
-						</manifest>
-						         
-					</archive>
+					<fork>true</fork>
+					<mainClass>${start-class}</mainClass>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
 				<executions>
 					<execution>
 						<goals>
-							<goal>attached</goal>
+							<goal>repackage</goal>
 						</goals>
-						<phase>package</phase>
-						<configuration>
-							<finalName>tradeInjectorUI</finalName>
-							<descriptorRefs>
-								               
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-								             
-							</descriptorRefs>
-							<archive>
-								               
-								<manifest>
-									                 
-									<mainClass>com.trade.injector.application.Application</mainClass>
-									               
-								</manifest>
-								             
-							</archive>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>

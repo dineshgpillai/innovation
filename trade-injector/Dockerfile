@@ -16,6 +16,6 @@ RUN ["mvn", "package"]
 
 
 EXPOSE 8090
-CMD ["java", "-jar", "target/tradeInjectorUI-jar-with-dependencies.jar"]
+CMD ["java", "-jar", "target/tradeInjectorUI.jar"]
 
 
