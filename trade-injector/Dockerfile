@@ -9,10 +9,13 @@ WORKDIR /usr/src/app
 ONBUILD ADD . /usr/src/app
 
 ONBUILD RUN mvn install
+ADD /usr/src/app/target/tradeInjectorUI-jar-with-dependencies.jar app.jar
 
 # Install maven
 #RUN apt-get update
 #RUN apt-get install -y maven
+
+
 
 
 #WORKDIR /usr/src/app
@@ -33,6 +36,6 @@ ONBUILD RUN mvn install
 
 
 EXPOSE 8090
-CMD ["java", "-jar", "target/tradeInjectorUI-jar-with-dependencies.jar"]
-
+#CMD ["java", "-jar", "target/tradeInjectorUI-jar-with-dependencies.jar"]
+CMD ["java", "-jar", "app.jar"]
 
