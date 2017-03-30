@@ -143,9 +143,10 @@
 
 			</ul>
 		</div>
-		<div class="container panel panel-default">
+		<!-- div class="container"-->
 
-			<div ng-show="isSet(1)">
+		<div ng-show="isSet(1)">
+			<div class=" container panel panel-default">
 				<div class="panel-body">
 					<div class="input-group">
 						<span class="input-group-addon" id="basic-addon1">Trades</span> <input
@@ -171,10 +172,10 @@
 
 					</div>
 				</div>
-				<!-- End of Panel body for input fields -->
+				<!--  end of panel body for input fields -->
 				<div class="panel-body">
 					<div class="row">
-						<div class="button-group">
+						<div class="button-group" role="group">
 							<a class="btn btn-success" ng-click="injectTrades()"
 								role="button"><i class="fa fa-cogs fa-fw"></i> Generate</a> <a
 								class="btn btn-primary" href="#"><i
@@ -192,118 +193,171 @@
 
 					</div>
 
-
 				</div>
-				<!-- End of Panel Body for Buttons -->
+				<!--  End of Panel body for buttons -->
 			</div>
-			<!-- End of ng show for Generate Trades -->
-			<div ng-show="isSet(2)">
-
+			<!-- End of Panel Container -->
+		</div>
+		<!-- End of ng show for Generate Trades -->
+		<div ng-show="isSet(2)">
+			<div class=" container panel panel-default">
 				<div class="row">
-					<div class="input-group">
-						<input type="text" ng-model="search" class="form-control"
-							size="100" placeholder="Enter a search term"
-							aria-describedby="basic-addon1">
-					</div>
-					<div ng-show="showGeneration" align="right">
-						<span class="badge">Progress:{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-3">
-						<table class="table table-striped table-hover">
-							<thead>
-								<tr>
-									<th>Client</th>
-									<th>Trade Count</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr ng-repeat="x in labels |filter:search">
-									<td>{{x}}</td>
-									<td>{{clientCount[$index]}}</td>
-								</tr>
-							</tbody>
-						</table>
+					<div class="col-md-6">
+						<div class="panel-body">
+							<div class="input-group">
+								<input type="text" ng-model="search" class="form-control"
+									size="100" placeholder="Enter a search term"
+									aria-describedby="basic-addon1">
+							</div>
+						</div>
 					</div>
 					<div class="col-md-3">
-						<table class="table table-striped table-hover">
-							<thead>
-								<tr>
-									<th>Instrument Id</th>
-									<th>Trade Count</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr ng-repeat="y in labels_instrument | filter:search">
-									<td>{{y}}</td>
-									<td>{{instrumentCount[$index]}}</td>
-								</tr>
-							</tbody>
-						</table>
+						<div ng-show="showGeneration" align="right">
+							<span class="badge">Progress:{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Client Trade Count</h3>
+							</div>
+							<div class="panel-body">
+								<table class="table table-striped table-hover">
+									<thead>
+										<tr>
+											<th>Client</th>
+											<th>Trade Count</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="x in labels |filter:search">
+											<td>{{x}}</td>
+											<td>{{clientCount[$index]}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Instrument Trade Count</h3>
+							</div>
+							<div class="panel-body">
+								<table class="table table-striped table-hover">
+									<thead>
+										<tr>
+											<th>Instrument Id</th>
+											<th>Trade Count</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="y in labels_instrument | filter:search">
+											<td>{{y}}</td>
+											<td>{{instrumentCount[$index]}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
 					</div>
 				</div>
 
 				<div class="row">
-					<table class="table table-striped table-hover">
-						<thead>
-							<tr>
-								<th>Client</th>
-								<th>Instrument</th>
-								<th>Trade Side</th>
-								<th>Trade Date</th>
-								<th>Trade Quantity</th>
-								<th>Trade Price</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr ng-repeat="x in tradeAcks |filter:search">
-								<td>{{x.clientName}}</td>
-								<td>{{x.instrumentId}}</td>
-								<td>{{x.side}}</td>
-								<td>{{x.tradeDate}}</td>
-								<td>{{x.tradeQty}}</td>
-								<td>{{x.tradePx}}</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="col-md-12">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Trade Details</h3>
+							</div>
+							<div class="panel-body">
+								<table class="table table-striped table-hover">
+									<thead>
+										<tr>
+											<th>Client</th>
+											<th>Instrument</th>
+											<th>Trade Side</th>
+											<th>Trade Date</th>
+											<th>Trade Quantity</th>
+											<th>Trade Price</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="x in tradeAcks |filter:search">
+											<td>{{x.clientName}}</td>
+											<td>{{x.instrumentId}}</td>
+											<td>{{x.side}}</td>
+											<td>{{x.tradeDate}}</td>
+											<td>{{x.tradeQty}}</td>
+											<td>{{x.tradePx}}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- End of col-md-8 -->
 				</div>
+				<!-- End of row -->
 			</div>
 			<!-- End of ng show for Messages -->
-			<div ng-show="isSet(3)">
+		</div>
+		<!-- end of container panel default for Trade Data -->
+		<div ng-show="isSet(3)">
+			<div class=" container panel panel-default">
 				<div ng-show="showGeneration" align="right">
 					<span class="badge">Progress:{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
 				</div>
 				<div class="row">
 
 					<div class="col-md-6">
-						<div>
-							<canvas id="bar" class="chart chart-bar" chart-data="clientCount"
-								chart-labels="labels" chart-options="options"></canvas>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Client Trade Count</h3>
+							</div>
+							<div class="panel-body">
+								<div>
+									<canvas id="bar" class="chart chart-bar"
+										chart-data="clientCount" chart-labels="labels"
+										chart-options="options"></canvas>
+								</div>
+							</div>
 						</div>
+
 					</div>
 					<div class="col-md-6">
-						<div>
-							<canvas id="bar" class="chart chart-bar"
-								chart-data="instrumentCount" chart-labels="labels_instrument"
-								chart-options="options_instrument"></canvas>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Instrument Trade Count</h3>
+							</div>
+							<div class="panel-body">
+								<div>
+									<canvas id="bar" class="chart chart-bar"
+										chart-data="instrumentCount" chart-labels="labels_instrument"
+										chart-options="options_instrument"></canvas>
+								</div>
+
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<!-- End of ng show for charts -->
-			<div ng-show="isSet(4)">
-				<h2>Construction in progress</h2>
-			</div>
-			<!-- End of ng show Dashboard -->
 		</div>
-		<!-- End of Controller -->
+		<!-- End of ng show for charts -->
+		<div ng-show="isSet(4)">
+			<h2>Construction in progress</h2>
+		</div>
+		<!-- End of ng show Dashboard -->
+	</div>
+	<!-- End of Controller -->
 
-		<hr>
+	<hr>
 
-		<footer>
-			<p>&copy; 2016 Company, Inc.</p>
-		</footer>
+	<footer>
+		<p>&copy; 2016 Company, Inc.</p>
+	</footer>
 	</div>
 	<!-- /container -->
 
