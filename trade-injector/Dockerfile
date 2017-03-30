@@ -14,6 +14,6 @@ FROM frolvlad/alpine-oraclejdk8:slim
 
 
 EXPOSE 8090
-CMD ["java", "-jar", "target/tadeInjectorUI-jar-with-dependencies.jar"]
+CMD ["jav", "-jar", "target/tradeInjectorUI-jar-with-dependencies.jar"]
 
 
