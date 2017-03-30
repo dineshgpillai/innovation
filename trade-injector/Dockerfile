@@ -17,4 +17,3 @@ ADD src /code/src
 RUN ["mvn", "package"]
 
 
-ADD trade-injector.jar app.jar
