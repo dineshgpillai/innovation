@@ -56,16 +56,30 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.19.1</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
 					<finalName>tradeInjectorUI</finalName>
-					<archive>						           
-						<manifest>							             
-							<addClasspath>true</addClasspath>							             
-							<mainClass>com.trade.injector.application.Application</mainClass>							             
-							<classpathPrefix>dependency-jars/</classpathPrefix>							           
-						</manifest>						         
+					<archive>
+						           
+						<manifest>
+							             
+							<addClasspath>true</addClasspath>
+							             
+							<mainClass>com.trade.injector.application.Application</mainClass>
+							             
+							<classpathPrefix>dependency-jars/</classpathPrefix>
+							           
+						</manifest>
+						         
 					</archive>
 				</configuration>
 			</plugin>
@@ -89,13 +103,19 @@
 						<phase>package</phase>
 						<configuration>
 							<finalName>tradeInjectorUI</finalName>
-							<descriptorRefs>								               
-								<descriptorRef>jar-with-dependencies</descriptorRef>								             
+							<descriptorRefs>
+								               
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+								             
 							</descriptorRefs>
-							<archive>								               
-								<manifest>									                 
-									<mainClass>com.trade.injector.application.Application</mainClass>									               
-								</manifest>								             
+							<archive>
+								               
+								<manifest>
+									                 
+									<mainClass>com.trade.injector.application.Application</mainClass>
+									               
+								</manifest>
+								             
 							</archive>
 						</configuration>
 					</execution>
