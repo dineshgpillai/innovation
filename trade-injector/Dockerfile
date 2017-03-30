@@ -1,19 +1,19 @@
-FROM java:8
+FROM maven:3.2.5-jdk-8u40
+FROM frolvlad/alpine-oraclejdk8:slim
 
-#install maven
-RUN apt-get update
-RUN apt-get install -y maven
-
-
-WORKDIR /code
+WORKDIR /usr/src/app
 
 # Prepare by downloading dependencies
-ADD pom.xml /code/pom.xml
+ADD pom.xml /usr/src/app
 RUN ["mvn", "dependency:resolve"]
 RUN ["mvn", "verify"]
 
 # Adding source, compile and package into a fat jar
-ADD src /code/src
+ADD src /usr/src/app/src
 RUN ["mvn", "package"]
+
+
+EXPOSE 8090
+CMD ["/usr/lib/jvm/java-8-openjdk-amd64/bin/java", "-jar", "target/tradeInjectorUI-jar-with-dependencies.jar"]
 
 
