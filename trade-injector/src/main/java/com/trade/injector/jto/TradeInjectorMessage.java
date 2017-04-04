@@ -1,12 +1,20 @@
 package com.trade.injector.jto;
 
+import org.springframework.data.annotation.Id;
+
 public class TradeInjectorMessage {
 	
+	@Id
+    public String id;
+	
+	private String userId;
 	private String noOfTrades;
 	private String noOfClients;
 	private String noOfInstruments;
 	private String timeDelay;
 	private String tradeDate;
+	private InjectorProfile profileUsed;
+	
 	public String getNoOfTrades() {
 		return noOfTrades;
 	}
@@ -37,7 +45,25 @@ public class TradeInjectorMessage {
 	public void setTradeDate(String tradeDate) {
 		this.tradeDate = tradeDate;
 	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public InjectorProfile getProfileUsed() {
+		return profileUsed;
+	}
+	public void setProfileUsed(InjectorProfile profileUsed) {
+		this.profileUsed = profileUsed;
+	}
 	
-	
+	@Override
+    public String toString() {
+        return String.format(
+                "TradeInjector[id=%s, userId='%s', noOfTrades='%s', noOfClients='%s', noOfInstruments='%s']",
+                id, userId, noOfTrades, noOfClients, noOfInstruments);
+    }
+
 
 }

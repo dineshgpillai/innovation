@@ -22,6 +22,7 @@ import com.trade.injector.dto.Party;
 import com.trade.injector.dto.Trade;
 import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectorMessage;
+import com.trade.injector.jto.repository.MongoDBTemplate;
 
 @RestController
 @RequestMapping("/")
@@ -31,6 +32,9 @@ public class TradeInjectorController {
 
 	@Autowired
 	private SimpMessagingTemplate messageSender;
+	
+	@Autowired
+	private MongoDBTemplate template;
 
 	@Autowired
 	GenerateTradeData tradeData;
