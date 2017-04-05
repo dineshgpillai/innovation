@@ -2,6 +2,7 @@ package com.trade.injector.jto;
 
 import org.springframework.data.annotation.Id;
 
+
 public class TradeInjectorMessage {
 	
 	@Id
