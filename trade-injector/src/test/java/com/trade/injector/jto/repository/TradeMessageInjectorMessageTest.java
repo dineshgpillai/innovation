@@ -73,8 +73,10 @@ public class TradeMessageInjectorMessageTest {
 		message.setNoOfTrades("1000");
 		message.setTradeDate(new Date(System.currentTimeMillis()).toString());
 		message.setTimeDelay("1000");
+		message.setUserId("testUser");
 		BasicDBObject documentDetail = new BasicDBObject();
-		documentDetail.put("id", message);
+		//documentDetail.put("id", message);
+		documentDetail.put("userId", message.getUserId());
 		documentDetail.put("noOfClients", message.getNoOfClients());
 		documentDetail.put("noOfInstruments", message.getNoOfInstruments());
 		documentDetail.put("noOfTrades", message.getNoOfTrades());
@@ -86,16 +88,63 @@ public class TradeMessageInjectorMessageTest {
 		DBCursor cursorDoc = coll.find();
 		assertEquals(1, cursorDoc.count());
 		
+		while(cursorDoc.hasNext()){
+			DBObject document = cursorDoc.next();
+			System.out.println(document.toString());
+		}
+		
 	}
 	
 	@Test
 	public void testDelete(){
+		DB db = template.getDbFactory().getDb();
+		DBCollection coll = db.getCollection("tradeInjector");
 		
+		//create one new document
+		TradeInjectorMessage message = new TradeInjectorMessage();
+		message.setNoOfClients("10");
+		message.setNoOfInstruments("10");
+		message.setNoOfTrades("1000");
+		message.setTradeDate(new Date(System.currentTimeMillis()).toString());
+		message.setTimeDelay("1000");
+		message.setUserId("testUser");
+		BasicDBObject documentDetail = new BasicDBObject();
+		//documentDetail.put("id", message);
+		documentDetail.put("userId", message.getUserId());
+		documentDetail.put("noOfClients", message.getNoOfClients());
+		documentDetail.put("noOfInstruments", message.getNoOfInstruments());
+		documentDetail.put("noOfTrades", message.getNoOfTrades());
+		documentDetail.put("tradeDate", message.getTradeDate());
+		documentDetail.put("timeDelay", message.getTimeDelay());
+		
+		coll.insert(documentDetail);
+		
+		DBCursor cursorDoc = coll.find();
+		assertEquals(1, cursorDoc.count());
+		
+		while(cursorDoc.hasNext()){
+			DBObject document = cursorDoc.next();
+			System.out.println(document.toString());
+			
+		}
+		
+		//now delete the data
+		DBCursor cursorDocForDelete = coll.find();
+		while(cursorDocForDelete.hasNext()){
+			DBObject document = cursorDocForDelete.next();
+			System.out.println(document.toString());
+			coll.remove(document);
+			
+		}
+		assertEquals(0, cursorDocForDelete.count());
+	
 	}
 	
 	@Test
 	public void testReadAll(){
-		
+		DB db = template.getDbFactory().getDb();
+		DBCollection coll = db.getCollection("tradeInjector");
+		System.out.println(coll.count());
 	}
 	
 	@Test
