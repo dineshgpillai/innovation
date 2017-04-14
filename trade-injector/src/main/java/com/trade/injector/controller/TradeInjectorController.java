@@ -1,5 +1,6 @@
 package com.trade.injector.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import com.trade.injector.business.service.GenerateRandomInstruments;
 import com.trade.injector.business.service.GenerateRandomParty;
 import com.trade.injector.business.service.GenerateTradeData;
@@ -24,6 +26,7 @@ import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.repository.MongoDBTemplate;
 
+
 @RestController
 @RequestMapping("/")
 public class TradeInjectorController {
@@ -32,18 +35,23 @@ public class TradeInjectorController {
 
 	@Autowired
 	private SimpMessagingTemplate messageSender;
-	
+
 	@Autowired
 	private MongoDBTemplate template;
 
 	@Autowired
 	GenerateTradeData tradeData;
-	
+
 	private static boolean isKill = false;
-	
-	@RequestMapping(value="/tradeMessageStop",method = RequestMethod.POST)
-	public void tradeStop(){
-		isKill=true;
+
+	@RequestMapping("/user")
+	public Principal user(Principal principal) {
+		return principal;
+	}
+
+	@RequestMapping(value = "/tradeMessageStop", method = RequestMethod.POST)
+	public void tradeStop() {
+		isKill = true;
 	}
 
 	@MessageMapping("/tradeMessageInject")
@@ -82,9 +90,9 @@ public class TradeInjectorController {
 			LOG.debug(("Following trade was generated " + aTrade.toString()));
 			LOG.debug("Sleeping for " + timedelay + " ms");
 			Thread.sleep(timedelay);
-			
-			//if the kill flag is set by the UI return the process.
-			if(isKill)
+
+			// if the kill flag is set by the UI return the process.
+			if (isKill)
 				return ResponseEntity.ok().build();
 
 		}
@@ -108,4 +116,5 @@ public class TradeInjectorController {
 		return ack;
 	}
 
+	
 }

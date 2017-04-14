@@ -46,7 +46,7 @@ angular
 					};
 
 					$scope.stop = function() {
-						$http.post('/tradeInjector/tradeMessageStop');
+						$http.post('/tradeMessageStop');
 						$scope.showGeneration = false;
 
 					}
@@ -82,7 +82,7 @@ angular
 											// trade count
 											// appropriately
 											$scope.clientCount.push(1);
-											$scope.labels.push(data.clientName);											
+											$scope.labels.push(data.clientName);
 										} else {
 											// existing client, update the trade
 											// count
@@ -114,7 +114,6 @@ angular
 													instrumentIdIndex, 1,
 													data.instrumentId)
 										}
-										
 
 										// increment the msg count
 										$scope.totalMsgCount.splice(0, 1,

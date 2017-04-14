@@ -10,9 +10,9 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 	messageIds=[];
 	
 	service.RECONNECT_TIMEOUT=30000;
-	service.SOCKET_URL="/tradeInjector/injectorUI";
+	service.SOCKET_URL="/injectorUI";
 	service.TRADE_TOPIC="/topic/tradeAck";
-	service.TRADE_BROKER="/tradeInjector/tradeMessageInject";
+	service.TRADE_BROKER="/tradeMessageInject";
 	
 	service.receive = function(){
 		return listenerTrades.promise;
