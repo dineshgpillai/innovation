@@ -12,6 +12,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,7 +57,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		http.antMatcher("/**").authorizeRequests()
 				.antMatchers("/", "/login**", "/webjars/**", "/dist/**","/scripts/**", "/jumbotron.css", "/injectorUI/**" ).permitAll()
 				.anyRequest().authenticated()
-				.and().logout().logoutSuccessUrl("/").permitAll();
+				.and().logout().logoutSuccessUrl("/").permitAll()
+				.and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 
 	}
 

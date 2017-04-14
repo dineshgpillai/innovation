@@ -2,7 +2,7 @@ angular
 		.module("TradeInjectorApp.controllers")
 		.controller(
 				"TradeInjectCtrl",
-				function($scope, $http, TradeInjectorService) {
+				function($scope, $http, $location, TradeInjectorService) {
 
 					$scope.tradeAcks = [];
 					// $scope.tradeInjectorMessage = [];
