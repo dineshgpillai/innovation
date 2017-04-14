@@ -55,7 +55,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.antMatcher("/**").authorizeRequests()
 				.antMatchers("/", "/login**", "/webjars/**", "/dist/**","/scripts/**", "/jumbotron.css", "/injectorUI/**" ).permitAll()
-				.anyRequest().authenticated();
+				.anyRequest().authenticated()
+				.and().logout().logoutSuccessUrl("/").permitAll();
+
 	}
 
 	@RequestMapping(value = "/tradeMessageStop", method = RequestMethod.POST)

@@ -34,7 +34,17 @@ angular
 					    	$scope.authenticated = false;
 					    });
 
-					
+					//logout
+					$scope.logout = function() {
+					      $http.post('/logout', {}).success(function() {
+					        $scope.authenticated = false;
+					        $location.path("/");
+					      }).error(function(data) {
+					        console.log("Logout failed")
+					        $scope.authenticated = false;
+					      });
+					    };
+
 					$scope.options = {
 						responsive : true,
 						responsiveAnimationDuration : 1000,

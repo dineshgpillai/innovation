@@ -101,6 +101,9 @@
 		</div>
 		<div class="container" ng-show="authenticated">
 			Logged in as: <span ng-bind="user"></span>
+			<div>
+				<button ng-click="logout()" class="btn btn-primary">Logout</button>
+			</div>
 		</div>
 		<div class="container">
 			<ul class="nav nav-pills">
@@ -349,19 +352,16 @@
 
 	<script src="./dist/js/sockjs-0.3.min.js" type="text/javascript"></script>
 	<script src="./dist/js/stomp.min.js" type="text/javascript"></script>
-	<script
-		src="/webjars/angularjs/angular.min.js"
-		type="text/javascript"></script>
+	<script src="/webjars/angularjs/angular.min.js" type="text/javascript"></script>
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js"
 		type="text/javascript"></script>
 	<script src="./dist/js/angular-chart.js" type="text/javascript"></script>
 
 
-	<script
-		src="/webjars/jquery/jquery.min.js"
+	<script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+	<script src="/webjars/bootstrap/js/bootstrap.min.js"
 		type="text/javascript"></script>
-	<script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 	<script src="./scripts/app/app.js" type="text/javascript"></script>
 	<script src="./scripts/app/controller.js" type="text/javascript"></script>
 	<script src="./scripts/app/services.js" type="text/javascript"></script>
