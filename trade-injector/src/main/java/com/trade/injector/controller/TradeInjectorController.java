@@ -6,15 +6,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 
 import com.trade.injector.business.service.GenerateRandomInstruments;
 import com.trade.injector.business.service.GenerateRandomParty;
@@ -26,10 +28,10 @@ import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.repository.MongoDBTemplate;
 
-
+@EnableOAuth2Sso
 @RestController
-@RequestMapping("/")
-public class TradeInjectorController {
+
+public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
 
@@ -47,6 +49,13 @@ public class TradeInjectorController {
 	@RequestMapping("/user")
 	public Principal user(Principal principal) {
 		return principal;
+	}
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.antMatcher("/**").authorizeRequests()
+				.antMatchers("/", "/login**", "/webjars/**", "/dist/**","/scripts/**", "/jumbotron.css", "/injectorUI/**" ).permitAll()
+				.anyRequest().authenticated();
 	}
 
 	@RequestMapping(value = "/tradeMessageStop", method = RequestMethod.POST)
@@ -116,5 +125,4 @@ public class TradeInjectorController {
 		return ack;
 	}
 
-	
 }
