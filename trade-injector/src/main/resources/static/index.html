@@ -18,95 +18,72 @@
 
 
 
-<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-<!--link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"-->
-
 <!-- Custom styles for this template -->
 <link href="jumbotron.css" rel="stylesheet">
 
-<!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-<!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-<!--script src="../../assets/js/ie-emulation-modes-warning.js"></script-->
-
-<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
 </head>
 
 <body ng-app="TradeInjectorApp">
 
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed"
-					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
-					aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span> <span
-						class="icon-bar"></span> <span class="icon-bar"></span> <span
-						class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#"><i class="fa fa-university"
-					aria-hidden="true"></i>Trade Message Injector</a>
-			</div>
-			<!--div id="navbar"  class="navbar-collapse collapse">
-			
-          <form class="navbar-form navbar-right">
-            <div class="input-group margin-bottom-sm">
-				<span class="input-group-addon"><i class="fa fa-envelope-o fa-fw"></i></span>
-				<input class="form-control" type="text" placeholder="Email address">
-			</div>
-			<div class="input-group">
-				<span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
-				<input class="form-control" type="password" placeholder="Password">
-			</div>
-
-            
-            <button type="submit" class="btn btn-success">Sign in</button>
-			
-			<div class="btn-group ">
-				<a class="btn btn-primary" href="#"><i class="fa fa-user fa-fw"></i> User</a>
-				<a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
-					<span class="fa fa-caret-down" title="Toggle dropdown menu"></span>
-				</a>
-				<ul class="dropdown-menu">
-					<li><a href="#"><i class="fa fa-pencil fa-fw"></i> Edit</a></li>
-					<li><a href="#"><i class="fa fa-trash-o fa-fw"></i> Delete</a></li>
-					<li><a href="#"><i class="fa fa-ban fa-fw"></i> Ban</a></li>
-					<li class="divider"></li>
-					<li><a href="#"><i class="fa fa-unlock"></i> Make admin</a></li>
-			  </ul>
-			</div>
-          </form>
-        </div-->
-			<!--/.navbar-collapse -->
-		</div>
-	</nav>
-
-	<!-- Main jumbotron for a primary marketing message or call to action -->
-	<div class="jumbotron"
-		style="background-image: url(./images/london-skyline-22.jpg); height: 400px; width: 1400px;">
-
-		<div class="container"></div>
-
-
-	</div>
-
-
-
 	<div ng-controller="TradeInjectCtrl">
-		<div class="container" ng-show="!authenticated">
-			Login with: <a href="/login">Facebook</a>
-		</div>
-		<div class="container" ng-show="authenticated">
-			Logged in as: <span ng-bind="user"></span>
-			<div>
-				<button ng-click="logout()" class="btn btn-primary">Logout</button>
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed"
+						data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+						aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span> <span
+							class="icon-bar"></span> <span class="icon-bar"></span> <span
+							class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#"><i class="fa fa-university"
+						aria-hidden="true"></i>Trade Message Injector</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse" >
+
+					<form class="navbar-form navbar-right" ng-show="authenticated">
+												
+						<div class="btn-group ">
+							<a class="btn btn-primary" href="#"><i
+								class="fa fa-facebook-square" aria-hidden="true"></i><span ng-bind="user"></a> <a
+								class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+								href="#"> <span class="fa fa-caret-down"
+								title="Toggle dropdown menu"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a href="#"><i class="fa fa-pencil fa-fw"></i> Edit</a></li>
+								<li><a href="#"><i class="fa fa-trash-o fa-fw"></i>
+										Delete</a></li>
+								<li><a href="#"><i class="fa fa-ban fa-fw"></i> Ban</a></li>
+								<li class="divider"></li>
+								<li><a href="#"><i class="fa fa-unlock"></i> Make admin</a></li>
+							</ul>
+						</div>
+						<button ng-click="logout()" class="btn btn-primary">Logout</button>
+					</form>
+				</div>
+				<!--/.navbar-collapse -->
 			</div>
+		</nav>
+
+		<!-- Main jumbotron for a primary marketing message or call to action -->
+		<div class="jumbotron"
+			style="background-image: url(./images/london-skyline-22.jpg); height: 400px; width: 1400px;">
+
+			<div class="container"></div>
+
+
 		</div>
+
+
+
+
+		<div class="container" ng-show="!authenticated">
+			Login with: <a href="/login"><i class="fa fa-facebook-square" aria-hidden="true"></i>Facebook</a>
+		</div>
+		
 		<div class="container">
-			<ul class="nav nav-pills">
+			<ul class="nav nav-pills" ng-show="authenticated">
 				<li role="presentation" ng-class="{active: isSet(1)}"
 					ng-click="setTab(1)"><a href="#"><i
 						class="fa fa-line-chart fa-fw" aria-hidden="true"></i>Generate
@@ -126,7 +103,7 @@
 		<!-- div class="container"-->
 
 		<div ng-show="isSet(1)">
-			<div class=" container panel panel-default">
+			<div class=" container panel panel-default" ng-show="authenticated">
 				<div class="panel-body">
 					<div class="input-group">
 						<span class="input-group-addon" id="basic-addon1">Trades</span> <input
@@ -180,7 +157,7 @@
 		</div>
 		<!-- End of ng show for Generate Trades -->
 		<div ng-show="isSet(2)">
-			<div class=" container panel panel-default">
+			<div class=" container panel panel-default" ng-show="authenticated">
 				<div class="row">
 					<div class="col-md-6">
 						<div class="panel-body">
@@ -286,7 +263,7 @@
 		</div>
 		<!-- end of container panel default for Trade Data -->
 		<div ng-show="isSet(3)">
-			<div class=" container panel panel-default">
+			<div class=" container panel panel-default" ng-show="authenticated">
 				<div ng-show="showGeneration" align="right">
 					<span class="badge">Progress:{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
 				</div>
@@ -326,7 +303,7 @@
 			</div>
 		</div>
 		<!-- End of ng show for charts -->
-		<div ng-show="isSet(4)">
+		<div ng-show="isSet(4)" ng-show="authenticated">
 			<h2>Construction in progress</h2>
 		</div>
 		<!-- End of ng show Dashboard -->
@@ -338,7 +315,7 @@
 	<footer>
 		<p>&copy; 2016 Company, Inc.</p>
 	</footer>
-	</div>
+
 	<!-- /container -->
 
 
