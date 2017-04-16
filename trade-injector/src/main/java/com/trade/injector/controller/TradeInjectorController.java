@@ -1,24 +1,43 @@
 package com.trade.injector.controller;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.Filter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.client.OAuth2ClientContext;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
+import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.filter.CompositeFilter;
 
+import com.trade.injector.application.Application;
 import com.trade.injector.business.service.GenerateRandomInstruments;
 import com.trade.injector.business.service.GenerateRandomParty;
 import com.trade.injector.business.service.GenerateTradeData;
@@ -29,12 +48,15 @@ import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.repository.MongoDBTemplate;
 
-@EnableOAuth2Sso
+@SpringBootApplication(scanBasePackages="com.trade.injector")
+@EnableOAuth2Client
 @RestController
-
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
+
+	@Autowired
+	OAuth2ClientContext oauth2ClientContext;
 
 	@Autowired
 	private SimpMessagingTemplate messageSender;
@@ -54,13 +76,92 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.antMatcher("/**").authorizeRequests()
-				.antMatchers("/", "/login**", "/webjars/**", "/dist/**","/scripts/**", "/jumbotron.css", "/injectorUI/**" ).permitAll()
-				.anyRequest().authenticated()
-				.and().logout().logoutSuccessUrl("/").permitAll()
-				.and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+		http.antMatcher("/**")
+				.authorizeRequests()
+				.antMatchers("/", "/login/**", "/webjars/**", "/dist/**",
+						"/scripts/**", "/jumbotron.css", "/injectorUI/**")
+				.permitAll()
+				.anyRequest()
+				.authenticated()
+				.and()
+				.logout()
+				.logoutSuccessUrl("/")
+				.permitAll()
+				.and()
+				.csrf()
+				.csrfTokenRepository(
+						CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+				.addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
 
 	}
+
+	private Filter ssoFilter() {
+		
+
+			CompositeFilter filter = new CompositeFilter();
+			List<Filter> filters = new ArrayList<Filter>();
+
+			OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter(
+					"/login/facebook");
+			OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(
+					facebook(), oauth2ClientContext);
+			facebookFilter.setRestTemplate(facebookTemplate);
+			UserInfoTokenServices tokenServices = new UserInfoTokenServices(
+					facebookResource().getUserInfoUri(), facebook().getClientId());
+			tokenServices.setRestTemplate(facebookTemplate);
+			facebookFilter.setTokenServices(tokenServices);
+			filters.add(facebookFilter);
+
+			OAuth2ClientAuthenticationProcessingFilter githubFilter = new OAuth2ClientAuthenticationProcessingFilter(
+					"/login/github");
+			OAuth2RestTemplate githubTemplate = new OAuth2RestTemplate(github(),
+					oauth2ClientContext);
+			githubFilter.setRestTemplate(githubTemplate);
+			tokenServices = new UserInfoTokenServices(githubResource()
+					.getUserInfoUri(), github().getClientId());
+			tokenServices.setRestTemplate(githubTemplate);
+			githubFilter.setTokenServices(tokenServices);
+			filters.add(githubFilter);
+
+			filter.setFilters(filters);
+			return filter;
+
+		
+	}
+
+	@Bean
+	@ConfigurationProperties("facebook.client")
+	public AuthorizationCodeResourceDetails facebook() {
+		return new AuthorizationCodeResourceDetails();
+	}
+
+	@Bean
+	@ConfigurationProperties("facebook.resource")
+	public ResourceServerProperties facebookResource() {
+		return new ResourceServerProperties();
+	}
+	
+	@Bean
+	public FilterRegistrationBean oauth2ClientFilterRegistration(
+	    OAuth2ClientContextFilter filter) {
+	  FilterRegistrationBean registration = new FilterRegistrationBean();
+	  registration.setFilter(filter);
+	  registration.setOrder(-100);
+	  return registration;
+	}
+	
+	@Bean
+	@ConfigurationProperties("github.client")
+	public AuthorizationCodeResourceDetails github() {
+		return new AuthorizationCodeResourceDetails();
+	}
+
+	@Bean
+	@ConfigurationProperties("github.resource")
+	public ResourceServerProperties githubResource() {
+		return new ResourceServerProperties();
+	}
+
 
 	@RequestMapping(value = "/tradeMessageStop", method = RequestMethod.POST)
 	public void tradeStop() {
@@ -128,5 +229,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 		return ack;
 	}
+	
+	public static void main(String[] args) {
+        SpringApplication.run(TradeInjectorController.class, args);
+    }
 
 }

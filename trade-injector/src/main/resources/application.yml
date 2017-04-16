@@ -1,5 +1,4 @@
-security:
-  oauth2:
+facebook:
     client:
       clientId: 1969633719925522
       clientSecret: e2b89a450424fd9406769f96efbc3837
@@ -10,3 +9,13 @@ security:
       clientAuthenticationScheme: form
     resource:
       userInfoUri: https://graph.facebook.com/me
+      
+github:
+  client:
+    clientId: 865d170b579264bdb57e
+    clientSecret: 15e11844bc08372174da83f34265ff6159f1f8df
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user

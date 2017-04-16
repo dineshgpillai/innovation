@@ -72,7 +72,7 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<start-class>com.trade.injector.application.Application</start-class>
+		<start-class>com.trade.injector.controller.TradeInjectorController</start-class>
 	</properties>
 
 	<build>
