@@ -39,13 +39,14 @@
 					<a class="navbar-brand" href="#"><i class="fa fa-university"
 						aria-hidden="true"></i>Trade Message Injector</a>
 				</div>
-				<div id="navbar" class="navbar-collapse collapse" >
+				<div id="navbar" class="navbar-collapse collapse">
 
 					<form class="navbar-form navbar-right" ng-show="authenticated">
-												
+
 						<div class="btn-group ">
 							<a class="btn btn-primary" href="#"><i
-								class="fa fa-facebook-square" aria-hidden="true"></i><span ng-bind="user"></a> <a
+								class="fa fa-facebook-square" aria-hidden="true"></i><span
+								ng-bind="user"></a> <a
 								class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
 								href="#"> <span class="fa fa-caret-down"
 								title="Toggle dropdown menu"></span>
@@ -67,7 +68,7 @@
 		</nav>
 
 		<!-- Main jumbotron for a primary marketing message or call to action -->
-		<div class="jumbotron"
+		<div class="jumbotron" ng-show="authenticated"
 			style="background-image: url(./images/london-skyline-22.jpg); height: 400px; width: 1400px;">
 
 			<div class="container"></div>
@@ -78,10 +79,30 @@
 
 
 
-		<div class="container" ng-show="!authenticated">
-			Login with: <a href="/login"><i class="fa fa-facebook-square" aria-hidden="true"></i>Facebook</a>
+
+		<div class="jumbotron" ng-show="!authenticated">
+
+			<div class="col-md-4"></div>
+			<div class="col-md-4">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Please sign in with</h3>
+					</div>
+					<div class="panel-body">
+						<a href="/login" class="btn btn-lg btn-primary btn-block"> <i
+							class="fa fa-facebook-square"></i>Facebook
+						</a>
+						<a href="#" class="btn btn-lg btn-success btn-block">
+							<i class="fa fa-github" aria-hidden="true"></i>GitHub
+						</a>
+
+					</div>
+				</div>
+			</div>
 		</div>
-		
+
+
+
 		<div class="container">
 			<ul class="nav nav-pills" ng-show="authenticated">
 				<li role="presentation" ng-class="{active: isSet(1)}"
@@ -93,10 +114,12 @@
 						class="fa fa-database fa-fw" aria-hidden="true"></i>Trade Data</a></li>
 				<li role="presentation" ng-class="{active: isSet(3)}"
 					ng-click="setTab(3)"><a href="#"><i
-						class="fa fa-pie-chart fa-fw" aria-hidden="true"></i></i>Charts</a></li>
-				<li role="presentation" ng-class="{active: isSet(4)}"
-					ng-click="setTab(4)"><a href="#"><i
-						class="fa fa-tachometer fa-fw" aria-hidden="true"></i>Dashboard</a></li>
+						class="fa fa-pie-chart fa-fw" aria-hidden="true"></i></i>Charts 
+			</a>
+			</li>
+			<li role="presentation" ng-class="{active: isSet(4)}"
+				ng-click="setTab(4)"><a href="#"><i
+					class="fa fa-tachometer fa-fw" aria-hidden="true"></i>Dashboard</a></li>
 
 			</ul>
 		</div>
