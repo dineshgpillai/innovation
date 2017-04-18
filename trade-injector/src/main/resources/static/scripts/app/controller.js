@@ -148,12 +148,17 @@ angular
 										}
 
 									});
+
+				}
+
+		).controller("TradeInjectTableDisplay",
+				function($scope, $http, $location, TradeInjectorService) {
+
+					$scope.tradeInjectMessages = [];
 					// Receives the trade inject messages
 					TradeInjectorService.receiveTradeInjectMessage().then(
 
 					null, null, function(data) {
+						$scope.tradeInjectMessages= data;
 					});
-
-				}
-
-		);
+				});

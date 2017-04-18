@@ -69,7 +69,14 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 	var initialize = function(){
 		socket.client = new SockJS(service.SOCKET_URL);
 		socket.stomp = Stomp.over(socket.client);
-		socket.stomp.connect({}, startListener, startListenerTradeMessageInject);
+		socket.stomp.connect({}, startListener);
+		socket.stomp.onclose = reconnect;
+	};
+	
+	var initializeTradeInject = function(){
+		socket.client = new SockJS(service.SOCKET_URL);
+		socket.stomp = Stomp.over(socket.client);
+		socket.stomp.connect({}, startListenerTradeMessageInject);
 		socket.stomp.onclose = reconnect;
 	};
 	
@@ -82,5 +89,6 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 	}
 	
 	initialize();
+	initializeTradeInject();
 	return service;
 });
