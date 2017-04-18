@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoT
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -37,6 +38,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.CompositeFilter;
 
+import com.mongodb.BasicDBObjectBuilder;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.trade.injector.application.Application;
 import com.trade.injector.business.service.GenerateRandomInstruments;
 import com.trade.injector.business.service.GenerateRandomParty;
@@ -47,10 +52,13 @@ import com.trade.injector.dto.Trade;
 import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.repository.MongoDBTemplate;
+import com.trade.injector.jto.repository.TradeInjectorMessageRepository;
+import com.trade.injector.jto.repository.TradeMessageInjectorMessageTest;
 
 @SpringBootApplication(scanBasePackages="com.trade.injector")
 @EnableOAuth2Client
 @RestController
+@EnableMongoRepositories(basePackages="com.trade.injector.jto.repository")
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
@@ -66,6 +74,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	GenerateTradeData tradeData;
+	
+	@Autowired(required=true)
+	private TradeInjectorMessageRepository repo;
 
 	private static boolean isKill = false;
 
@@ -166,6 +177,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	@RequestMapping(value = "/tradeMessageStop", method = RequestMethod.POST)
 	public void tradeStop() {
 		isKill = true;
+		//TODO: this will need to be replaced by passing the inject message for which it must be stopped
 	}
 
 	@MessageMapping("/tradeMessageInject")
@@ -178,6 +190,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		int numberOfClients = new Integer(message.getNoOfClients());
 		int numberOfInstruments = new Integer(message.getNoOfInstruments());
 		int timedelay = 0;
+		
+		//save the trade inject message
+		TradeInjectorMessage savedMessage = repo.save(message);
 
 		if (message.getTimeDelay() != null)
 			timedelay = new Integer(message.getTimeDelay());
@@ -203,6 +218,15 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			messageSender.convertAndSend("/topic/tradeAck", ack);
 			LOG.debug(("Following trade was generated " + aTrade.toString()));
 			LOG.debug("Sleeping for " + timedelay + " ms");
+			
+			//update the counter push the updated message back to the client
+			TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
+			retrieveForUpdate.setCurrenMessageCount(new Integer(i).toString());
+			repo.save(retrieveForUpdate);
+			
+			
+			refreshTradeInjectQueue();
+			
 			Thread.sleep(timedelay);
 
 			// if the kill flag is set by the UI return the process.
@@ -210,11 +234,18 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				return ResponseEntity.ok().build();
 
 		}
-
-		// TradeAcknowledge ack = new TradeAcknowledge();
-		// messageSender.convertAndSend("/topic/tradeAck/", ack);
+			
 		return ResponseEntity.ok().build();
 	}
+	
+	private void refreshTradeInjectQueue() throws Exception{
+		
+		List<TradeInjectorMessage> listofMessages = repo.findAll();
+		//now push it to the queue so that everyone can see the update
+		messageSender.convertAndSend("/topic/tradeMessageInject", listofMessages);
+	}
+	
+	
 
 	private TradeAcknowledge convertToAck(Trade aTrade) {
 		TradeAcknowledge ack = new TradeAcknowledge();

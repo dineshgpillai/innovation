@@ -3,6 +3,7 @@ package com.trade.injector.jto.repository;
 import static org.junit.Assert.*;
 
 import java.util.Date;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -10,6 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.util.DBObjectUtils;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -20,14 +23,18 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.trade.injector.application.Application;
+import com.trade.injector.controller.TradeInjectorController;
 import com.trade.injector.jto.TradeInjectorMessage;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = TradeInjectorController.class)
 public class TradeMessageInjectorMessageTest {
 
 	@Autowired
 	private MongoDBTemplate template;
+
+	@Autowired
+	private TradeInjectorMessageRepository repo;
 
 	@Before
 	public void testData() {
@@ -37,6 +44,9 @@ public class TradeMessageInjectorMessageTest {
 		DBObject dbObject = createDBObject(message);
 		DB db = template.getDbFactory().getDb();
 		DBCollection coll = db.createCollection("tradeInjector", dbObject);
+
+		// if there is anything in the repository please delete it
+		repo.deleteAll();
 
 	}
 
@@ -230,15 +240,15 @@ public class TradeMessageInjectorMessageTest {
 		coll.insert(documentDetail2);
 
 		assertEquals(2, coll.find().count());
-		
-		//now read first one
-		 DBObject firstDocument = coll.findOne();
-		 assertEquals(firstDocument.get("noOfTrades"), "1000");
+
+		// now read first one
+		DBObject firstDocument = coll.findOne();
+		assertEquals(firstDocument.get("noOfTrades"), "1000");
 
 	}
-	
+
 	@Test
-	public void testFindByUserId(){
+	public void testFindByUserId() {
 		DB db = template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 		assertEquals(0, coll.count());
@@ -261,20 +271,17 @@ public class TradeMessageInjectorMessageTest {
 		documentDetail.put("timeDelay", message.getTimeDelay());
 
 		coll.insert(documentDetail);
-		
+
 		BasicDBObject query = new BasicDBObject("userId", "testUser");
 		DBCursor cursor = coll.find(query);
-		
+
 		assertEquals(1, cursor.count());
 
-
-		
 	}
-	
 
 	@Test
 	public void testUpdateOne() {
-		
+
 		DB db = template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 		assertEquals(0, coll.count());
@@ -297,22 +304,21 @@ public class TradeMessageInjectorMessageTest {
 		documentDetail.put("timeDelay", message.getTimeDelay());
 
 		coll.insert(documentDetail);
-		
+
 		BasicDBObject query = new BasicDBObject("userId", "testUser");
 		DBCursor cursor = coll.find(query);
-		
+
 		assertEquals(1, cursor.count());
 
-		
-		while(cursor.hasNext()){
+		while (cursor.hasNext()) {
 			DBObject document = cursor.next();
-			System.out.println("Before update "+document.toString());
-			
+			System.out.println("Before update " + document.toString());
+
 		}
-		
-		//now update test user to updated user
+
+		// now update test user to updated user
 		message.setUserId("updatedUser");
-		
+
 		BasicDBObject document = new BasicDBObject();
 		// documentDetail.put("id", message);
 		document.put("userId", message.getUserId());
@@ -321,33 +327,116 @@ public class TradeMessageInjectorMessageTest {
 		document.put("noOfTrades", message.getNoOfTrades());
 		document.put("tradeDate", message.getTradeDate());
 		document.put("timeDelay", message.getTimeDelay());
-		
-		
+
 		coll.update(query, document);
-		
+
 		BasicDBObject queryUpdted = new BasicDBObject("userId", "updatedUser");
 		DBCursor cursorUpdated = coll.find(queryUpdted);
-		
+
 		assertEquals(1, cursorUpdated.count());
 
-		//now update test user to updated user
-		while(cursorUpdated.hasNext()){
+		// now update test user to updated user
+		while (cursorUpdated.hasNext()) {
 			DBObject documentUpdated = cursorUpdated.next();
-			System.out.println("After update "+documentUpdated.toString());
-			
+			System.out.println("After update " + documentUpdated.toString());
+
 		}
-		
-		//finally iterate through the whole collection and check the results
+
+		// finally iterate through the whole collection and check the results
 		DBCursor finalresult = coll.find();
 		assertEquals(1, finalresult.count());
-		
-		while(finalresult.hasNext()){
-			DBObject documentUpdated = finalresult.next();
-			System.out.println("After update "+documentUpdated.toString());
-			
-		}
-		
 
+		while (finalresult.hasNext()) {
+			DBObject documentUpdated = finalresult.next();
+			System.out.println("After update " + documentUpdated.toString());
+
+		}
+
+	}
+
+	@Test
+	public void testTradeInjectRepositorySave() {
+
+		TradeInjectorMessage message = new TradeInjectorMessage();
+		message.setNoOfClients("10");
+		message.setNoOfInstruments("10");
+		message.setNoOfTrades("1000");
+		message.setTradeDate(new Date(System.currentTimeMillis()).toString());
+		message.setTimeDelay("1000");
+		message.setUserId("testRepoUser");
+
+		repo.save(message);
+
+		assertEquals(1, repo.count());
+
+	}
+
+	@Test
+	public void testTradeInjectRepositoryFindByUserId() {
+
+		// first create it
+		TradeInjectorMessage message = new TradeInjectorMessage();
+		message.setNoOfClients("10");
+		message.setNoOfInstruments("10");
+		message.setNoOfTrades("1000");
+		message.setTradeDate(new Date(System.currentTimeMillis()).toString());
+		message.setTimeDelay("1000");
+		message.setUserId("testRepoUser");
+
+		repo.save(message);
+
+		// now find it with the same user
+
+		assertEquals("testRepoUser", repo.findByUserId("testRepoUser")
+				.getUserId());
+
+	}
+
+	@Test
+	public void testTradeInjectRepositoryUpdate() {
+
+		// first create it
+		TradeInjectorMessage message = new TradeInjectorMessage();
+		message.setNoOfClients("10");
+		message.setNoOfInstruments("10");
+		message.setNoOfTrades("1000");
+		message.setTradeDate(new Date(System.currentTimeMillis()).toString());
+		message.setTimeDelay("1000");
+		message.setUserId("testRepoUser");
+
+		repo.save(message);
+
+		// now update it with a different user
+		TradeInjectorMessage messageToUpdate = repo
+				.findByUserId("testRepoUser");
+		System.out.println("Before update " + messageToUpdate.toString());
+
+		messageToUpdate.setUserId("testRepoUserAfterUpdate");
+		repo.save(messageToUpdate);
+
+		// make sure there is only one
+
+		assertEquals(1, repo.count());
+
+		// check if the update worked
+		assertEquals("testRepoUserAfterUpdate",
+				repo.findByUserId("testRepoUserAfterUpdate").getUserId());
+
+	}
+
+	@Test
+	public void testFindById() throws Exception {
+		// first create it
+		TradeInjectorMessage message = new TradeInjectorMessage();
+		message.setNoOfClients("10");
+		message.setNoOfInstruments("10");
+		message.setNoOfTrades("1000");
+		message.setTradeDate(new Date(System.currentTimeMillis()).toString());
+		message.setTimeDelay("1000");
+		message.setUserId("testRepoUser");
+
+		TradeInjectorMessage messageSaved = repo.save(message);
+		assertEquals(messageSaved.id, repo.findOne(messageSaved.id).id);
 	}
 
 	@After

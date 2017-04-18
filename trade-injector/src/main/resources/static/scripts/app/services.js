@@ -3,6 +3,7 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 	
 	var service= {},
 	listenerTrades = $q.defer(),
+	listenerTradeInjectMessage = $q.defer(), 
 	socket={
 		client:null,
 		stomp:null
@@ -12,10 +13,15 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 	service.RECONNECT_TIMEOUT=30000;
 	service.SOCKET_URL="/injectorUI";
 	service.TRADE_TOPIC="/topic/tradeAck";
+	service.TRADE_MESSAGE_INJECT_TOPIC="/topic/tradeMessageInject";
 	service.TRADE_BROKER="/tradeMessageInject";
 	
 	service.receive = function(){
 		return listenerTrades.promise;
+	};
+	
+	service.receiveTradeInjectMessage = function(){
+		return listenerTradeInjectMessage.promise;
 	};
 	
 	service.send=function(injectMessage){
@@ -43,16 +49,27 @@ angular.module("TradeInjectorApp.services").service("TradeInjectorService", func
 		return trades;
 	};
 	
+	var getTradeInjectMessages = function(injectMessages){
+		var tradesInjectMessages = JSON.parse(injectMessages)
+		return tradesInjectMessages;
+	};
+	
 	var startListener = function(){
 		socket.stomp.subscribe(service.TRADE_TOPIC, function(data){
 			listenerTrades.notify(getTradeAcks(data.body));
 		});
 	};
 	
+	var startListenerTradeMessageInject = function(){
+		socket.stomp.subscribe(service.TRADE_MESSAGE_INJECT_TOPIC, function(data){
+			listenerTradeInjectMessage.notify(getTradeInjectMessages(data.body));
+		});
+	};
+	
 	var initialize = function(){
 		socket.client = new SockJS(service.SOCKET_URL);
 		socket.stomp = Stomp.over(socket.client);
-		socket.stomp.connect({}, startListener);
+		socket.stomp.connect({}, startListener, startListenerTradeMessageInject);
 		socket.stomp.onclose = reconnect;
 	};
 	

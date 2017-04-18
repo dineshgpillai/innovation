@@ -14,8 +14,8 @@ angular
 					$scope.showGeneration = false;
 					$scope.totalMsgCount = [ 0 ];
 					$scope.tab = 1;
-					$scope.user=[];
-					$scope.authenticated=false;
+					$scope.user = [];
+					$scope.authenticated = false;
 
 					$scope.setTab = function(newTab) {
 						$scope.tab = newTab;
@@ -24,26 +24,26 @@ angular
 					$scope.isSet = function(tabNum) {
 						return $scope.tab === tabNum;
 					}
-						
-					//login
+
+					// login
 					$http.get("/user").success(function(data) {
 						$scope.user = data.userAuthentication.details.name;
 						$scope.authenticated = true;
-					    }).error(function() {
-					    	$scope.user = "N/A";
-					    	$scope.authenticated = false;
-					    });
+					}).error(function() {
+						$scope.user = "N/A";
+						$scope.authenticated = false;
+					});
 
-					//logout
+					// logout
 					$scope.logout = function() {
-					      $http.post('/logout', {}).success(function() {
-					        $scope.authenticated = false;
-					        $location.path("/");
-					      }).error(function(data) {
-					        console.log("Logout failed")
-					        $scope.authenticated = false;
-					      });
-					    };
+						$http.post('/logout', {}).success(function() {
+							$scope.authenticated = false;
+							$location.path("/");
+						}).error(function(data) {
+							console.log("Logout failed")
+							$scope.authenticated = false;
+						});
+					};
 
 					$scope.options = {
 						responsive : true,
@@ -148,6 +148,11 @@ angular
 										}
 
 									});
+					// Receives the trade inject messages
+					TradeInjectorService.receiveTradeInjectMessage().then(
+
+					null, null, function(data) {
+					});
 
 				}
 

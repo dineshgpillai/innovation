@@ -1,6 +1,8 @@
 package com.trade.injector.jto;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+
 
 
 public class TradeInjectorMessage {
@@ -8,12 +10,15 @@ public class TradeInjectorMessage {
 	@Id
     public String id;
 	
+	@Indexed
 	private String userId;
+	
 	private String noOfTrades;
 	private String noOfClients;
 	private String noOfInstruments;
 	private String timeDelay;
 	private String tradeDate;
+	private String currenMessageCount;
 	private InjectorProfile profileUsed;
 	
 	public String getNoOfTrades() {
@@ -65,6 +70,12 @@ public class TradeInjectorMessage {
                 "TradeInjector[id=%s, userId='%s', noOfTrades='%s', noOfClients='%s', noOfInstruments='%s']",
                 id, userId, noOfTrades, noOfClients, noOfInstruments);
     }
+	public String getCurrenMessageCount() {
+		return currenMessageCount;
+	}
+	public void setCurrenMessageCount(String currenMessageCount) {
+		this.currenMessageCount = currenMessageCount;
+	}
 
 
 }
