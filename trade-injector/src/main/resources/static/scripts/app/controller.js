@@ -168,7 +168,7 @@ angular
 					// ensure all messages are retrieved first
 					$http.get("/retrieveAllInjects").success(function(data) {
 						$scope.tradeInjectMessages = data;
-					}
+					});
 					
 					$scope.purgeAll = function() {
 						$http.post('/purgeAllInjects');
@@ -176,7 +176,7 @@ angular
 						// refresh the table list
 						$http.get("/retrieveAllInjects").success(function(data) {
 							$scope.tradeInjectMessages = data;
-						}
+						});
 
 					}
 
