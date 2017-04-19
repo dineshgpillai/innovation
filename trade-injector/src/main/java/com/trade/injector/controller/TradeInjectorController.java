@@ -53,7 +53,7 @@ import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.repository.MongoDBTemplate;
 import com.trade.injector.jto.repository.TradeInjectorMessageRepository;
-import com.trade.injector.jto.repository.TradeMessageInjectorMessageTest;
+
 
 @SpringBootApplication(scanBasePackages="com.trade.injector")
 @EnableOAuth2Client
