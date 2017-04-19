@@ -175,7 +175,10 @@ angular
 						
 						// refresh the table list
 						$http.get("/retrieveAllInjects").success(function(data) {
-							$scope.tradeInjectMessages = data;
+							
+							var newData = data.slice(0);
+							$scope.tradeInjectMessages.length=0
+							$scope.tradeInjectMessages.push.apply($scope.tradeInjectMessages, newData);
 						});
 
 					}
