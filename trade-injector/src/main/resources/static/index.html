@@ -60,7 +60,9 @@
 								<li><a href="#"><i class="fa fa-unlock"></i> Make admin</a></li>
 							</ul>
 						</div>
-						<button ng-click="logout()" class="btn btn-primary">Logout</button>
+						<button ng-click="logout()" class="btn btn-primary">
+							<i class="fa fa-sign-out" aria-hidden="true"></i>
+						</button>
 					</form>
 				</div>
 				<!--/.navbar-collapse -->
@@ -89,10 +91,9 @@
 						<h3 class="panel-title">Please sign in with</h3>
 					</div>
 					<div class="panel-body">
-						<a href="/login/facebook" class="btn btn-lg btn-primary btn-block"> <i
-							class="fa fa-facebook-square"></i>Facebook
-						</a>
-						<a href="/login/github" class="btn btn-lg btn-success btn-block">
+						<a href="/login/facebook" class="btn btn-lg btn-primary btn-block">
+							<i class="fa fa-facebook-square"></i>Facebook
+						</a> <a href="/login/github" class="btn btn-lg btn-success btn-block">
 							<i class="fa fa-github" aria-hidden="true"></i>GitHub
 						</a>
 
@@ -114,12 +115,10 @@
 						class="fa fa-database fa-fw" aria-hidden="true"></i>Trade Data</a></li>
 				<li role="presentation" ng-class="{active: isSet(3)}"
 					ng-click="setTab(3)"><a href="#"><i
-						class="fa fa-pie-chart fa-fw" aria-hidden="true"></i></i>Charts 
-			</a>
-			</li>
-			<li role="presentation" ng-class="{active: isSet(4)}"
-				ng-click="setTab(4)"><a href="#"><i
-					class="fa fa-tachometer fa-fw" aria-hidden="true"></i>Dashboard</a></li>
+						class="fa fa-bar-chart fa-fw" aria-hidden="true"></i></i>Charts </a></li>
+				<li role="presentation" ng-class="{active: isSet(4)}"
+					ng-click="setTab(4)"><a href="#"><i
+						class="fa fa-microchip fa-fw" aria-hidden="true"></i>Configure</a></li>
 
 			</ul>
 		</div>
@@ -140,7 +139,9 @@
 							class="input-group-addon" id="basic-addon1">Instruments</span> <input
 							type="text" ng-model="tradeInjectorMessage.noOfInstruments"
 							class="form-control" size="10" placeholder="Enter a Number"
-							aria-describedby="basic-addon1">
+							aria-describedby="basic-addon1"> <input type="hidden"
+							ng-model="tradeInjectorMessage.userId" class="form-control"
+							ng-init="user" aria-describedby="basic-addon1">
 					</div>
 
 					<div class="input-group">
@@ -151,23 +152,16 @@
 							aria-describedby="basic-addon1">
 
 					</div>
+
 				</div>
 				<!--  end of panel body for input fields -->
 				<div class="panel-body">
-					<div class="row">
+					<div class="row col-md-6">
 						<div class="button-group" role="group">
-							<a class="btn btn-success" ng-click="injectTrades()"
+							<a class="btn btn-default" ng-click="injectTrades()"
 								role="button"><i class="fa fa-cogs fa-fw"></i> Generate</a> <a
-								class="btn btn-primary" href="#"><i
+								class="btn btn-default" href="#"><i
 								class="fa fa-adjust fa-fw"></i> Reset</a>
-						</div>
-						<div ng-show="showGeneration" align="right">
-
-							<button class="btn btn-danger" ng-click="stop()" type="button">
-								<i class="fa fa-cog fa-spin fa-2x fa-fw"></i> Stop <span
-									class="badge">{{totalMsgCount[0]}}/{{tradeInjectorMessage.noOfTrades}}</span>
-							</button>
-
 						</div>
 
 
@@ -175,34 +169,59 @@
 
 				</div>
 				<!--  End of Panel body for buttons -->
-				<div class="col-md-6" ng-controller="TradeInjectTableDisplay">
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h3 class="panel-title">Inject Message Display</h3>
+				<div class="col-md-12" ng-controller="TradeInjectTableDisplay">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<div class="row">
+								<div class="col-md-10">
+									<h3 class="panel-title">Inject Message Display</h3>
+								</div>
+								<div class="col-md-1">
+									<div class="btn-group" role="group" aria-label="...">
+										<button type="button" ng-click="purgeAll()" class="btn btn-default">
+											<i class="fa fa-trash fa-fw" aria-hidden="true"></i>
+										</button>
+									</div>
+								</div>
 							</div>
-							<div class="panel-body">
-								<table class="table table-striped table-hover">
-									<thead>
-										<tr>
-											<th>Trade Inject Message Id</th>
-											<th>Trade Count</th>
-											<th>Message Count</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr ng-repeat="x in tradeInjectMessages">
-											<td>{{x.id}}</td>
-											<td>{{x.noOfTrades}}</td>
-											<td>{{x.currenMessageCount}}/{{x.noOfTrades}}</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
+
+						</div>
+						<div class="panel-body">
+							<table class="table table-striped table-hover">
+								<thead>
+									<tr>
+										<th>Trade Inject Message Id</th>
+										<th>User</th>
+										<th>Login type</th>
+										<th>Trade Count</th>
+										<th>Client Count</th>
+										<th>Instrument Count</th>
+										<th>Message Count</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="x in tradeInjectMessages">
+										<td>{{x.id}}</td>
+										<td>{{x.userId}}</td>
+										<td>{{x.loginType}}</td>
+										<td>{{x.noOfTrades}}</td>
+										<td>{{x.noOfClients}}</td>
+										<td>{{x.noOfClients}}</td>
+										<td>
+											<button class="btn btn-info" ng-click="stop()" type="button">
+												<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i> Stop <span
+													class="badge">{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
+											</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
-					<!-- End of Panel and col-md-6 for table displa -->
+				</div>
+				<!-- End of Panel and col-md-6 for table displa -->
 			</div>
-			
+
 			<!-- End of Panel Container -->
 		</div>
 		<!-- End of ng show for Generate Trades -->

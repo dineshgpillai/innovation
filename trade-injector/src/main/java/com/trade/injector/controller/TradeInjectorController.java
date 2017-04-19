@@ -179,6 +179,20 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		isKill = true;
 		//TODO: this will need to be replaced by passing the inject message for which it must be stopped
 	}
+	
+
+	@RequestMapping(value = "/purgeAllInjects", method = RequestMethod.POST)
+	public void purgeAllInjects() {
+		repo.deleteAll();
+		LOG.info("successfully deleted all trade inject messages records");
+	}
+	
+	@RequestMapping(value = "/retrieveAllInjects", method = RequestMethod.GET)
+	public List<TradeInjectorMessage> retrieveAllInjects() {
+		
+		return repo.findAll();
+		
+	}
 
 	@MessageMapping("/tradeMessageInject")
 	// @RequestMapping(method = RequestMethod.POST)
@@ -190,6 +204,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		int numberOfClients = new Integer(message.getNoOfClients());
 		int numberOfInstruments = new Integer(message.getNoOfInstruments());
 		int timedelay = 0;
+		
+		LOG.info("Injecting trades with the following user "+message.getUserId()
+				);
 		
 		//save the trade inject message
 		TradeInjectorMessage savedMessage = repo.save(message);

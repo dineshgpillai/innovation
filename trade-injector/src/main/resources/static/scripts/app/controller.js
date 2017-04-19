@@ -154,11 +154,37 @@ angular
 		).controller("TradeInjectTableDisplay",
 				function($scope, $http, $location, TradeInjectorService) {
 
+					$http.get("/user").success(function(data) {
+						$scope.user = data.userAuthentication.details.name;
+						$scope.authenticated = true;
+					}).error(function() {
+						$scope.user = "N/A";
+						$scope.authenticated = false;
+					});
+
+					
 					$scope.tradeInjectMessages = [];
+					
+					// ensure all messages are retrieved first
+					$http.get("/retrieveAllInjects").success(function(data) {
+						$scope.tradeInjectMessages = data;
+					}
+					
+					$scope.purgeAll = function() {
+						$http.post('/purgeAllInjects');
+						
+						// refresh the table list
+						$http.get("/retrieveAllInjects").success(function(data) {
+							$scope.tradeInjectMessages = data;
+						}
+
+					}
+
+					
 					// Receives the trade inject messages
 					TradeInjectorService.receiveTradeInjectMessage().then(
 
 					null, null, function(data) {
-						$scope.tradeInjectMessages= data;
+						$scope.tradeInjectMessages = data;
 					});
 				});
