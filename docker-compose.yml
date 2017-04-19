@@ -1,0 +1,12 @@
+service :
+ image : dineshpillai/innovation-trade-injector
+ ports : 
+   - "8090:8090"
+ links :
+  - mongo
+
+mongo:
+ image : dineshpillai/mongo-db-repo
+ ports :
+  - "27017:27017"
+
