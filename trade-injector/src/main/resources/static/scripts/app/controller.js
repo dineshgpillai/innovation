@@ -67,12 +67,6 @@ angular
 						fill : false
 					};
 
-					$scope.stop = function() {
-						$http.post('/tradeMessageStop');
-						$scope.showGeneration = false;
-
-					}
-
 					$scope.injectTrades = function() {
 						$scope.tradeAcks = [];
 						$scope.labels = [];
@@ -151,7 +145,9 @@ angular
 
 				}
 
-		).controller("TradeInjectTableDisplay",
+		)
+		.controller(
+				"TradeInjectTableDisplay",
 				function($scope, $http, $location, TradeInjectorService) {
 
 					$http.get("/user").success(function(data) {
@@ -162,28 +158,74 @@ angular
 						$scope.authenticated = false;
 					});
 
-					
 					$scope.tradeInjectMessages = [];
-					
+
 					// ensure all messages are retrieved first
 					$http.get("/retrieveAllInjects").success(function(data) {
 						$scope.tradeInjectMessages = data;
 					});
-					
-					$scope.purgeAll = function() {
-						$http.post('/purgeAllInjects');
-						
-						// refresh the table list
-						$http.get("/retrieveAllInjects").success(function(data) {
-							
-							var newData = data.slice(0);
-							$scope.tradeInjectMessages.length=0
-							$scope.tradeInjectMessages.push.apply($scope.tradeInjectMessages, newData);
+
+					$scope.stop = function(injectId) {
+						var data = $.param({
+							id : injectId
 						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http.post('/tradeMessageStop', data, config).success(
+								function(data, status, headers, config) {
+									$scope.PostDataResponse = data;
+									$scope.showGeneration = false;
+								}).error(
+								function(data, status, header, config) {
+									$scope.ResponseDetails = "Data: " + data
+											+ "<hr />status: " + status
+											+ "<hr />headers: " + header
+											+ "<hr />config: " + config;
+								});
+
+						// $http.post('/tradeMessageStop');
 
 					}
 
+					$scope.purgeAll = function() {
+						$http
+								.post('/purgeAllInjects')
+								.success(
+										function(data) {
+											// refresh the table list
+											$http
+													.get("/retrieveAllInjects")
+													.success(
+															function(data) {
+
+																var newData = data
+																		.slice(0);
+																$scope.tradeInjectMessages.length = 0
+																$scope.tradeInjectMessages.push
+																		.apply(
+																				$scope.tradeInjectMessages,
+																				newData);
+															});
+										});
+
+					};
 					
+					//refresh the entire table
+					$scope.refreshAll = function() {
+
+						$http.get("/retrieveAllInjects").success(
+								function(data) {
+
+									$scope.tradeInjectMessages = data;
+								});
+
+					};
+
 					// Receives the trade inject messages
 					TradeInjectorService.receiveTradeInjectMessage().then(
 

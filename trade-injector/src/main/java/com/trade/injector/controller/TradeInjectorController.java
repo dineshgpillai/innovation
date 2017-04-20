@@ -17,6 +17,12 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoT
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.StringMatcher;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -35,6 +41,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.CompositeFilter;
 
@@ -55,11 +62,10 @@ import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.repository.MongoDBTemplate;
 import com.trade.injector.jto.repository.TradeInjectorMessageRepository;
 
-
-@SpringBootApplication(scanBasePackages="com.trade.injector")
+@SpringBootApplication(scanBasePackages = "com.trade.injector")
 @EnableOAuth2Client
 @RestController
-@EnableMongoRepositories(basePackages="com.trade.injector.jto.repository")
+@EnableMongoRepositories(basePackages = "com.trade.injector.jto.repository")
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
@@ -74,9 +80,12 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	private MongoDBTemplate template;
 
 	@Autowired
+	private MongoTemplate coreTemplate;
+
+	@Autowired
 	GenerateTradeData tradeData;
-	
-	@Autowired(required=true)
+
+	@Autowired(required = true)
 	private TradeInjectorMessageRepository repo;
 
 	private static boolean isKill = false;
@@ -108,37 +117,36 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	}
 
 	private Filter ssoFilter() {
-		
 
-			CompositeFilter filter = new CompositeFilter();
-			List<Filter> filters = new ArrayList<Filter>();
+		CompositeFilter filter = new CompositeFilter();
+		List<Filter> filters = new ArrayList<Filter>();
 
-			OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter(
-					"/login/facebook");
-			OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(
-					facebook(), oauth2ClientContext);
-			facebookFilter.setRestTemplate(facebookTemplate);
-			UserInfoTokenServices tokenServices = new UserInfoTokenServices(
-					facebookResource().getUserInfoUri(), facebook().getClientId());
-			tokenServices.setRestTemplate(facebookTemplate);
-			facebookFilter.setTokenServices(tokenServices);
-			filters.add(facebookFilter);
+		OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter(
+				"/login/facebook");
+		OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(
+				facebook(), oauth2ClientContext);
+		facebookFilter.setRestTemplate(facebookTemplate);
+		UserInfoTokenServices tokenServices = new UserInfoTokenServices(
+				facebookResource().getUserInfoUri(), facebook().getClientId());
+		tokenServices.setRestTemplate(facebookTemplate);
+		facebookFilter.setTokenServices(tokenServices);
 
-			OAuth2ClientAuthenticationProcessingFilter githubFilter = new OAuth2ClientAuthenticationProcessingFilter(
-					"/login/github");
-			OAuth2RestTemplate githubTemplate = new OAuth2RestTemplate(github(),
-					oauth2ClientContext);
-			githubFilter.setRestTemplate(githubTemplate);
-			tokenServices = new UserInfoTokenServices(githubResource()
-					.getUserInfoUri(), github().getClientId());
-			tokenServices.setRestTemplate(githubTemplate);
-			githubFilter.setTokenServices(tokenServices);
-			filters.add(githubFilter);
+		filters.add(facebookFilter);
 
-			filter.setFilters(filters);
-			return filter;
+		OAuth2ClientAuthenticationProcessingFilter githubFilter = new OAuth2ClientAuthenticationProcessingFilter(
+				"/login/github");
+		OAuth2RestTemplate githubTemplate = new OAuth2RestTemplate(github(),
+				oauth2ClientContext);
+		githubFilter.setRestTemplate(githubTemplate);
+		tokenServices = new UserInfoTokenServices(githubResource()
+				.getUserInfoUri(), github().getClientId());
+		tokenServices.setRestTemplate(githubTemplate);
+		githubFilter.setTokenServices(tokenServices);
+		filters.add(githubFilter);
 
-		
+		filter.setFilters(filters);
+		return filter;
+
 	}
 
 	@Bean
@@ -152,16 +160,16 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	public ResourceServerProperties facebookResource() {
 		return new ResourceServerProperties();
 	}
-	
+
 	@Bean
 	public FilterRegistrationBean oauth2ClientFilterRegistration(
-	    OAuth2ClientContextFilter filter) {
-	  FilterRegistrationBean registration = new FilterRegistrationBean();
-	  registration.setFilter(filter);
-	  registration.setOrder(-100);
-	  return registration;
+			OAuth2ClientContextFilter filter) {
+		FilterRegistrationBean registration = new FilterRegistrationBean();
+		registration.setFilter(filter);
+		registration.setOrder(-100);
+		return registration;
 	}
-	
+
 	@Bean
 	@ConfigurationProperties("github.client")
 	public AuthorizationCodeResourceDetails github() {
@@ -174,25 +182,43 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		return new ResourceServerProperties();
 	}
 
-
 	@RequestMapping(value = "/tradeMessageStop", method = RequestMethod.POST)
-	public void tradeStop() {
-		isKill = true;
-		//TODO: this will need to be replaced by passing the inject message for which it must be stopped
+	public void tradeStop(@RequestBody String messageId) throws Exception {
+
+		LOG.info("Stop run for the following Id " + messageId);
+		
+		//we need to remove the id= bit from message id
+		messageId = messageId.substring(messageId.indexOf('=') + 1,
+				messageId.length());
+
+		TradeInjectorMessage tradeInjectMessagetoStop = coreTemplate.findOne(
+				Query.query(Criteria.where("id").is(messageId)),
+				TradeInjectorMessage.class);
+
+		if (tradeInjectMessagetoStop != null) {
+			tradeInjectMessagetoStop.setRun_mode(TradeInjectRunModes.STOP
+					.getRunMode());
+			repo.save(tradeInjectMessagetoStop);
+			
+			refreshTradeInjectQueue();
+
+		} else
+			LOG.error("Unable to find message for the following id "
+					+ messageId);
+
 	}
-	
 
 	@RequestMapping(value = "/purgeAllInjects", method = RequestMethod.POST)
 	public void purgeAllInjects() {
 		repo.deleteAll();
 		LOG.info("successfully deleted all trade inject messages records");
 	}
-	
+
 	@RequestMapping(value = "/retrieveAllInjects", method = RequestMethod.GET)
 	public List<TradeInjectorMessage> retrieveAllInjects() {
-		
+
 		return repo.findAll();
-		
+
 	}
 
 	@MessageMapping("/tradeMessageInject")
@@ -206,11 +232,11 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		int numberOfInstruments = new Integer(message.getNoOfInstruments());
 		int timedelay = 0;
 		message.setRun_mode(TradeInjectRunModes.RUNNING.getRunMode());
-		
-		LOG.info("Injecting trades with the following user "+message.getUserId()
-				);
-		
-		//save the trade inject message
+
+		LOG.info("Injecting trades with the following user "
+				+ message.getUserId());
+
+		// save the trade inject message
 		TradeInjectorMessage savedMessage = repo.save(message);
 
 		if (message.getTimeDelay() != null)
@@ -237,41 +263,45 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			messageSender.convertAndSend("/topic/tradeAck", ack);
 			LOG.debug(("Following trade was generated " + aTrade.toString()));
 			LOG.debug("Sleeping for " + timedelay + " ms");
-			
-			//update the counter push the updated message back to the client
-			TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
-			retrieveForUpdate.setCurrenMessageCount(new Integer(i+1).toString());
+
+			// update the counter push the updated message back to the client
+			TradeInjectorMessage retrieveForUpdate = repo
+					.findOne(savedMessage.id);
+			retrieveForUpdate.setCurrenMessageCount(new Integer(i + 1)
+					.toString());
 			repo.save(retrieveForUpdate);
-			
-			
+
 			refreshTradeInjectQueue();
-			
+
 			Thread.sleep(timedelay);
 
 			// if the kill flag is set by the UI return the process.
-			if (isKill)
+			if (repo.findOne(savedMessage.id).getRun_mode() == TradeInjectRunModes.STOP
+					.getRunMode())
+
+				// kill it and return
 				return ResponseEntity.ok().build();
 
 		}
-		
-		//finally set to complete
+
+		// finally set to complete
 		TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
-		retrieveForUpdate.setRun_mode(TradeInjectRunModes.COMPLETED.getRunMode());
+		retrieveForUpdate.setRun_mode(TradeInjectRunModes.COMPLETED
+				.getRunMode());
 		repo.save(retrieveForUpdate);
-		
+
 		refreshTradeInjectQueue();
-			
+
 		return ResponseEntity.ok().build();
 	}
-	
-	private void refreshTradeInjectQueue() throws Exception{
-		
+
+	private void refreshTradeInjectQueue() throws Exception {
+
 		List<TradeInjectorMessage> listofMessages = repo.findAll();
-		//now push it to the queue so that everyone can see the update
-		messageSender.convertAndSend("/topic/tradeMessageInject", listofMessages);
+		// now push it to the queue so that everyone can see the update
+		messageSender.convertAndSend("/topic/tradeMessageInject",
+				listofMessages);
 	}
-	
-	
 
 	private TradeAcknowledge convertToAck(Trade aTrade) {
 		TradeAcknowledge ack = new TradeAcknowledge();
@@ -286,9 +316,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 		return ack;
 	}
-	
+
 	public static void main(String[] args) {
-        SpringApplication.run(TradeInjectorController.class, args);
-    }
+		SpringApplication.run(TradeInjectorController.class, args);
+	}
 
 }

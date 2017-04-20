@@ -182,7 +182,7 @@
 											class="btn btn-default">
 											<i class="fa fa-trash fa-fw" aria-hidden="true"></i>
 										</button>
-										<button type="button" ng-click=""
+										<button type="button" ng-click="refreshAll()"
 											class="btn btn-default">
 											<i class="fa fa-refresh fa-fw" aria-hidden="true"></i>
 										</button>
@@ -213,7 +213,7 @@
 										<td>{{x.noOfClients}}</td>
 										<td>{{x.noOfClients}}</td>
 										<td ng-show="x.run_mode==0">
-											<button class="btn btn-info" ng-click="stop()" type="button">
+											<button class="btn btn-info" ng-click="stop(x.id)" type="button">
 												<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i> Stop <span
 													class="badge">{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
 											</button>
