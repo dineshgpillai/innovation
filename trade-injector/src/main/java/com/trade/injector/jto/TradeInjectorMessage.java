@@ -20,7 +20,9 @@ public class TradeInjectorMessage {
 	private String tradeDate;
 	private String currenMessageCount;
 	private InjectorProfile profileUsed;
-
+	private int run_mode=0; //0=running, 1=completed, 2=suspended
+	
+	
 	public String getNoOfTrades() {
 		return noOfTrades;
 	}
@@ -98,6 +100,14 @@ public class TradeInjectorMessage {
 
 	public void setLoginType(String loginType) {
 		this.loginType = loginType;
+	}
+
+	public int getRun_mode() {
+		return run_mode;
+	}
+
+	public void setRun_mode(int run_mode) {
+		this.run_mode = run_mode;
 	}
 
 }

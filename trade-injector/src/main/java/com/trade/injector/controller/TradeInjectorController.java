@@ -50,6 +50,7 @@ import com.trade.injector.dto.Instrument;
 import com.trade.injector.dto.Party;
 import com.trade.injector.dto.Trade;
 import com.trade.injector.jto.TradeAcknowledge;
+import com.trade.injector.jto.TradeInjectRunModes;
 import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.repository.MongoDBTemplate;
 import com.trade.injector.jto.repository.TradeInjectorMessageRepository;
@@ -204,6 +205,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		int numberOfClients = new Integer(message.getNoOfClients());
 		int numberOfInstruments = new Integer(message.getNoOfInstruments());
 		int timedelay = 0;
+		message.setRun_mode(TradeInjectRunModes.RUNNING.getRunMode());
 		
 		LOG.info("Injecting trades with the following user "+message.getUserId()
 				);
@@ -238,7 +240,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			
 			//update the counter push the updated message back to the client
 			TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
-			retrieveForUpdate.setCurrenMessageCount(new Integer(i).toString());
+			retrieveForUpdate.setCurrenMessageCount(new Integer(i+1).toString());
 			repo.save(retrieveForUpdate);
 			
 			
@@ -251,6 +253,13 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				return ResponseEntity.ok().build();
 
 		}
+		
+		//finally set to complete
+		TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
+		retrieveForUpdate.setRun_mode(TradeInjectRunModes.COMPLETED.getRunMode());
+		repo.save(retrieveForUpdate);
+		
+		refreshTradeInjectQueue();
 			
 		return ResponseEntity.ok().build();
 	}
