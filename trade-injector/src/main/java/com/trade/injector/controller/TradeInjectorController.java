@@ -223,7 +223,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@MessageMapping("/tradeMessageInject")
 	// @RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> tradeInject(
+	public void tradeInject(
 			@RequestBody TradeInjectorMessage message) throws Exception {
 
 		isKill = false;
@@ -280,7 +280,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					.getRunMode())
 
 				// kill it and return
-				return ResponseEntity.ok().build();
+				//return ResponseEntity.ok().build();
+				break;
 
 		}
 
@@ -292,7 +293,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 		refreshTradeInjectQueue();
 
-		return ResponseEntity.ok().build();
+		//return ResponseEntity.ok().build();
 	}
 
 	private void refreshTradeInjectQueue() throws Exception {
