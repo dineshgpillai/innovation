@@ -255,6 +255,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		List<Party> listOfParties = new GenerateRandomParty()
 				.createRandomData(numberOfClients);
 
+		int iterations=0;
+		
 		for (int i = 0; i < numberOfTrades; i++) {
 
 			Trade aTrade = tradeData.createTradeData(i, listOfParties,
@@ -282,14 +284,19 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				// kill it and return
 				//return ResponseEntity.ok().build();
 				break;
+			
+			iterations++;
 
 		}
 
-		// finally set to complete
-		TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
-		retrieveForUpdate.setRun_mode(TradeInjectRunModes.COMPLETED
-				.getRunMode());
-		repo.save(retrieveForUpdate);
+		// finally set to complete only if we have a genuine complete
+		if(iterations==numberOfTrades){
+			TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
+			retrieveForUpdate.setRun_mode(TradeInjectRunModes.COMPLETED
+					.getRunMode());
+			repo.save(retrieveForUpdate);
+		}
+		
 
 		refreshTradeInjectQueue();
 

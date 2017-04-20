@@ -196,34 +196,52 @@
 								<thead>
 									<tr>
 										<th>Trade Inject Message Id</th>
-										<th>User</th>
-										<th>Login type</th>
+										<th>User</th>										
 										<th>Trade Count</th>
 										<th>Client Count</th>
 										<th>Instrument Count</th>
 										<th>Message Count</th>
+										<th>Run Mode</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr ng-repeat="x in tradeInjectMessages">
 										<td>{{x.id}}</td>
-										<td>{{x.userId}}</td>
-										<td>{{x.loginType}}</td>
+										<td>{{x.userId}}</td>										
 										<td>{{x.noOfTrades}}</td>
 										<td>{{x.noOfClients}}</td>
 										<td>{{x.noOfClients}}</td>
-										<td ng-show="x.run_mode==0">
-											<button class="btn btn-info" ng-click="stop(x.id)" type="button">
-												<i class="fa fa-spinner fa-spin fa-1x fa-fw"></i> Stop <span
-													class="badge">{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
-											</button>
+										<td><i ng-show="x.run_mode==0"
+											class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span
+											>{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
 										</td>
-										<td ng-show="!x.run_mode==0">
+										<!-- Show button for RUNNING -->
+										<td ng-show="x.run_mode==0">
+											<div class="btn-group-xs" role="group" aria-label="...">
+												<button class="btn btn-default" ng-click="stop(x.id)"
+													type="button">
+													<i class="fa fa-stop fa-fw" aria-hidden="true"></i>
+												</button>
+											</div>
 
-											<button class="btn btn-default" type="button">
-												 <span
-													class="badge">{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
-											</button></td>
+										</td>										
+										<!-- Show button for COMPLETED -->
+										<td ng-show="x.run_mode==2">
+											<div class="btn-group-xs" role="group" aria-label="...">
+												<button class="btn btn-default" type="button">
+													<i class="fa fa-repeat fa-fw" aria-hidden="true"></i>
+												</button>
+											</div>
+
+										</td>
+										<!-- Show button for STOP -->
+										<td ng-show="x.run_mode==3">
+											<div class="btn-group-xs" role="group" aria-label="...">
+												<button class="btn btn-default" type="button">
+													<i class="fa fa-play fa-fw" aria-hidden="true"></i>
+												</button>
+											</div>
+										</td>
 									</tr>
 								</tbody>
 							</table>

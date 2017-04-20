@@ -2,7 +2,7 @@ package com.trade.injector.jto;
 
 public enum TradeInjectRunModes {
 	
-	RUNNING(0), SUSPENDED(1), COMPLETED(2), STOP(4);
+	RUNNING(0), SUSPENDED(1), COMPLETED(2), STOP(3);
 	
 	private int runMode;
 	
