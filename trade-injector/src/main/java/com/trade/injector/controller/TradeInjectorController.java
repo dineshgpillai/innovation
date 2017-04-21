@@ -186,8 +186,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	public void tradeStop(@RequestBody String messageId) throws Exception {
 
 		LOG.info("Stop run for the following Id " + messageId);
-		
-		//we need to remove the id= bit from message id
+
+		// we need to remove the id= bit from message id
 		messageId = messageId.substring(messageId.indexOf('=') + 1,
 				messageId.length());
 
@@ -199,12 +199,117 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			tradeInjectMessagetoStop.setRun_mode(TradeInjectRunModes.STOP
 					.getRunMode());
 			repo.save(tradeInjectMessagetoStop);
-			
+
 			refreshTradeInjectQueue();
 
 		} else
 			LOG.error("Unable to find message for the following id "
 					+ messageId);
+
+	}
+
+	@RequestMapping(value = "/tradeMessagePlay", method = RequestMethod.POST)
+	public void tradePlay(@RequestBody String messageId) throws Exception {
+
+		// we need to remove the id= bit from message id
+		messageId = messageId.substring(messageId.indexOf('=') + 1,
+				messageId.length());
+		LOG.info("Replaying for the following Id " + messageId);
+
+		TradeInjectorMessage tradeInjectMessagetoReplay = coreTemplate.findOne(
+				Query.query(Criteria.where("id").is(messageId)),
+				TradeInjectorMessage.class);
+
+		if (tradeInjectMessagetoReplay != null) {
+			runTradeInjectForTradeInjectId(tradeInjectMessagetoReplay);
+		} else
+			LOG.error("Unable to find message for the following id "
+					+ messageId);
+
+	}
+
+	@RequestMapping(value = "/tradeMessageRepeat", method = RequestMethod.POST)
+	public void tradeRepeat(@RequestBody String messageId) throws Exception {
+
+		// we need to remove the id= bit from message id
+		messageId = messageId.substring(messageId.indexOf('=') + 1,
+				messageId.length());
+		LOG.info("Repeating for the following Id " + messageId);
+
+		TradeInjectorMessage tradeInjectMessagetoRepeat = coreTemplate.findOne(
+				Query.query(Criteria.where("id").is(messageId)),
+				TradeInjectorMessage.class);
+		
+
+		if (tradeInjectMessagetoRepeat != null) {
+			//reset the message count to 0
+			tradeInjectMessagetoRepeat.setCurrenMessageCount("0");
+			runTradeInjectForTradeInjectId(tradeInjectMessagetoRepeat);
+		} else
+			LOG.error("Unable to find message for the following id "
+					+ messageId);
+
+	}
+
+	
+	private void runTradeInjectForTradeInjectId(
+			TradeInjectorMessage tradeInjectMessagetoRun) throws Exception {
+
+		List<Instrument> listOfInstruments = new GenerateRandomInstruments()
+				.createRandomData(new Integer(tradeInjectMessagetoRun
+						.getNoOfInstruments()));
+		List<Party> listOfParties = new GenerateRandomParty()
+				.createRandomData(new Integer(tradeInjectMessagetoRun
+						.getNoOfClients()));
+
+		int iterations = 0;
+		int startFrom = new Integer(
+				tradeInjectMessagetoRun.getCurrenMessageCount());
+		int numberOfTrades = new Integer(
+				tradeInjectMessagetoRun.getNoOfTrades());
+		
+		//set it to run
+		tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.RUNNING.getRunMode());
+
+		while (startFrom != numberOfTrades) {
+			
+			startFrom++;
+			Trade aTrade = tradeData.createTradeData(startFrom, listOfParties,
+					listOfInstruments);
+			TradeAcknowledge ack = convertToAck(aTrade);
+			messageSender.convertAndSend("/topic/tradeAck", ack);
+			LOG.debug(("Following trade was generated " + aTrade.toString()));
+
+			tradeInjectMessagetoRun
+					.setCurrenMessageCount(new Integer(startFrom).toString());
+			repo.save(tradeInjectMessagetoRun);
+
+			refreshTradeInjectQueue();
+
+			Thread.sleep(new Integer(tradeInjectMessagetoRun.getTimeDelay()));
+
+			// if the kill flag is set by the UI return the process.
+			if (repo.findOne(tradeInjectMessagetoRun.id).getRun_mode() == TradeInjectRunModes.STOP
+					.getRunMode())
+
+				// kill it and return
+				// return ResponseEntity.ok().build();
+				break;
+
+			iterations++;
+			
+
+		}
+
+		// finally set to complete only if we have a genuine complete
+		if (iterations == numberOfTrades) {
+			tradeInjectMessagetoRun.setCurrenMessageCount(new Integer(iterations).toString());
+			tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.COMPLETED
+					.getRunMode());
+			repo.save(tradeInjectMessagetoRun);
+		}
+
+		refreshTradeInjectQueue();
 
 	}
 
@@ -223,10 +328,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@MessageMapping("/tradeMessageInject")
 	// @RequestMapping(method = RequestMethod.POST)
-	public void tradeInject(
-			@RequestBody TradeInjectorMessage message) throws Exception {
+	public void tradeInject(@RequestBody TradeInjectorMessage message)
+			throws Exception {
 
-		isKill = false;
 		int numberOfTrades = new Integer(message.getNoOfTrades());
 		int numberOfClients = new Integer(message.getNoOfClients());
 		int numberOfInstruments = new Integer(message.getNoOfInstruments());
@@ -255,8 +359,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		List<Party> listOfParties = new GenerateRandomParty()
 				.createRandomData(numberOfClients);
 
-		int iterations=0;
-		
+		int iterations = 0;
+
 		for (int i = 0; i < numberOfTrades; i++) {
 
 			Trade aTrade = tradeData.createTradeData(i, listOfParties,
@@ -282,25 +386,25 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					.getRunMode())
 
 				// kill it and return
-				//return ResponseEntity.ok().build();
+				// return ResponseEntity.ok().build();
 				break;
-			
+
 			iterations++;
 
 		}
 
 		// finally set to complete only if we have a genuine complete
-		if(iterations==numberOfTrades){
-			TradeInjectorMessage retrieveForUpdate = repo.findOne(savedMessage.id);
+		if (iterations == numberOfTrades) {
+			TradeInjectorMessage retrieveForUpdate = repo
+					.findOne(savedMessage.id);
 			retrieveForUpdate.setRun_mode(TradeInjectRunModes.COMPLETED
 					.getRunMode());
 			repo.save(retrieveForUpdate);
 		}
-		
 
 		refreshTradeInjectQueue();
 
-		//return ResponseEntity.ok().build();
+		// return ResponseEntity.ok().build();
 	}
 
 	private void refreshTradeInjectQueue() throws Exception {

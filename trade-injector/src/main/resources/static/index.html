@@ -228,7 +228,7 @@
 										<!-- Show button for COMPLETED -->
 										<td ng-show="x.run_mode==2">
 											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" type="button">
+												<button class="btn btn-default" ng-click="repeat(x.id)" type="button">
 													<i class="fa fa-repeat fa-fw" aria-hidden="true"></i>
 												</button>
 											</div>
@@ -237,7 +237,7 @@
 										<!-- Show button for STOP -->
 										<td ng-show="x.run_mode==3">
 											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" type="button">
+												<button class="btn btn-default" ng-click="play(x.id)" type="button">
 													<i class="fa fa-play fa-fw" aria-hidden="true"></i>
 												</button>
 											</div>

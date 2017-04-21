@@ -135,11 +135,7 @@ angular
 										$scope.totalMsgCount.splice(0, 1,
 												$scope.totalMsgCount[0] + 1);
 
-										// kill the generation message once we
-										// reach end
-										if ($scope.totalMsgCount[0] == $scope.tradeInjectorMessage.noOfTrades) {
-											$scope.showGeneration = false;
-										}
+																				
 
 									});
 
@@ -192,6 +188,65 @@ angular
 
 					}
 
+					$scope.repeat = function(injectId) {
+						var data = $.param({
+							id : injectId
+						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http
+								.post('/tradeMessageRepeat', data, config)
+								.success(
+										function(data, status, headers, config) {
+											$scope.PostDataResponse = data;
+											$scope.showGeneration = false;
+										}).error(
+										function(data, status, header, config) {
+											$scope.ResponseDetails = "Data: "
+													+ data + "<hr />status: "
+													+ status
+													+ "<hr />headers: "
+													+ header + "<hr />config: "
+													+ config;
+										});
+
+					}
+					
+					$scope.play = function(injectId) {
+						var data = $.param({
+							id : injectId
+						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http
+								.post('/tradeMessagePlay', data, config)
+								.success(
+										function(data, status, headers, config) {
+											$scope.PostDataResponse = data;
+											$scope.showGeneration = false;
+										}).error(
+										function(data, status, header, config) {
+											$scope.ResponseDetails = "Data: "
+													+ data + "<hr />status: "
+													+ status
+													+ "<hr />headers: "
+													+ header + "<hr />config: "
+													+ config;
+										});
+
+					}
+
+
 					$scope.purgeAll = function() {
 						$http
 								.post('/purgeAllInjects')
@@ -214,8 +269,8 @@ angular
 										});
 
 					};
-					
-					//refresh the entire table
+
+					// refresh the entire table
 					$scope.refreshAll = function() {
 
 						$http.get("/retrieveAllInjects").success(
