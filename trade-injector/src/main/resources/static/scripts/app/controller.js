@@ -77,6 +77,8 @@ angular
 						$scope.totalMsgCount = [ 0 ];
 						console.log('Before sending '
 								+ $scope.tradeInjectorMessage);
+						//set the user id
+						$scope.tradeInjectorMessage.userId=$scope.user 
 						TradeInjectorService.send($scope.tradeInjectorMessage);
 					};
 
@@ -146,6 +148,10 @@ angular
 				"TradeInjectTableDisplay",
 				function($scope, $http, $location, TradeInjectorService) {
 
+					$scope.user = [];
+					$scope.authenticated = false;
+					
+					
 					$http.get("/user").success(function(data) {
 						$scope.user = data.userAuthentication.details.name;
 						$scope.authenticated = true;
