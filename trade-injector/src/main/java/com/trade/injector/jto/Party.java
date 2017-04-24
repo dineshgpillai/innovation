@@ -4,6 +4,8 @@ package com.trade.injector.jto;
 
 import org.springframework.data.annotation.Id;
 
+import com.trade.injector.enums.PartyRole;
+
 public class Party {
 
 	@Id

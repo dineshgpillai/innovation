@@ -1,4 +1,4 @@
-package com.trade.injector.jto;
+package com.trade.injector.enums;
 
 public enum PartyRole {
 

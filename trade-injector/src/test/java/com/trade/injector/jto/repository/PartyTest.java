@@ -11,8 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.trade.injector.controller.TradeInjectorController;
+import com.trade.injector.enums.PartyRole;
 import com.trade.injector.jto.Party;
-import com.trade.injector.jto.PartyRole;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TradeInjectorController.class)

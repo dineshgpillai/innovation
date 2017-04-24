@@ -3,7 +3,7 @@ package com.trade.injector.business.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.trade.injector.dto.Instrument;
+import com.trade.injector.jto.Instrument;
 
 public class GenerateRandomInstruments implements RandomDataService<Instrument> {
 
