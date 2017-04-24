@@ -1,7 +1,9 @@
 package com.trade.injector.controller;
 
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -54,8 +56,8 @@ import com.trade.injector.business.service.GenerateRandomInstruments;
 import com.trade.injector.business.service.GenerateRandomParty;
 import com.trade.injector.business.service.GenerateTradeData;
 import com.trade.injector.dto.Instrument;
-import com.trade.injector.dto.Party;
 import com.trade.injector.dto.Trade;
+import com.trade.injector.jto.Party;
 import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectRunModes;
 import com.trade.injector.jto.TradeInjectorMessage;
@@ -336,7 +338,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		int numberOfInstruments = new Integer(message.getNoOfInstruments());
 		int timedelay = 0;
 		message.setRun_mode(TradeInjectRunModes.RUNNING.getRunMode());
+		String pattern = "MM/dd/yyyy";
+	    SimpleDateFormat format = new SimpleDateFormat(pattern);
 
+		message.setInjectDate(format.format(new Date(System.currentTimeMillis())));
 		LOG.info("Injecting trades with the following user "
 				+ message.getUserId());
 

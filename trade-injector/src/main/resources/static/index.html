@@ -195,7 +195,8 @@
 								<thead>
 									<tr>
 										<th>Trade Inject Message Id</th>
-										<th>User</th>										
+										<th>User</th>
+										<th>Date Injected</th>										
 										<th>Trade Count</th>
 										<th>Client Count</th>
 										<th>Instrument Count</th>
@@ -206,7 +207,8 @@
 								<tbody>
 									<tr ng-repeat="x in tradeInjectMessages">
 										<td>{{x.id}}</td>
-										<td>{{x.userId}}</td>										
+										<td>{{x.userId}}</td>
+										<td>{{x.injectDate}}</td>																				
 										<td>{{x.noOfTrades}}</td>
 										<td>{{x.noOfClients}}</td>
 										<td>{{x.noOfClients}}</td>
