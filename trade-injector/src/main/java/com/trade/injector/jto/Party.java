@@ -3,6 +3,7 @@ package com.trade.injector.jto;
 
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import com.trade.injector.enums.PartyRole;
 
@@ -11,13 +12,14 @@ public class Party {
 	@Id
 	public String id;
 	
+	@Indexed
 	private String partyId;
 	private String partyName;
 	private String accountNumber;
 	private String subAccount;
 	private PartyRole role;
-	private Party immediateParent;
-	private Party rootParent;
+	private String immediateParent_id;
+	private String rootParent_id;
 
 	public String getPartyId() {
 		return partyId;
@@ -43,20 +45,20 @@ public class Party {
 		this.role = role;
 	}
 
-	public Party getImmediateParent() {
-		return immediateParent;
+	public String getImmediateParent() {
+		return immediateParent_id;
 	}
 
-	public void setImmediateParent(Party immediateParent) {
-		this.immediateParent = immediateParent;
+	public void setImmediateParent(String immediateParent) {
+		this.immediateParent_id = immediateParent;
 	}
 
-	public Party getRootParent() {
-		return rootParent;
+	public String getRootParent() {
+		return rootParent_id;
 	}
 
-	public void setRootParent(Party rootParent) {
-		this.rootParent = rootParent;
+	public void setRootParent(String rootParent) {
+		this.rootParent_id = rootParent;
 	}
 
 	public String getAccountNumber() {

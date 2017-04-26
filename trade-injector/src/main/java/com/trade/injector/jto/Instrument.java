@@ -1,5 +1,8 @@
 package com.trade.injector.jto;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+
 import com.trade.injector.enums.ExerciseStyle;
 import com.trade.injector.enums.PutCall;
 import com.trade.injector.enums.SecurityType;
@@ -7,7 +10,11 @@ import com.trade.injector.enums.SettlementMethod;
 
 public class Instrument {
 
-	private String idenfitifier;
+	@Id
+	public String id;
+	
+	@Indexed
+	private String identifier;
 	private SecurityType securityType;
 	private PutCall putCall;
 	private String MMY;
@@ -15,14 +22,14 @@ public class Instrument {
 	private String strikePx;
 	private SettlementMethod settMethod;
 	private ExerciseStyle exerciseStyle;
-	private Party exchange;
+	private String exchange_id;
 
 	public String getIdenfitifier() {
-		return idenfitifier;
+		return getIdenfitifier();
 	}
 
 	public void setIdenfitifier(String idenfitifier) {
-		this.idenfitifier = idenfitifier;
+		this.identifier = idenfitifier;
 	}
 
 	public SecurityType getSecurityType() {
@@ -65,12 +72,12 @@ public class Instrument {
 		this.strikePx = strikePx;
 	}
 
-	public Party getExchange() {
-		return exchange;
+	public String getExchange() {
+		return exchange_id;
 	}
 
-	public void setExchange(Party exchange) {
-		this.exchange = exchange;
+	public void setExchange(String exchange) {
+		this.exchange_id = exchange;
 	}
 
 	public SettlementMethod getSettMethod() {

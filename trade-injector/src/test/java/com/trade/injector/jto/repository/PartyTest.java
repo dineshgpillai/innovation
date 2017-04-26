@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.trade.injector.controller.TradeInjectorController;
@@ -20,6 +22,9 @@ public class PartyTest {
 
 	@Autowired
 	PartyRepository repo;
+
+	@Autowired
+	private MongoTemplate coreTemplate;
 
 	@Before
 	public void createSingleClient() {
@@ -67,16 +72,39 @@ public class PartyTest {
 		executingBroker.setAccountNumber("EX1");
 		executingBroker.setPartyId("TESTEXECID1");
 		executingBroker.setRole(PartyRole.EXECUTINGFIRM);
-		executingBroker.setImmediateParent(immediateParent);
+		executingBroker.setImmediateParent(immediateParent.id);
 
 		repo.save(executingBroker);
-		
+
 		assertEquals(2, repo.findAll().size());
-		
+
 		Party test2party = repo.findByPartyId("TESTEXECID1");
-		
+
 		assertNotNull(test2party);
 		assertNotNull(test2party.getImmediateParent());
+
+	}
+
+	@Test
+	public void testImmediateParentSearch() {
+
+		Party immediateParent = repo.findByPartyId("PARTY01");
+
+		Party executingBroker = new Party();
+		executingBroker.setAccountNumber("EX1");
+		executingBroker.setPartyId("TESTEXECID1");
+		executingBroker.setRole(PartyRole.EXECUTINGFIRM);
+		executingBroker.setImmediateParent(immediateParent.id);
+
+		repo.save(executingBroker);
+
+		assertEquals(2, repo.findAll().size());
+
+		BasicQuery query1 = new BasicQuery(
+				"{ partyId : 'TESTEXECID1', role : 'EXECUTINGFIRM' }");
+		Party userTest1 = coreTemplate.findOne(query1, Party.class);
+
+		assertNotNull(userTest1);
 
 	}
 
@@ -87,10 +115,10 @@ public class PartyTest {
 
 		if (test1party != null)
 			repo.delete(test1party);
-		
+
 		if (test2party != null)
 			repo.delete(test2party);
-		
+
 	}
 
 }
