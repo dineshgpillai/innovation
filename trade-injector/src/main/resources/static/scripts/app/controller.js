@@ -1,8 +1,8 @@
 angular
-		.module("TradeInjectorApp.controllers")
+		.module("TradeInjectorApp.controllers", ['angularModalService'])
 		.controller(
 				"TradeInjectCtrl",
-				function($scope, $http, $location, TradeInjectorService) {
+				function($scope, $http, $location, TradeInjectorService, ModalService) {
 
 					$scope.tradeAcks = [];
 					// $scope.tradeInjectorMessage = [];
@@ -77,7 +77,7 @@ angular
 						$scope.totalMsgCount = [ 0 ];
 						console.log('Before sending '
 								+ $scope.tradeInjectorMessage);
-						//set the user id
+						// set the user id
 						$scope.tradeInjectorMessage.userId=$scope.user 
 						TradeInjectorService.send($scope.tradeInjectorMessage);
 					};
@@ -140,6 +140,22 @@ angular
 																				
 
 									});
+					
+					// show the angular window
+					$scope.show=function(){
+						
+						ModalService.showModal({
+							templateUrl:'/showTableData.html',
+							controller: "ModalController"
+								
+						}).then(function(modal){
+							modal.element.modal();
+							modal.close.then(function(result){
+								$scope.message = "You said "+result;
+							});
+						});
+						
+					};
 
 				}
 
@@ -293,4 +309,9 @@ angular
 					null, null, function(data) {
 						$scope.tradeInjectMessages = data;
 					});
+				})
+				.controller('ModalController', function($scope, close){
+					$scope.close = function(result){
+						close(result, 1500);
+					}
 				});
