@@ -25,7 +25,7 @@ public class Instrument {
 	private String exchange_id;
 
 	public String getIdenfitifier() {
-		return getIdenfitifier();
+		return identifier;
 	}
 
 	public void setIdenfitifier(String idenfitifier) {
