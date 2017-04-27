@@ -83,63 +83,6 @@ angular
 						TradeInjectorService.send($scope.tradeInjectorMessage);
 					};
 
-					// Receives the trade ack and summarises the trade count
-					/*TradeInjectorService
-							.receive()
-							.then(
-
-									null,
-									null,
-									function(data) {
-										$scope.showGeneration = true;
-										$scope.tradeAcks.push(data);
-										var clientNameIndex = $scope.labels
-												.indexOf(data.clientName)
-
-										if (clientNameIndex == -1) {
-											// this is a new client set the
-											// trade count
-											// appropriately
-											$scope.clientCount.push(1);
-											$scope.labels.push(data.clientName);
-										} else {
-											// existing client, update the trade
-											// count
-											$scope.clientCount
-													.splice(
-															clientNameIndex,
-															1,
-															$scope.clientCount[clientNameIndex] + 1);
-											$scope.labels.splice(
-													clientNameIndex, 1,
-													data.clientName);
-										}
-
-										// do the same for instruments
-										var instrumentIdIndex = $scope.labels_instrument
-												.indexOf(data.instrumentId)
-
-										if (instrumentIdIndex == -1) {
-											$scope.instrumentCount.push(1);
-											$scope.labels_instrument
-													.push(data.instrumentId);
-										} else {
-											$scope.instrumentCount
-													.splice(
-															instrumentIdIndex,
-															1,
-															$scope.instrumentCount[instrumentIdIndex] + 1);
-											$scope.labels_instrument.splice(
-													instrumentIdIndex, 1,
-													data.instrumentId)
-										}
-
-										// increment the msg count
-										$scope.totalMsgCount.splice(0, 1,
-												$scope.totalMsgCount[0] + 1);
-
-									});
-*/
 				}
 
 		)
@@ -315,7 +258,8 @@ angular
 						'injectId',
 						'close',
 						'TradeInjectorService',
-						function($scope, $element, injectId, close, TradeInjectorService) {
+						function($scope, $element, injectId, close,
+								TradeInjectorService) {
 
 							$scope.injectId = injectId;
 							$scope.tradeAcks = [];
@@ -333,7 +277,7 @@ angular
 											null,
 											null,
 											function(data) {
-												
+
 												$scope.tradeAcks.push(data);
 												var clientNameIndex = $scope.labels
 														.indexOf(data.clientName)
