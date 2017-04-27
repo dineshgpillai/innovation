@@ -1,8 +1,9 @@
 angular
-		.module("TradeInjectorApp.controllers", ['angularModalService'])
+		.module("TradeInjectorApp.controllers", [ 'angularModalService' ])
 		.controller(
 				"TradeInjectCtrl",
-				function($scope, $http, $location, TradeInjectorService, ModalService) {
+				function($scope, $http, $location, TradeInjectorService,
+						ModalService) {
 
 					$scope.tradeAcks = [];
 					// $scope.tradeInjectorMessage = [];
@@ -78,12 +79,12 @@ angular
 						console.log('Before sending '
 								+ $scope.tradeInjectorMessage);
 						// set the user id
-						$scope.tradeInjectorMessage.userId=$scope.user 
+						$scope.tradeInjectorMessage.userId = $scope.user
 						TradeInjectorService.send($scope.tradeInjectorMessage);
 					};
 
 					// Receives the trade ack and summarises the trade count
-					TradeInjectorService
+					/*TradeInjectorService
 							.receive()
 							.then(
 
@@ -137,37 +138,19 @@ angular
 										$scope.totalMsgCount.splice(0, 1,
 												$scope.totalMsgCount[0] + 1);
 
-																				
-
 									});
-					
-					// show the angular window
-					$scope.show=function(){
-						
-						ModalService.showModal({
-							templateUrl:'/showTableData.html',
-							controller: "ModalController"
-								
-						}).then(function(modal){
-							modal.element.modal();
-							modal.close.then(function(result){
-								$scope.message = "You said "+result;
-							});
-						});
-						
-					};
-
+*/
 				}
 
 		)
 		.controller(
 				"TradeInjectTableDisplay",
-				function($scope, $http, $location, TradeInjectorService) {
+				function($scope, $http, $location, TradeInjectorService,
+						ModalService) {
 
 					$scope.user = [];
 					$scope.authenticated = false;
-					
-					
+
 					$http.get("/user").success(function(data) {
 						$scope.user = data.userAuthentication.details.name;
 						$scope.authenticated = true;
@@ -238,7 +221,7 @@ angular
 										});
 
 					}
-					
+
 					$scope.play = function(injectId) {
 						var data = $.param({
 							id : injectId
@@ -250,24 +233,19 @@ angular
 							}
 						}
 
-						$http
-								.post('/tradeMessagePlay', data, config)
-								.success(
-										function(data, status, headers, config) {
-											$scope.PostDataResponse = data;
-											$scope.showGeneration = false;
-										}).error(
-										function(data, status, header, config) {
-											$scope.ResponseDetails = "Data: "
-													+ data + "<hr />status: "
-													+ status
-													+ "<hr />headers: "
-													+ header + "<hr />config: "
-													+ config;
-										});
+						$http.post('/tradeMessagePlay', data, config).success(
+								function(data, status, headers, config) {
+									$scope.PostDataResponse = data;
+									$scope.showGeneration = false;
+								}).error(
+								function(data, status, header, config) {
+									$scope.ResponseDetails = "Data: " + data
+											+ "<hr />status: " + status
+											+ "<hr />headers: " + header
+											+ "<hr />config: " + config;
+								});
 
 					}
-
 
 					$scope.purgeAll = function() {
 						$http
@@ -309,9 +287,111 @@ angular
 					null, null, function(data) {
 						$scope.tradeInjectMessages = data;
 					});
+
+					// show the angular window
+					$scope.showTable = function(injectid) {
+
+						ModalService.showModal({
+							templateUrl : '/showTableData.html',
+							controller : "ModalTableController",
+							inputs : {
+								injectId : injectid
+							}
+
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.message = "You said " + result;
+							});
+						});
+
+					};
 				})
-				.controller('ModalController', function($scope, close){
-					$scope.close = function(result){
-						close(result, 1500);
-					}
-				});
+		.controller(
+				'ModalTableController',
+				[
+						'$scope',
+						'$element',
+						'injectId',
+						'close',
+						'TradeInjectorService',
+						function($scope, $element, injectId, close, TradeInjectorService) {
+
+							$scope.injectId = injectId;
+							$scope.tradeAcks = [];
+							$scope.labels = [];
+							$scope.data = [];
+							$scope.labels_instrument = [];
+							$scope.instrumentCount = [];
+							$scope.clientCount = [];
+							$scope.totalMsgCount = [ 0 ];
+
+							TradeInjectorService
+									.receive()
+									.then(
+
+											null,
+											null,
+											function(data) {
+												
+												$scope.tradeAcks.push(data);
+												var clientNameIndex = $scope.labels
+														.indexOf(data.clientName)
+
+												if (clientNameIndex == -1) {
+													// this is a new client set
+													// the
+													// trade count
+													// appropriately
+													$scope.clientCount.push(1);
+													$scope.labels
+															.push(data.clientName);
+												} else {
+													// existing client, update
+													// the trade
+													// count
+													$scope.clientCount
+															.splice(
+																	clientNameIndex,
+																	1,
+																	$scope.clientCount[clientNameIndex] + 1);
+													$scope.labels.splice(
+															clientNameIndex, 1,
+															data.clientName);
+												}
+
+												// do the same for instruments
+												var instrumentIdIndex = $scope.labels_instrument
+														.indexOf(data.instrumentId)
+
+												if (instrumentIdIndex == -1) {
+													$scope.instrumentCount
+															.push(1);
+													$scope.labels_instrument
+															.push(data.instrumentId);
+												} else {
+													$scope.instrumentCount
+															.splice(
+																	instrumentIdIndex,
+																	1,
+																	$scope.instrumentCount[instrumentIdIndex] + 1);
+													$scope.labels_instrument
+															.splice(
+																	instrumentIdIndex,
+																	1,
+																	data.instrumentId)
+												}
+
+												// increment the msg count
+												$scope.totalMsgCount
+														.splice(
+																0,
+																1,
+																$scope.totalMsgCount[0] + 1);
+
+											});
+
+							$scope.close = function(result) {
+								close(result, 1500);
+							}
+						} ]);
