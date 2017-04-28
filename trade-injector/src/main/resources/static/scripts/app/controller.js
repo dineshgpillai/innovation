@@ -1,5 +1,6 @@
 angular
-		.module("TradeInjectorApp.controllers", [ 'angularModalService' ])
+		.module("TradeInjectorApp.controllers",
+				[ 'angularModalService', 'ngAnimate' ])
 		.controller(
 				"TradeInjectCtrl",
 				function($scope, $http, $location, TradeInjectorService,
@@ -258,8 +259,9 @@ angular
 						'injectId',
 						'close',
 						'TradeInjectorService',
+						'filterFilter',
 						function($scope, $element, injectId, close,
-								TradeInjectorService) {
+								TradeInjectorService, filterFilter) {
 
 							$scope.injectId = injectId;
 							$scope.tradeAcks = [];
@@ -278,60 +280,77 @@ angular
 											null,
 											function(data) {
 
-												$scope.tradeAcks.push(data);
-												var clientNameIndex = $scope.labels
-														.indexOf(data.clientName)
+												console
+														.log("data received "
+																+ data.injectIdentifier);
+												console.log("inject id "
+														+ injectId);
 
-												if (clientNameIndex == -1) {
-													// this is a new client set
-													// the
-													// trade count
-													// appropriately
-													$scope.clientCount.push(1);
-													$scope.labels
-															.push(data.clientName);
-												} else {
-													// existing client, update
-													// the trade
-													// count
-													$scope.clientCount
+												if (injectId === data.injectIdentifier) {
+													console
+															.log("Yes we have got the right inject id");
+													$scope.tradeAcks.push(data);
+													var clientNameIndex = $scope.labels
+															.indexOf(data.clientName)
+
+													if (clientNameIndex == -1) {
+														// this is a new client
+														// set
+														// the
+														// trade count
+														// appropriately
+														$scope.clientCount
+																.push(1);
+														$scope.labels
+																.push(data.clientName);
+													} else {
+														// existing client,
+														// update
+														// the trade
+														// count
+														$scope.clientCount
+																.splice(
+																		clientNameIndex,
+																		1,
+																		$scope.clientCount[clientNameIndex] + 1);
+														$scope.labels
+																.splice(
+																		clientNameIndex,
+																		1,
+																		data.clientName);
+													}
+
+													// do the same for
+													// instruments
+													var instrumentIdIndex = $scope.labels_instrument
+															.indexOf(data.instrumentId)
+
+													if (instrumentIdIndex == -1) {
+														$scope.instrumentCount
+																.push(1);
+														$scope.labels_instrument
+																.push(data.instrumentId);
+													} else {
+														$scope.instrumentCount
+																.splice(
+																		instrumentIdIndex,
+																		1,
+																		$scope.instrumentCount[instrumentIdIndex] + 1);
+														$scope.labels_instrument
+																.splice(
+																		instrumentIdIndex,
+																		1,
+																		data.instrumentId)
+													}
+
+													// increment the msg count
+													$scope.totalMsgCount
 															.splice(
-																	clientNameIndex,
+																	0,
 																	1,
-																	$scope.clientCount[clientNameIndex] + 1);
-													$scope.labels.splice(
-															clientNameIndex, 1,
-															data.clientName);
+																	$scope.totalMsgCount[0] + 1);
+
 												}
-
-												// do the same for instruments
-												var instrumentIdIndex = $scope.labels_instrument
-														.indexOf(data.instrumentId)
-
-												if (instrumentIdIndex == -1) {
-													$scope.instrumentCount
-															.push(1);
-													$scope.labels_instrument
-															.push(data.instrumentId);
-												} else {
-													$scope.instrumentCount
-															.splice(
-																	instrumentIdIndex,
-																	1,
-																	$scope.instrumentCount[instrumentIdIndex] + 1);
-													$scope.labels_instrument
-															.splice(
-																	instrumentIdIndex,
-																	1,
-																	data.instrumentId)
-												}
-
-												// increment the msg count
-												$scope.totalMsgCount
-														.splice(
-																0,
-																1,
-																$scope.totalMsgCount[0] + 1);
 
 											});
 

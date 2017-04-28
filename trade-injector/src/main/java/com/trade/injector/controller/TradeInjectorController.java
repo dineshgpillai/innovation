@@ -278,7 +278,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			startFrom++;
 			Trade aTrade = tradeData.createTradeData(startFrom, listOfParties,
 					listOfInstruments);
-			TradeAcknowledge ack = convertToAck(aTrade);
+			TradeAcknowledge ack = convertToAck(aTrade, tradeInjectMessagetoRun.id);
 			messageSender.convertAndSend("/topic/tradeAck", ack);
 			LOG.debug(("Following trade was generated " + aTrade.toString()));
 
@@ -370,7 +370,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 			Trade aTrade = tradeData.createTradeData(i, listOfParties,
 					listOfInstruments);
-			TradeAcknowledge ack = convertToAck(aTrade);
+			TradeAcknowledge ack = convertToAck(aTrade, savedMessage.id);
 			messageSender.convertAndSend("/topic/tradeAck", ack);
 			LOG.debug(("Following trade was generated " + aTrade.toString()));
 			LOG.debug("Sleeping for " + timedelay + " ms");
@@ -420,9 +420,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				listofMessages);
 	}
 
-	private TradeAcknowledge convertToAck(Trade aTrade) {
+	private TradeAcknowledge convertToAck(Trade aTrade, String id) {
 		TradeAcknowledge ack = new TradeAcknowledge();
 		if (aTrade != null) {
+			ack.setInjectIdentifier(id);
 			ack.setClientName(aTrade.getClientName());
 			ack.setInstrumentId(aTrade.getInstrumentId());
 			ack.setSide(aTrade.getSide());
