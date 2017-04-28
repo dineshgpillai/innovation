@@ -304,8 +304,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		}
 
 		// finally set to complete only if we have a genuine complete
-		if (iterations == numberOfTrades) {
-			tradeInjectMessagetoRun.setCurrenMessageCount(new Integer(iterations).toString());
+		if (startFrom == numberOfTrades) {
+			tradeInjectMessagetoRun.setCurrenMessageCount(new Integer(startFrom).toString());
 			tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.COMPLETED
 					.getRunMode());
 			repo.save(tradeInjectMessagetoRun);
