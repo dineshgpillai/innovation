@@ -1,0 +1,62 @@
+<div class="modal fade">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<a href="#"><i class="fa fa-database fa-fw" aria-hidden="true"></i>
+					<h4 class="modal-title">{{injectId}}</h4>
+					<button type="button" class="close" ng-click="close('Cancel')"
+						data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body">
+
+
+				<form>
+					<div class="form-group">
+
+						<div class="form-group">
+							<label for="nameOfInjector">Name</label> <input type="text"
+								class="form-control" id="nameOfInjector"
+								aria-describedby="nameOfInjectorHelp"
+								placeholder="Enter name of Injector"> <small
+								id="nameOfInjectorHelp" class="form-text text-muted">This
+								name of injector which that can be easily identifiable </small>
+						</div>
+
+						<span class="input-group-addon" id="basic-addon1">Trades</span> <input
+							type="text" ng-model="tradeInjectorMessage.noOfTrades"
+							class="form-control" size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1"> <span
+							class="input-group-addon" id="basic-addon1">Clients</span> <input
+							type="text" ng-model="tradeInjectorMessage.noOfClients"
+							class="form-control" size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1"> <span
+							class="input-group-addon" id="basic-addon1">Instruments</span> <input
+							type="text" ng-model="tradeInjectorMessage.noOfInstruments"
+							class="form-control" size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1">
+
+					</div>
+
+					<div class="input-group">
+						<span class="input-group-addon" id="basic-addon1">Simulated
+							Wait Time (in millisecs)</span> <input type="text"
+							ng-model="tradeInjectorMessage.timeDelay" class="form-control"
+							size="10" placeholder="Enter a Number"
+							aria-describedby="basic-addon1">
+
+					</div>
+
+
+
+					<div class="button-group" role="group">
+						<a class="btn btn-default" ng-click="injectTrades()" role="button"><i
+							class="fa fa-cogs fa-fw"></i> Generate</a> <a class="btn btn-default"
+							href="#"><i class="fa fa-adjust fa-fw"></i> Reset</a>
+					</div>
+
+
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

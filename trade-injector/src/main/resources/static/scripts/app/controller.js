@@ -84,6 +84,25 @@ angular
 						TradeInjectorService.send($scope.tradeInjectorMessage);
 					};
 
+					// show the angular window
+					$scope.showCreateProfile = function(injectid) {
+
+						ModalService.showModal({
+							templateUrl : '/createNewProfile.html',
+							controller : "ModalCreateNewController",
+							inputs : {
+								injectId : injectid
+							}
+
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.message = "You said " + result;
+							});
+						});
+
+					};
+
 				}
 
 		)
@@ -353,6 +372,21 @@ angular
 												}
 
 											});
+
+							$scope.close = function(result) {
+								close(result, 1500);
+							}
+						} ]).controller(
+				'ModalCreateNewController',
+				[
+						'$scope',
+						'$element',
+						'injectId',
+						'close',
+						'TradeInjectorService',
+						'filterFilter',
+						function($scope, $element, injectId, close,
+								TradeInjectorService, filterFilter) {
 
 							$scope.close = function(result) {
 								close(result, 1500);
