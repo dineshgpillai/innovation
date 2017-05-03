@@ -388,7 +388,23 @@ angular
 						function($scope, $element, injectId, close,
 								TradeInjectorService, filterFilter) {
 
+							$scope.add = function(){
+								alert('we are in add');
+							};
+							
+							$scope.save = function(isValid) {
+
+								// check to make sure the form is completely
+								// valid
+								if (isValid) {
+									alert('our form is amazing');
+								}
+
+							};
+							
+							
+
 							$scope.close = function(result) {
-								close(result, 1500);
-							}
+								close(result, 500);
+							};
 						} ]);
