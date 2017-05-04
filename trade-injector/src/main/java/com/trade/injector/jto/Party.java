@@ -19,6 +19,7 @@ public class Party {
 	private String subAccount;
 	private PartyRole role;
 	private String immediateParent_id;
+	private int apportionment;
 	private String rootParent_id;
 
 	public String getPartyId() {
@@ -75,6 +76,14 @@ public class Party {
 
 	public void setSubAccount(String subAccount) {
 		this.subAccount = subAccount;
+	}
+
+	public int getApportionment() {
+		return apportionment;
+	}
+
+	public void setApportionment(int apportionment) {
+		this.apportionment = apportionment;
 	}
 
 	

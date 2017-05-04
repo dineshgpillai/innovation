@@ -22,6 +22,7 @@ public class Instrument {
 	private String strikePx;
 	private SettlementMethod settMethod;
 	private ExerciseStyle exerciseStyle;
+	private int apportionment;
 	private String exchange_id;
 
 	public String getIdenfitifier() {
@@ -94,6 +95,14 @@ public class Instrument {
 
 	public void setExerciseStyle(ExerciseStyle exerciseStyle) {
 		this.exerciseStyle = exerciseStyle;
+	}
+
+	public int getApportionment() {
+		return apportionment;
+	}
+
+	public void setApportionment(int apportionment) {
+		this.apportionment = apportionment;
 	}
 
 	

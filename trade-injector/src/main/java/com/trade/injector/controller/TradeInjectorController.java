@@ -61,8 +61,10 @@ import com.trade.injector.jto.Instrument;
 import com.trade.injector.jto.Party;
 import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeInjectorMessage;
+import com.trade.injector.jto.TradeInjectorProfile;
 import com.trade.injector.jto.repository.MongoDBTemplate;
 import com.trade.injector.jto.repository.TradeInjectorMessageRepository;
+import com.trade.injector.jto.repository.TradeInjectorProfileRepository;
 
 @SpringBootApplication(scanBasePackages = "com.trade.injector")
 @EnableOAuth2Client
@@ -90,7 +92,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	@Autowired(required = true)
 	private TradeInjectorMessageRepository repo;
 
-	private static boolean isKill = false;
+	@Autowired
+	private TradeInjectorProfileRepository profileRepo;
 
 	@RequestMapping("/user")
 	public Principal user(Principal principal) {
@@ -241,10 +244,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		TradeInjectorMessage tradeInjectMessagetoRepeat = coreTemplate.findOne(
 				Query.query(Criteria.where("id").is(messageId)),
 				TradeInjectorMessage.class);
-		
 
 		if (tradeInjectMessagetoRepeat != null) {
-			//reset the message count to 0
+			// reset the message count to 0
 			tradeInjectMessagetoRepeat.setCurrenMessageCount("0");
 			runTradeInjectForTradeInjectId(tradeInjectMessagetoRepeat);
 		} else
@@ -253,7 +255,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	
 	private void runTradeInjectForTradeInjectId(
 			TradeInjectorMessage tradeInjectMessagetoRun) throws Exception {
 
@@ -269,16 +270,18 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				tradeInjectMessagetoRun.getCurrenMessageCount());
 		int numberOfTrades = new Integer(
 				tradeInjectMessagetoRun.getNoOfTrades());
-		
-		//set it to run
-		tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.RUNNING.getRunMode());
+
+		// set it to run
+		tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.RUNNING
+				.getRunMode());
 
 		while (startFrom != numberOfTrades) {
-			
+
 			startFrom++;
 			Trade aTrade = tradeData.createTradeData(startFrom, listOfParties,
 					listOfInstruments);
-			TradeAcknowledge ack = convertToAck(aTrade, tradeInjectMessagetoRun.id);
+			TradeAcknowledge ack = convertToAck(aTrade,
+					tradeInjectMessagetoRun.id);
 			messageSender.convertAndSend("/topic/tradeAck", ack);
 			LOG.debug(("Following trade was generated " + aTrade.toString()));
 
@@ -299,13 +302,13 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				break;
 
 			iterations++;
-			
 
 		}
 
 		// finally set to complete only if we have a genuine complete
 		if (startFrom == numberOfTrades) {
-			tradeInjectMessagetoRun.setCurrenMessageCount(new Integer(startFrom).toString());
+			tradeInjectMessagetoRun
+					.setCurrenMessageCount(new Integer(startFrom).toString());
 			tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.COMPLETED
 					.getRunMode());
 			repo.save(tradeInjectMessagetoRun);
@@ -328,6 +331,16 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
+	@RequestMapping(value = "/saveTradeInjectProfile", method = RequestMethod.POST)
+	public ResponseEntity<TradeInjectorProfile> saveTradeInjectProfile(
+			@RequestBody TradeInjectorProfile profile) throws Exception {
+
+		profileRepo.save(profile);
+
+		return ResponseEntity.ok(profile);
+
+	}
+
 	@MessageMapping("/tradeMessageInject")
 	// @RequestMapping(method = RequestMethod.POST)
 	public void tradeInject(@RequestBody TradeInjectorMessage message)
@@ -339,7 +352,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		int timedelay = 0;
 		message.setRun_mode(TradeInjectRunModes.RUNNING.getRunMode());
 		String pattern = "MM/dd/yyyy";
-	    SimpleDateFormat format = new SimpleDateFormat(pattern);
+		SimpleDateFormat format = new SimpleDateFormat(pattern);
 
 		message.setInjectDate(format.format(new Date(System.currentTimeMillis())));
 		LOG.info("Injecting trades with the following user "
