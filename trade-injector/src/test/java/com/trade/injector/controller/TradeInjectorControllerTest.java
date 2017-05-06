@@ -20,6 +20,7 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.trade.injector.application.Application;
@@ -130,9 +131,13 @@ public class TradeInjectorControllerTest {
 
 		String jsonMessage = this.json(testProfile);
 
-		mockMvc.perform(
+		MvcResult result = mockMvc.perform(
 				post("/saveTradeInjectProfile").content(jsonMessage)
-						.contentType(contentType)).andExpect(status().isOk());
+						.contentType(contentType)).andExpect(status().isOk()).andReturn();
+
+		String content = result.getResponse().getContentAsString();
+		System.out.println(content);
+		assertTrue(content.contains("testProfile"));
 		// now confirm whether it actually saved the object
 		BasicQuery query = new BasicQuery("{ name : 'testProfile'}");
 		TradeInjectorProfile profile = coreTemplate.findOne(query,
@@ -142,6 +147,45 @@ public class TradeInjectorControllerTest {
 		repo.delete(profile);
 
 	}
+	
+	@Test
+	public void testGetProfiles() throws Exception {
+
+		TradeInjectorProfile testProfile = new TradeInjectorProfile();
+		testProfile.setName("testProfile");
+		testProfile.setNumberOfParties(10);
+		testProfile.setNumberOfInstruments(10);
+		testProfile.setMaxPxRange(200.00);
+		testProfile.setMaxQtyRange(200);
+		testProfile.setMinPxRange(50.00);
+		testProfile.setMinQtyRange(10);
+		testProfile.setNumberOfTrades(1000);
+		testProfile.setSimulatedWaitTime(1000);
+		testProfile.setThreads(5);
+		testProfile.setTradeDate(new Date(System.currentTimeMillis()));
+
+		String jsonMessage = this.json(testProfile);
+
+		mockMvc.perform(
+				post("/saveTradeInjectProfile").content(jsonMessage)
+						.contentType(contentType)).andExpect(status().isOk());
+		// now confirm whether it actually saved the object
+		BasicQuery query = new BasicQuery("{ name : 'testProfile'}");
+		TradeInjectorProfile profile = coreTemplate.findOne(query,
+				TradeInjectorProfile.class);
+		assertNotNull(profile);
+		
+		//now read it back through get method
+		MvcResult result = mockMvc.perform(
+				get("/getAllInjectProfiles")).andExpect(status().isOk()).andReturn();
+		String content = result.getResponse().getContentAsString();
+		System.out.println(content);
+		assertTrue(content.contains("testProfile"));
+
+		repo.delete(profile);
+
+	}
+
 	
 	@After
 	public void cleanUp(){

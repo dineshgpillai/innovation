@@ -340,6 +340,14 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		return ResponseEntity.ok(profile);
 
 	}
+	
+	@RequestMapping(value = "/getAllInjectProfiles", method = RequestMethod.GET)
+	public ResponseEntity<List<TradeInjectorProfile>> saveTradeInjectProfile(
+			) throws Exception {
+
+		return ResponseEntity.ok(profileRepo.findAll());
+
+	}
 
 	@MessageMapping("/tradeMessageInject")
 	// @RequestMapping(method = RequestMethod.POST)

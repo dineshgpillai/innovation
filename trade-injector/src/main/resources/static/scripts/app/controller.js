@@ -376,33 +376,74 @@ angular
 							$scope.close = function(result) {
 								close(result, 1500);
 							}
-						} ]).controller(
+						} ])
+		.controller(
 				'ModalCreateNewController',
 				[
 						'$scope',
 						'$element',
+						'$http',
 						'injectId',
 						'close',
 						'TradeInjectorService',
 						'filterFilter',
-						function($scope, $element, injectId, close,
+						function($scope, $element, $http, injectId, close,
 								TradeInjectorService, filterFilter) {
 
-							$scope.add = function(){
+							$scope.showStatus = [];
+							//$scope.tradeInjectorProfile={};
+
+							$scope.add = function() {
 								alert('we are in add');
 							};
-							
+
+							$scope.addInstruments = function() {
+								alert('we are in add Instruments');
+							};
+
 							$scope.save = function(isValid) {
 
 								// check to make sure the form is completely
 								// valid
 								if (isValid) {
-									alert('our form is amazing');
+
+									$scope.showStatus = [];
+									var data = $scope.tradeInjectorProfile;
+									console.log('Data before post '+$scope.tradeInjectorProfile);
+
+									var config = {
+										headers : {
+											'Content-Type' : 'application/json;'
+										}
+									}
+
+									$http
+											.post('/saveTradeInjectProfile', data,
+													config)
+											.success(
+													function(data, status,
+															headers, config) {
+														$scope.PostDataResponse = data;
+														$scope.showStatus="Success!";
+														console.log('Data received after save '+data);
+														
+													})
+											.error(
+													function(data, status,
+															header, config) {
+														$scope.showStatus = "Data: "
+																+ data
+																+ "<hr />status: "
+																+ status
+																+ "<hr />headers: "
+																+ header
+																+ "<hr />config: "
+																+ config;
+													});
+
 								}
 
 							};
-							
-							
 
 							$scope.close = function(result) {
 								close(result, 500);
