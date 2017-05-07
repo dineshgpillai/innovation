@@ -22,15 +22,21 @@
 								<div class="row">
 									<div class="col-sm-12">
 										<label for="nameOfInjector">Name</label> <input type="text"
-											class="form-control" ng-model="tradeInjectorProfile.name"
-											id="name" aria-describedby="nameOfInjectorHelp"
-											placeholder="Enter name of Injector" ng-minlength="3"
-											ng-maxlength="20" required> <small id="nameOfInjectorHelp"
-											class="form-text text-muted">This name of injector
-											which that can be easily identifiable by you</small>
+											name="name" class="form-control"
+											ng-model="tradeInjectorProfile.name"
+											aria-describedby="nameOfInjectorHelp" ng-minlength="3"
+											ng-maxlength="20" required> <small
+											id="nameOfInjectorHelp" class="form-text text-muted">This
+											name of injector which that can be easily identifiable by you</small>
 										<p
 											ng-show="createProfileForm.name.$invalid && !createProfileForm.name.$pristine"
-											class="help-block">You name is required.</p>
+											class="help-block">A name is required with min and max of
+											30 chars</p>
+
+										<p ng-show="createProfileForm.name.$error.minlength"
+											class="help-block">name is too short.</p>
+										<p ng-show="createProfileForm.name.$error.maxlength"
+											class="help-block">name is too long</p>
 
 									</div>
 								</div>
@@ -40,19 +46,32 @@
 								<div class="row">
 									<div class="col-sm-4">
 										<label for="numberOfTrades">Number of Trades</label> <input
-											type="number" class="form-control" id="numberOfTrades"
+											type="number" name="numberOfTrades" class="form-control"
 											ng-model="tradeInjectorProfile.numberOfTrades"
-											ng-minlength="2" aria-describedby="numberOfTradesHelp">
-										<small id="nameOfInjectorHelp" class="form-text text-muted">Number
-											of trades (a trade contains either the sell or buy side)</small>
+											ng-minlength="2" aria-describedby="numberOfTradesHelp"
+											required> <small id="nameOfInjectorHelp"
+											class="form-text text-muted">Number of trades (a
+											trade contains either the sell or buy side)</small>
+										<p
+											ng-show="createProfileForm.numberOfTrades.$invalid && !createProfileForm.numberOfTrades.$pristine"
+											class="help-block">Number of trades is required</p>
+										<p ng-show="createProfileForm.numberOfTrades.$error.minlength"
+											class="help-block">Number of trades is too small</p>
+
 									</div>
 									<div class="col-sm-4">
 										<label for="timeDelay">Time delay</label> <input type="number"
-											class="form-control" id="timeDelay"
+											name="timeDelay" class="form-control" id="timeDelay"
 											ng-model="tradeInjectorProfile.simulatedWaitTime"
-											aria-describedby="timeDelayHelp"> <small
-											id="timeDelayHelp" class="form-text text-muted">Time
+											aria-describedby="timeDelayHelp" ng-minlength="3" required>
+										<small id="timeDelayHelp" class="form-text text-muted">Time
 											delay must be stated in milliseconds</small>
+
+										<p
+											ng-show="createProfileForm.timeDelay.$invalid && !createProfileForm.timeDelay.$pristine"
+											class="help-block">Time delay required</p>
+										<p ng-show="createProfileForm.timeDelay.$error.minlength"
+											class="help-block">Time delay is too small</p>
 									</div>
 									<div class="col-sm-4">
 										<label for="threads">Threads</label> <input type="number"
@@ -77,11 +96,18 @@
 									<div class="col-sm-4"></div>
 
 									<div class="col-sm-4">
-										<input type="number" class="form-control" id="numberOfClients"
+										<input type="number" class="form-control"
+											name="numberOfClients"
 											ng-model="tradeInjectorProfile.numberOfParties"
-											aria-describedby="numberOfClientsHelp"> <small
+											aria-describedby="numberOfClientsHelp" requiredS> <small
 											id="numberOfClientsHelp" class="form-text text-muted">Number
 											or Parties</small>
+
+										<p
+											ng-show="createProfileForm.numberOfClients.$invalid && !createProfileForm.numberOfClients.$pristine"
+											class="help-block">Number of Parties required</p>
+
+
 									</div>
 
 								</div>
@@ -123,11 +149,16 @@
 
 									<div class="col-sm-4">
 										<input type="number" class="form-control"
-											id="numberOfInstruments"
+											name="numberOfInstruments"
 											ng-model="tradeInjectorProfile.numberOfInstruments"
-											aria-describedby="numberOfInstrumentsHelp">
-										<small id="numberOfInstrumentsHelp"
-											class="form-text text-muted">Number of Instruments</small>
+											aria-describedby="numberOfInstrumentsHelp" required> <small
+											id="numberOfInstrumentsHelp" class="form-text text-muted">Number
+											of Instruments</small>
+
+										<p
+											ng-show="createProfileForm.numberOfInstruments.$invalid && !createProfileForm.numberOfInstruments.$pristine"
+											class="help-block">Number of Instruments required</p>
+
 									</div>
 
 								</div>
@@ -135,10 +166,11 @@
 									<div class="row">
 										<div class="button-group" role="group">
 
-											<button type="submit" class="btn btn-default"
-												ng-disabled="createProfileForm.$invalid"><i class="fa fa-floppy-o fa-fw"></i> Save
+											<button type="submit" class="btn btn-primary"
+												ng-disabled="createProfileForm.$invalid">
+												<i class="fa fa-floppy-o fa-fw"></i> Save
 											</button>
-											<a class="btn btn-default" ng-click="close()" role="button"
+											<a class="btn btn-primary" ng-click="close()" role="button"
 												data-dismiss="modal"><i class="fa fa-times fa-fw"></i>
 												Close</a>
 
