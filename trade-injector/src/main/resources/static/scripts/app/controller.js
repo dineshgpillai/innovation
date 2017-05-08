@@ -391,7 +391,7 @@ angular
 								TradeInjectorService, filterFilter) {
 
 							$scope.showStatus = [];
-							//$scope.tradeInjectorProfile={};
+							// $scope.tradeInjectorProfile={};
 
 							$scope.add = function() {
 								alert('we are in add');
@@ -409,7 +409,8 @@ angular
 
 									$scope.showStatus = [];
 									var data = $scope.tradeInjectorProfile;
-									console.log('Data before post '+$scope.tradeInjectorProfile);
+									console.log('Data before post '
+											+ $scope.tradeInjectorProfile);
 
 									var config = {
 										headers : {
@@ -418,15 +419,17 @@ angular
 									}
 
 									$http
-											.post('/saveTradeInjectProfile', data,
-													config)
+											.post('/saveTradeInjectProfile',
+													data, config)
 											.success(
 													function(data, status,
 															headers, config) {
 														$scope.PostDataResponse = data;
-														$scope.showStatus="Success!";
-														console.log('Data received after save '+data);
-														
+														$scope.showStatus = "Success!";
+														console
+																.log('Data received after save '
+																		+ data);
+
 													})
 											.error(
 													function(data, status,
@@ -448,4 +451,32 @@ angular
 							$scope.close = function(result) {
 								close(result, 500);
 							};
-						} ]);
+						} ]).controller(
+				"TradeInjectProfileTableDisplay",
+				function($scope, $http, $location, TradeInjectorService,
+						ModalService) {
+
+					$scope.tradeInjectProfiles = [];
+					$scope.showStatus = [];
+
+					$http.get("/getAllInjectProfiles").success(function(data) {
+
+						$scope.tradeInjectProfiles = data;
+					}).error(function(data) {
+						$scope.showStatus = data;
+					});
+
+					// refresh the entire table
+					$scope.refreshAll = function() {
+
+						$http.get("/getAllInjectProfiles").success(
+								function(data) {
+
+									$scope.tradeInjectProfiles = data;
+								}).error(function(data) {
+							$scope.showStatus = data;
+						});
+
+					};
+
+				});
