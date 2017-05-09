@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
@@ -70,6 +71,7 @@ import com.trade.injector.jto.repository.TradeInjectorProfileRepository;
 @EnableOAuth2Client
 @RestController
 @EnableMongoRepositories(basePackages = "com.trade.injector.jto.repository")
+@EnableScheduling
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
@@ -205,7 +207,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					.getRunMode());
 			repo.save(tradeInjectMessagetoStop);
 
-			refreshTradeInjectQueue();
+			//refreshTradeInjectQueue();
 
 		} else
 			LOG.error("Unable to find message for the following id "
@@ -254,6 +256,17 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					+ messageId);
 
 	}
+	
+	@RequestMapping(value = "/tradeRunStart", method = RequestMethod.POST)
+	public void injectTradesOnProfile(@RequestBody TradeInjectorProfile profile) throws Exception{
+		
+		//First iterate through the entire list of Profile submitted
+		
+		//for each Profile create a TradeInjectorMessage and save to database
+		
+		//then call runTradeInjectForTradeInjectId
+		
+	}
 
 	private void runTradeInjectForTradeInjectId(
 			TradeInjectorMessage tradeInjectMessagetoRun) throws Exception {
@@ -289,7 +302,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					.setCurrenMessageCount(new Integer(startFrom).toString());
 			repo.save(tradeInjectMessagetoRun);
 
-			refreshTradeInjectQueue();
+			//refreshTradeInjectQueue();
 
 			Thread.sleep(new Integer(tradeInjectMessagetoRun.getTimeDelay()));
 
@@ -314,7 +327,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			repo.save(tradeInjectMessagetoRun);
 		}
 
-		refreshTradeInjectQueue();
+		//refreshTradeInjectQueue();
 
 	}
 
@@ -403,7 +416,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					.toString());
 			repo.save(retrieveForUpdate);
 
-			refreshTradeInjectQueue();
+			//refreshTradeInjectQueue();
 
 			Thread.sleep(timedelay);
 
@@ -428,18 +441,19 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			repo.save(retrieveForUpdate);
 		}
 
-		refreshTradeInjectQueue();
+		//refreshTradeInjectQueue();
 
 		// return ResponseEntity.ok().build();
 	}
 
-	private void refreshTradeInjectQueue() throws Exception {
+	//remove: this will be done in the scheduler
+	/*private void refreshTradeInjectQueue() throws Exception {
 
 		List<TradeInjectorMessage> listofMessages = repo.findAll();
 		// now push it to the queue so that everyone can see the update
 		messageSender.convertAndSend("/topic/tradeMessageInject",
 				listofMessages);
-	}
+	}*/
 
 	private TradeAcknowledge convertToAck(Trade aTrade, String id) {
 		TradeAcknowledge ack = new TradeAcknowledge();
