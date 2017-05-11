@@ -258,9 +258,18 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				TradeInjectorMessage.class);
 
 		if (tradeInjectMessagetoRepeat != null) {
+			
+			//remove the reports for Trade Data
+			TradeReport tradeReport = coreTemplate.findOne(
+					Query.query(Criteria.where("injectorMessageId").is(messageId)),
+					TradeReport.class);
+			reportRepo.delete(tradeReport);
+			
 			// reset the message count to 0
 			tradeInjectMessagetoRepeat.setCurrenMessageCount("0");
 			runTradeInjectForTradeInjectId(tradeInjectMessagetoRepeat);
+			
+			
 		} else
 			LOG.error("Unable to find message for the following id "
 					+ messageId);
@@ -360,6 +369,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			List<PartyReport> parties = new ArrayList<PartyReport>();
 			PartyReport newParty = new PartyReport();
 			newParty.setCurrentTradeCount(1);
+			newParty.setPreviousTradeCount(1);
 			newParty.setId(ack.getClientName());
 			newParty.setName(ack.getClientName());
 			parties.add(newParty);
@@ -441,6 +451,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	@RequestMapping(value = "/purgeAllInjects", method = RequestMethod.POST)
 	public void purgeAllInjects() {
 		repo.deleteAll();
+		reportRepo.deleteAll();
 		LOG.info("successfully deleted all trade inject messages records");
 	}
 

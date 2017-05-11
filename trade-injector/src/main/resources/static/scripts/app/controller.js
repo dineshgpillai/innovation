@@ -47,24 +47,6 @@ angular
 						});
 					};
 
-					$scope.options = {
-						responsive : true,
-						responsiveAnimationDuration : 1000,
-						title : {
-							display : true,
-							text : 'Trade Count by Client Chart'
-						}
-					};
-
-					$scope.options_instrument = {
-						responsive : true,
-						responsiveAnimationDuration : 1000,
-						title : {
-							display : true,
-							text : 'Trade Count by Instrument Chart'
-						}
-					};
-
 					$scope.datasetOverride = {
 						fill : false
 					};
@@ -291,6 +273,24 @@ angular
 							$scope.clientCount = [];
 							$scope.totalMsgCount = [ 0 ];
 
+							$scope.options = {
+								responsive : true,
+								responsiveAnimationDuration : 10,
+								title : {
+									display : false,
+									text : 'Trade Count by Client '
+								}
+							};
+
+							$scope.options_instrument = {
+								responsive : true,
+								responsiveAnimationDuration : 1000,
+								title : {
+									display : true,
+									text : 'Trade Count by Instrument'
+								}
+							};
+
 							TradeInjectorService
 									.receive()
 									.then(
@@ -299,76 +299,110 @@ angular
 											null,
 											function(data) {
 
+												
+												var filteredData = filterFilter(data, {injectorMessageId:injectId})
 												console
 														.log("data received "
-																+ data.injectIdentifier);
+																+ data[0].injectorMessageId);
 												console.log("inject id "
 														+ injectId);
+												
+												console.log("filtered data "
+														+ filteredData[0]);
 
-												if (injectId === data.injectIdentifier) {
+												if (injectId === filteredData[0].injectorMessageId) {
 													console
 															.log("Yes we have got the right inject id");
-													$scope.tradeAcks.push(data);
-													var clientNameIndex = $scope.labels
-															.indexOf(data.clientName)
+													// $scope.tradeAcks.push(data);
+													// var clientNameIndex =
+													// $scope.labels
+													// .indexOf(data[0].parties[0].id)
 
-													if (clientNameIndex == -1) {
-														// this is a new client
-														// set
-														// the
-														// trade count
-														// appropriately
-														$scope.clientCount
-																.push(1);
-														$scope.labels
-																.push(data.clientName);
-													} else {
-														// existing client,
-														// update
-														// the trade
-														// count
-														$scope.clientCount
-																.splice(
-																		clientNameIndex,
-																		1,
-																		$scope.clientCount[clientNameIndex] + 1);
-														$scope.labels
-																.splice(
-																		clientNameIndex,
-																		1,
-																		data.clientName);
+													filteredData[0].parties
+															.forEach(changePartyData);
+													// $scope.labels.splice(0,$scope.labels.length,
+													// data[0].parties.id);
+
+													// $scope.clientCount.splice(0,$scope.clientCount.length,
+													// data[0].parties.currentTradeCount);
+
+													function changePartyData(
+															element, index,
+															array) {
+
+														// first check if the
+														// party exist
+														var clientNameIndex = $scope.labels
+																.indexOf(element.id);
+
+														if (clientNameIndex == -1) {
+
+															// do the push
+															$scope.clientCount
+																	.push(element.currentTradeCount);
+															$scope.labels
+																	.push(element.id);
+
+														} else {
+
+															// splice only if
+															// the value has
+															// changed or dont
+															// change the array
+															if (element.previousTradeCount != element.currentTradeCount) {
+																$scope.labels
+																		.splice(
+																				clientNameIndex,
+																				1,
+																				element.id);
+																$scope.clientCount
+																		.splice(
+																				clientNameIndex,
+																				1,
+																				element.currentTradeCount);
+															}
+
+														}
+
 													}
+													;
 
 													// do the same for
 													// instruments
-													var instrumentIdIndex = $scope.labels_instrument
-															.indexOf(data.instrumentId)
 
-													if (instrumentIdIndex == -1) {
-														$scope.instrumentCount
-																.push(1);
-														$scope.labels_instrument
-																.push(data.instrumentId);
-													} else {
-														$scope.instrumentCount
-																.splice(
-																		instrumentIdIndex,
-																		1,
-																		$scope.instrumentCount[instrumentIdIndex] + 1);
-														$scope.labels_instrument
-																.splice(
-																		instrumentIdIndex,
-																		1,
-																		data.instrumentId)
+													// var instrumentIdIndex =
+													// $scope.labels_instrument
+													// .indexOf(data[0].instrumentId)
+
+													filteredData[0].instruments
+															.forEach(changeInstrumentData);
+
+													function changeInstrumentData(
+															instrument, index,
+															callback) {
+														var instrumentIdIndex = $scope.labels_instrument
+																.indexOf(instrument.id);
+														if (instrumentIdIndex == -1) {
+															// push
+															$scope.instrumentCount
+																	.push(instrument.currentTradeCount);
+															$scope.labels_instrument
+																	.push(instrument.id);
+														} else {
+															// splice
+															$scope.instrumentCount
+																	.splice(
+																			instrumentIdIndex,
+																			1,
+																			instrument.currentTradeCount);
+															$scope.labels_instrument
+																	.splice(
+																			instrumentIdIndex,
+																			1,
+																			instrument.id)
+														}
 													}
-
-													// increment the msg count
-													$scope.totalMsgCount
-															.splice(
-																	0,
-																	1,
-																	$scope.totalMsgCount[0] + 1);
-
+													;
 												}
 
 											});
