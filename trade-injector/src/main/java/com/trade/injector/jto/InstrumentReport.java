@@ -23,6 +23,11 @@ public class InstrumentReport {
 	public void setCurrentTradeCount(int currentTradeCount) {
 		this.currentTradeCount = currentTradeCount;
 	}
+	
+	public InstrumentReport incrementCountByOne(){
+		this.currentTradeCount++;
+		return this;
+	}
 
 
 }

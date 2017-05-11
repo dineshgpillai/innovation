@@ -23,5 +23,11 @@ public class PartyReport {
 	public void setCurrentTradeCount(int currentTradeCount) {
 		this.currentTradeCount = currentTradeCount;
 	}
+	
+	public PartyReport incrementCountByOne(){
+		this.currentTradeCount++;
+		
+		return this;
+	}
 
 }

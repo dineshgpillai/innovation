@@ -117,6 +117,13 @@ public class TradeReportRepositoryTest {
 		assertEquals(2, report3.getInstruments().size());
 
 	}
+	
+	//this test is purely to clean the db when required and not meant to be run regularly
+	
+	@Test
+	public void deleteAll(){
+		repo.deleteAll();
+	}
 
 	
 

@@ -13,7 +13,9 @@ import org.springframework.stereotype.Component;
 
 import com.trade.injector.controller.TradeInjectorController;
 import com.trade.injector.jto.TradeInjectorMessage;
+import com.trade.injector.jto.TradeReport;
 import com.trade.injector.jto.repository.TradeInjectorMessageRepository;
+import com.trade.injector.jto.repository.TradeReportRepository;
 
 @Component
 public class ReportScheduler {
@@ -22,9 +24,12 @@ public class ReportScheduler {
 
 	@Autowired
 	private SimpMessagingTemplate messageSender;
-	
+
 	@Autowired(required = true)
 	private TradeInjectorMessageRepository repo;
+
+	@Autowired
+	private TradeReportRepository reportRepo;
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"HH:mm:ss");
@@ -32,14 +37,23 @@ public class ReportScheduler {
 	@Scheduled(fixedDelay = 1000)
 	public void publishUpdates() {
 
-		//LOG.info("The time is now {}", dateFormat.format(new Date()));
-		
+		// LOG.info("The time is now {}", dateFormat.format(new Date()));
+
 		List<TradeInjectorMessage> listofMessages = repo.findAll();
 		// now push it to the queue so that everyone can see the update
 		messageSender.convertAndSend("/topic/tradeMessageInject",
 				listofMessages);
 
 		// template.convertAndSend("/topic/greetings", text);
+	}
+
+	@Scheduled(fixedDelay = 1000)
+	public void pushCountStatistics() {
+		
+
+		List<TradeReport> listOfReports = reportRepo.findAll();
+		messageSender.convertAndSend("/topic/tradeAck", listOfReports);
+
 	}
 
 }
