@@ -174,23 +174,52 @@
 											<th>Profile Id</th>
 											<th>Profile Name</th>
 											<th>Created by</th>
-											<th>Date Created</th>
-											<th>Trade count</th>
-											<th>Party count</th>
-											<th>Instrument count</th>
-											<th>Simulated wait time</th>
+											<th>Run mode</th>											
 										</tr>
 									</thead>
 									<tbody>
 										<tr ng-repeat="x in tradeInjectProfiles">
 											<td>{{x.id}}</td>
 											<td>{{x.name}}</td>
-											<td></td>
-											<td></td>
-											<td align="right">{{x.numberOfTrades}}</td>
-											<td align="right">{{x.numberOfParties}}</td>
-											<td align="right">{{x.numberOfInstruments}}</td>
-											<td align="right">{{x.simulatedWaitTime}}</td>
+											<td>{{x.userId}}</td>
+											<td><i ng-show="x.run_mode==0"
+											class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span>{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
+										</td>
+										<!-- Show button for RUNNING -->
+										<td ng-show="x.run_mode==0">
+											<div class="btn-group-xs" role="group" aria-label="...">
+												<button class="btn btn-default" ng-click="stop(x.id)"
+													type="button">
+													<i class="fa fa-stop fa-fw" aria-hidden="true"></i>
+												</button>
+												<button class="btn btn-default" ng-click="showTable(x.id)"
+													type="button">
+													<i class="fa fa-bar-chart fa-fw" aria-hidden="true"></i>
+												</button>
+											</div>
+
+										</td>
+										<!-- Show button for COMPLETED -->
+										<td ng-show="x.run_mode==2">
+											<div class="btn-group-xs" role="group" aria-label="...">
+												<button class="btn btn-default" ng-click="repeat(x.id)"
+													type="button">
+													<i class="fa fa-repeat fa-fw" aria-hidden="true"></i>
+												</button>
+											</div>
+
+										</td>
+										<!-- Show button for STOP -->
+										<td ng-show="x.run_mode==3">
+											<div class="btn-group-xs" role="group" aria-label="...">
+												<button class="btn btn-default" ng-click="play(x.id)"
+													type="button">
+													<i class="fa fa-play fa-fw" aria-hidden="true"></i>
+												</button>
+											</div>
+										</td>
+											
+											
 										</tr>
 									</tbody>
 								</table>

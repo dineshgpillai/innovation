@@ -17,9 +17,10 @@ public class TradeInjectorProfile {
 	@Indexed
 	private String name;
 	
-	
+	private String userId;
 	private int threads;
 	private int numberOfTrades;
+	private int currentMessageCount =0;
 	private long simulatedWaitTime;
 	private int numberOfParties;
 	private List<String> parties = new ArrayList<String>();	
@@ -31,6 +32,8 @@ public class TradeInjectorProfile {
 	private double maxPxRange;
 	private int minQtyRange;
 	private int maxQtyRange;
+	private int run_mode=0; //0=running, 1=completed, 2=suspended
+	
 	public String getName() {
 		return name;
 	}
@@ -120,6 +123,24 @@ public class TradeInjectorProfile {
 	}
 	public void setMaxQtyRange(int maxQtyRange) {
 		this.maxQtyRange = maxQtyRange;
+	}
+	public int getCurrentMessageCount() {
+		return currentMessageCount;
+	}
+	public void setCurrentMessageCount(int currentMessageCount) {
+		this.currentMessageCount = currentMessageCount;
+	}
+	public int getRun_mode() {
+		return run_mode;
+	}
+	public void setRun_mode(int run_mode) {
+		this.run_mode = run_mode;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	
 	
