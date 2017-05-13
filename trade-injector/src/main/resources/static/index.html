@@ -70,8 +70,11 @@
 					<form class="navbar-form navbar-right" ng-show="authenticated">
 
 						<div class="btn-group ">
-							<a class="btn btn-primary" href="#"><i
-								class="fa fa-facebook-square" aria-hidden="true"></i><span
+							<a class="btn btn-primary" href="#"><i ng-show="loginType=='facebook'"
+								class="fa fa-facebook-square" aria-hidden="true"></i>
+								<i ng-show="loginType=='github'"
+								class="fa fa-github" aria-hidden="true"></i>
+								<span
 								ng-bind="user"></a> <a
 								class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
 								href="#"> <span class="fa fa-caret-down"
@@ -158,6 +161,10 @@
 									</div>
 									<div class="col-md-2">
 										<div class="btn-group" role="group" aria-label="...">
+											<button type="button" ng-click="showCreateProfile()"
+												class="btn btn-default">
+												<i class="fa fa-plus fa-fw" aria-hidden="true"></i>
+											</button>
 											<button type="button" ng-click="refreshAll()"
 												class="btn btn-default">
 												<i class="fa fa-refresh fa-fw" aria-hidden="true"></i>
@@ -174,6 +181,7 @@
 											<th>Profile Id</th>
 											<th>Profile Name</th>
 											<th>Created by</th>
+											<th>Progress</th>
 											<th>Run mode</th>											
 										</tr>
 									</thead>
@@ -183,7 +191,7 @@
 											<td>{{x.name}}</td>
 											<td>{{x.userId}}</td>
 											<td><i ng-show="x.run_mode==0"
-											class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span>{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
+											class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span>{{x.currentMessageCount}}/{{x.numberOfTrades}}</span>
 										</td>
 										<!-- Show button for RUNNING -->
 										<td ng-show="x.run_mode==0">
@@ -363,9 +371,9 @@
 
 		<div ng-show="isSet(4)" ng-show="authenticated">
 			<h2>Construction in progress</h2>
-			<a class="btn btn-default" ng-click="showCreateProfile()">Show a
+			<!-- a class="btn btn-default" ng-click="showCreateProfile()">Show a
 				modal</a>
-			<p>{{message}}</p>
+			<p>{{message}}</p-->
 		</div>
 		<!-- End of ng show Configure -->
 	</div>

@@ -207,14 +207,14 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		messageId = messageId.substring(messageId.indexOf('=') + 1,
 				messageId.length());
 
-		TradeInjectorMessage tradeInjectMessagetoStop = coreTemplate.findOne(
+		TradeInjectorProfile profile = coreTemplate.findOne(
 				Query.query(Criteria.where("id").is(messageId)),
-				TradeInjectorMessage.class);
+				TradeInjectorProfile.class);
 
-		if (tradeInjectMessagetoStop != null) {
-			tradeInjectMessagetoStop.setRun_mode(TradeInjectRunModes.STOP
+		if (profile != null) {
+			profile.setRun_mode(TradeInjectRunModes.STOP
 					.getRunMode());
-			repo.save(tradeInjectMessagetoStop);
+			profileRepo.save(profile);
 
 			// refreshTradeInjectQueue();
 
@@ -259,7 +259,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		// we need to remove the id= bit from message id
 		messageId = messageId.substring(messageId.indexOf('=') + 1,
 				messageId.length());
-		LOG.info("Replaying for the following Id " + messageId);
+		LOG.info("Playing for the following Id " + messageId);
 
 		TradeInjectorProfile profile = coreTemplate.findOne(
 				Query.query(Criteria.where("id").is(messageId)),
@@ -332,7 +332,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		// we need to remove the id= bit from message id
 		profileId = profileId.substring(profileId.indexOf('=') + 1,
 				profileId.length());
-		LOG.info("Repeating for the following Id " + profileId);
+		LOG.info("Running for the following Id " + profileId);
 
 		TradeInjectorProfile profile = coreTemplate.findOne(
 				Query.query(Criteria.where("id").is(profileId)),
@@ -344,7 +344,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			TradeReport tradeReport = coreTemplate.findOne(
 					Query.query(Criteria.where("injectorProfileId").is(
 							profileId)), TradeReport.class);
-			reportRepo.delete(tradeReport);
+			if (tradeReport != null)
+					reportRepo.delete(tradeReport);
 
 			// reset the message count to 0
 			profile.setCurrentMessageCount(0);
@@ -395,7 +396,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			profileRepo.save(profile);Thread.sleep(profile.getSimulatedWaitTime());
 
 			// if the kill flag is set by the UI return the process.
-			if (repo.findOne(profile.id).getRun_mode() == TradeInjectRunModes.STOP
+			if (profileRepo.findOne(profile.id).getRun_mode() == TradeInjectRunModes.STOP
 					.getRunMode())
 
 				// kill it and return
@@ -487,6 +488,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			tradeReport = new TradeReport();
 			tradeReport.setCurrentTradeProgress(1);
 			tradeReport.setInjectorMessageId(ack.getInjectIdentifier());
+			tradeReport.setInjectorProfileId(ack.getProfileIdentifier());
 			tradeReport.setName("Report_" + ack.getInjectIdentifier());
 			tradeReport.setReportDate(new Date(System.currentTimeMillis()));
 			tradeReport.setTradeCount(1);
@@ -693,6 +695,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	public ResponseEntity<TradeInjectorProfile> saveTradeInjectProfile(
 			@RequestBody TradeInjectorProfile profile) throws Exception {
 
+		//set it to stop so that it can show up as play on the profile
+		profile.setRun_mode(TradeInjectRunModes.STOP.getRunMode());
+		
 		profileRepo.save(profile);
 
 		return ResponseEntity.ok(profile);

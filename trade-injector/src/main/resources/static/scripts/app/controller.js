@@ -40,11 +40,11 @@ app.factory('UserService', function($http, $q){
 					 { 
 						 // must be github
 						 UserService.user= data.userAuthentication.details.login;
-						 loginType="github";
+						 UserService.loginType="github";
 					 }else{
-						 loginType="facebook";
+						 UserService.loginType="facebook";
 					 }
-					 console.log("before returning this is the user "+UserService.user);
+					 console.log("before returning this is the user "+UserService.user+" "+UserService.loginType);
 				 });
 	}
 				
@@ -69,6 +69,7 @@ app.controller("TradeInjectCtrl", function($scope, $http, $location,
 	$scope.tab = 1;
 	$scope.user = [];
 	$scope.authenticated = false;
+	$scope.loginType = [];
 
 	$scope.setTab = function(newTab) {
 		$scope.tab = newTab;
@@ -85,14 +86,16 @@ app.controller("TradeInjectCtrl", function($scope, $http, $location,
 	// });
 	  UserService.getUser().success(function(user){
 		  $scope.user=UserService.user;
+		  $scope.authenticated = true;
+		  $scope.loginType=UserService.loginType;
+			  console.log("+++login type +++"+$scope.loginType+" "+$scope.user);
 	  }).error(function(){
 		  $scope.user="N/A";
+		  $scope.authenticated = false;
 	  });
 	
 	  
 	  
-	 if ($scope.user != "N/A") { $scope.authenticated = true; } else {
-	  $scope.authenticated = false; }
 	 
 	// $http.get("/user").success(function(data) {
 		// $scope.user = data.userAuthentication.details.name;
@@ -131,24 +134,8 @@ app.controller("TradeInjectCtrl", function($scope, $http, $location,
 		TradeInjectorService.send($scope.tradeInjectorMessage);
 	};
 
-	// show the angular window
-	$scope.showCreateProfile = function(injectid) {
-
-		ModalService.showModal({
-			templateUrl : '/createNewProfile.html',
-			controller : "ModalCreateNewController",
-			inputs : {
-				injectId : injectid
-			}
-
-		}).then(function(modal) {
-			modal.element.modal();
-			modal.close.then(function(result) {
-				$scope.message = "You said " + result;
-			});
-		});
-
-	};
+		
+	
 
 }
 
@@ -293,11 +280,11 @@ app
 					};
 
 					// Receives the trade inject messages
-					TradeInjectorService.receiveTradeInjectMessage().then(
+					//TradeInjectorService.receiveTradeInjectMessage().then(
 
-					null, null, function(data) {
-						$scope.tradeInjectMessages = data;
-					});
+					//null, null, function(data) {
+						//$scope.tradeInjectMessages = data;
+					//});
 
 					// show the angular window
 					$scope.showTable = function(injectid) {
@@ -672,5 +659,33 @@ app
 										});
 
 					}
+					
+					// Receives the trade inject messages
+					TradeInjectorService.receiveTradeInjectMessage().then(
+
+					null, null, function(data) {
+						$scope.tradeInjectProfiles = data;
+					});
+					
+					// show the angular window
+					$scope.showCreateProfile = function(injectid) {
+
+						ModalService.showModal({
+							templateUrl : '/createNewProfile.html',
+							controller : "ModalCreateNewController",
+							inputs : {
+								injectId : injectid
+							}
+
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.message = "You said " + result;
+							});
+						});
+
+					};
+
+
 
 				});
