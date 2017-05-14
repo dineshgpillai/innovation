@@ -481,7 +481,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		
 		TradeReport tradeReport = coreTemplate.findOne(
 				Query.query(Criteria.where("injectorProfileId").is(
-						ack.getInjectIdentifier())), TradeReport.class);
+						ack.getProfileIdentifier())), TradeReport.class);
 
 		if (tradeReport == null) {
 			// create a new one
@@ -489,7 +489,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			tradeReport.setCurrentTradeProgress(1);
 			tradeReport.setInjectorMessageId(ack.getInjectIdentifier());
 			tradeReport.setInjectorProfileId(ack.getProfileIdentifier());
-			tradeReport.setName("Report_" + ack.getInjectIdentifier());
+			tradeReport.setName("Report_" + ack.getProfileIdentifier());
 			tradeReport.setReportDate(new Date(System.currentTimeMillis()));
 			tradeReport.setTradeCount(1);
 			tradeReport.setUserId(username);

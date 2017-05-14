@@ -340,7 +340,7 @@ app
 								responsive : true,
 								responsiveAnimationDuration : 1000,
 								title : {
-									display : true,
+									display : false,
 									text : 'Trade Count by Instrument'
 								}
 							};
@@ -356,18 +356,18 @@ app
 												var filteredData = filterFilter(
 														data,
 														{
-															injectorMessageId : injectId
+															injectorProfileId : injectId
 														})
 												console
 														.log("data received "
-																+ data[0].injectorMessageId);
-												console.log("inject id "
+																+ data[0].injectorProfileId);
+												console.log("injector profile id "
 														+ injectId);
 
 												console.log("filtered data "
 														+ filteredData[0]);
 
-												if (injectId === filteredData[0].injectorMessageId) {
+												if (injectId === filteredData[0].injectorProfileId) {
 													console
 															.log("Yes we have got the right inject id");
 													// $scope.tradeAcks.push(data);
@@ -685,6 +685,25 @@ app
 						});
 
 					};
+					
+					$scope.showTable = function(injectid) {
+
+						ModalService.showModal({
+							templateUrl : '/showTableData.html',
+							controller : "ModalTableController",
+							inputs : {
+								injectId : injectid
+							}
+
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.message = "You said " + result;
+							});
+						});
+
+					};
+
 
 
 

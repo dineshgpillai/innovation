@@ -234,7 +234,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="input-group">
+					<!-- div class="input-group">
 						<span class="input-group-addon" id="basic-addon1">Trades</span> <input
 							type="text" ng-model="tradeInjectorMessage.noOfTrades"
 							class="form-control" size="10" placeholder="Enter a Number"
@@ -248,20 +248,20 @@
 							class="form-control" size="10" placeholder="Enter a Number"
 							aria-describedby="basic-addon1">
 
-					</div>
+					</div-->
 
-					<div class="input-group">
+					<!-- div class="input-group">
 						<span class="input-group-addon" id="basic-addon1">Simulated
 							Wait Time (in millisecs)</span> <input type="text"
 							ng-model="tradeInjectorMessage.timeDelay" class="form-control"
 							size="10" placeholder="Enter a Number"
 							aria-describedby="basic-addon1">
 
-					</div>
+					</div-->
 
 				</div>
 				<!--  end of panel body for input fields -->
-				<div class="panel-body">
+				<!-- div class="panel-body">
 					<div class="row col-md-6">
 						<div class="button-group" role="group">
 							<a class="btn btn-default" ng-click="injectTrades()"
@@ -273,8 +273,9 @@
 
 					</div>
 
-				</div>
+				</div-->
 				<!--  End of Panel body for buttons -->
+				<!-- 
 				<div class="col-md-12" ng-controller="TradeInjectTableDisplay">
 					<div class="panel panel-default">
 						<div class="panel-heading">
@@ -322,7 +323,7 @@
 										<td><i ng-show="x.run_mode==0"
 											class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span>{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
 										</td>
-										<!-- Show button for RUNNING -->
+										
 										<td ng-show="x.run_mode==0">
 											<div class="btn-group-xs" role="group" aria-label="...">
 												<button class="btn btn-default" ng-click="stop(x.id)"
@@ -336,7 +337,7 @@
 											</div>
 
 										</td>
-										<!-- Show button for COMPLETED -->
+										
 										<td ng-show="x.run_mode==2">
 											<div class="btn-group-xs" role="group" aria-label="...">
 												<button class="btn btn-default" ng-click="repeat(x.id)"
@@ -346,7 +347,7 @@
 											</div>
 
 										</td>
-										<!-- Show button for STOP -->
+										
 										<td ng-show="x.run_mode==3">
 											<div class="btn-group-xs" role="group" aria-label="...">
 												<button class="btn btn-default" ng-click="play(x.id)"
@@ -361,6 +362,7 @@
 						</div>
 					</div>
 				</div>
+				-->
 				<!-- End of Panel and col-md-6 for table displa -->
 			</div>
 

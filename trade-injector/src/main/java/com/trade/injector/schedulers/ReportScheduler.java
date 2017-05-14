@@ -64,8 +64,8 @@ public class ReportScheduler {
 	public void pushCountStatistics() {
 		
 
-		//List<TradeReport> listOfReports = reportRepo.findAll();
-		//messageSender.convertAndSend("/topic/tradeAck", listOfReports);
+		List<TradeReport> listOfReports = reportRepo.findAll();
+		messageSender.convertAndSend("/topic/tradeAck", listOfReports);
 
 	}
 
