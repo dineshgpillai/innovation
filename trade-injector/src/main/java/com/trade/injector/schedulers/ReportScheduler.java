@@ -60,7 +60,7 @@ public class ReportScheduler {
 		
 	}
 
-	@Scheduled(fixedDelay = 1000)
+	@Scheduled(fixedDelay = 2000)
 	public void pushCountStatistics() {
 		
 
