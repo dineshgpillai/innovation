@@ -70,11 +70,10 @@
 					<form class="navbar-form navbar-right" ng-show="authenticated">
 
 						<div class="btn-group ">
-							<a class="btn btn-primary" href="#"><i ng-show="loginType=='facebook'"
-								class="fa fa-facebook-square" aria-hidden="true"></i>
-								<i ng-show="loginType=='github'"
-								class="fa fa-github" aria-hidden="true"></i>
-								<span
+							<a class="btn btn-primary" href="#"><i
+								ng-show="loginType=='facebook'" class="fa fa-facebook-square"
+								aria-hidden="true"></i> <i ng-show="loginType=='github'"
+								class="fa fa-github" aria-hidden="true"></i> <span
 								ng-bind="user"></a> <a
 								class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
 								href="#"> <span class="fa fa-caret-down"
@@ -89,7 +88,7 @@
 								<li><a href="#"><i class="fa fa-unlock"></i> Make admin</a></li>
 							</ul>
 						</div>
-						<button ng-click="logout()" class="btn btn-primary">
+						<button ng-click="logout()"  data-toggle="tooltip" title="log out" class="btn btn-primary">
 							<i class="fa fa-sign-out" aria-hidden="true"></i>
 						</button>
 					</form>
@@ -157,11 +156,11 @@
 							<div class="panel-heading">
 								<div class="row">
 									<div class="col-md-10">
-										<h3 class="panel-title">List of Profiles</h3>
+										<h3 class="panel-title">Profiles</h3>
 									</div>
 									<div class="col-md-2">
 										<div class="btn-group" role="group" aria-label="...">
-											<button type="button" ng-click="showCreateProfile()"
+											<button type="button" data-toggle="tooltip" title="add a new profile" ng-click="showCreateProfile()"
 												class="btn btn-default">
 												<i class="fa fa-plus fa-fw" aria-hidden="true"></i>
 											</button>
@@ -181,224 +180,122 @@
 											<th>Profile Id</th>
 											<th>Profile Name</th>
 											<th>Created by</th>
+											<th></th>
 											<th>Progress</th>
-											<th>Run mode</th>											
+											<th>Run mode</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr ng-repeat="x in tradeInjectProfiles">
+
 											<td>{{x.id}}</td>
+
 											<td>{{x.name}}</td>
 											<td>{{x.userId}}</td>
+											<td ng-show="x.run_mode!=0">
+												<div class="btn-group-xs well well-sm" role="group" aria-label="...">
+													<button class="btn btn-default" data-toggle="tooltip" title="edit profile"
+														ng-click="showCreateProfile(x.id)" type="button">
+														<i class="fa fa-edit fa-fw" aria-hidden="true"></i>
+													</button>
+													<button class="btn btn-default" data-toggle="tooltip" title="delete profile" ng-click="" type="button">
+														<i class="fa fa-trash fa-fw" aria-hidden="true"></i>
+													</button>
+												</div>
+											</td>
+											<td ng-show="x.run_mode==0">
+												<div class="btn-group-xs well well-sm" role="group" aria-label="...">
+													<button class="btn btn-default" data-toggle="tooltip" title="view profile details"
+														ng-click="showCreateProfile(x.id)" type="button">
+														<i class="fa fa-eye fa-fw" aria-hidden="true"></i>
+													</button>													
+												</div>
+											</td>
 											<td><i ng-show="x.run_mode==0"
-											class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span>{{x.currentMessageCount}}/{{x.numberOfTrades}}</span>
-										</td>
-										<!-- Show button for RUNNING -->
-										<td ng-show="x.run_mode==0">
-											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" ng-click="stop(x.id)"
-													type="button">
-													<i class="fa fa-stop fa-fw" aria-hidden="true"></i>
-												</button>
-												<button class="btn btn-default" ng-click="showTable(x.id)"
-													type="button">
-													<i class="fa fa-bar-chart fa-fw" aria-hidden="true"></i>
-												</button>
-											</div>
+												class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span>{{x.currentMessageCount}}/{{x.numberOfTrades}}</span>
+											</td>
+											<!-- Show button for RUNNING -->
+											<td ng-show="x.run_mode==0">
+												<div class="btn-group-xs well well-sm" role="group" aria-label="...">
+													<button class="btn btn-default" ng-click="stop(x.id)"
+														type="button">
+														<i class="fa fa-stop fa-fw" aria-hidden="true"></i>
+													</button>
+													<button class="btn btn-default" data-toggle="tooltip" title="view charts" ng-click="showTable(x.id)"
+														type="button">
+														<i class="fa fa-bar-chart fa-fw" aria-hidden="true"></i>
+													</button>
+													<button class="btn btn-default" data-toggle="tooltip" title="last sample message" ng-click=""
+														type="button">
+														<i class="fa fa-file-text fa-fw" aria-hidden="true"></i>
+													</button>
+												</div>
 
-										</td>
-										<!-- Show button for COMPLETED -->
-										<td ng-show="x.run_mode==2">
-											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" ng-click="repeat(x.id)"
-													type="button">
-													<i class="fa fa-repeat fa-fw" aria-hidden="true"></i>
-												</button>
-											</div>
+											</td>
+											<!-- Show button for COMPLETED -->
+											<td ng-show="x.run_mode==2">
+												<div class="btn-group-xs well well-sm" role="group" aria-label="...">
+													<button class="btn btn-default" ng-click="repeat(x.id)"
+														type="button">
+														<i class="fa fa-repeat fa-fw" aria-hidden="true"></i>
+													</button>
 
-										</td>
-										<!-- Show button for STOP -->
-										<td ng-show="x.run_mode==3">
-											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" ng-click="play(x.id)"
-													type="button">
-													<i class="fa fa-play fa-fw" aria-hidden="true"></i>
-												</button>
-											</div>
-										</td>
-											
-											
+												</div>
+
+											</td>
+											<!-- Show button for STOP -->
+											<td ng-show="x.run_mode==3">
+												<div class="btn-group-xs well well-sm" role="group" aria-label="...">
+													<button class="btn btn-default"  ng-click="play(x.id)"
+														type="button">
+														<i class="fa fa-play fa-fw" aria-hidden="true"></i>
+													</button>
+
+												</div>
+											</td>
+
+
 										</tr>
 									</tbody>
 								</table>
 							</div>
 						</div>
 					</div>
-					<!-- div class="input-group">
-						<span class="input-group-addon" id="basic-addon1">Trades</span> <input
-							type="text" ng-model="tradeInjectorMessage.noOfTrades"
-							class="form-control" size="10" placeholder="Enter a Number"
-							aria-describedby="basic-addon1"> <span
-							class="input-group-addon" id="basic-addon1">Clients</span> <input
-							type="text" ng-model="tradeInjectorMessage.noOfClients"
-							class="form-control" size="10" placeholder="Enter a Number"
-							aria-describedby="basic-addon1"> <span
-							class="input-group-addon" id="basic-addon1">Instruments</span> <input
-							type="text" ng-model="tradeInjectorMessage.noOfInstruments"
-							class="form-control" size="10" placeholder="Enter a Number"
-							aria-describedby="basic-addon1">
-
-					</div-->
-
-					<!-- div class="input-group">
-						<span class="input-group-addon" id="basic-addon1">Simulated
-							Wait Time (in millisecs)</span> <input type="text"
-							ng-model="tradeInjectorMessage.timeDelay" class="form-control"
-							size="10" placeholder="Enter a Number"
-							aria-describedby="basic-addon1">
-
-					</div-->
-
 				</div>
-				<!--  end of panel body for input fields -->
-				<!-- div class="panel-body">
-					<div class="row col-md-6">
-						<div class="button-group" role="group">
-							<a class="btn btn-default" ng-click="injectTrades()"
-								role="button"><i class="fa fa-cogs fa-fw"></i> Generate</a> <a
-								class="btn btn-default" href="#"><i
-								class="fa fa-adjust fa-fw"></i> Reset</a>
-						</div>
 
-
-					</div>
-
-				</div-->
-				<!--  End of Panel body for buttons -->
-				<!-- 
-				<div class="col-md-12" ng-controller="TradeInjectTableDisplay">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<div class="row">
-								<div class="col-md-10">
-									<h3 class="panel-title">Inject Message Display</h3>
-								</div>
-								<div class="col-md-2">
-									<div class="btn-group" role="group" aria-label="...">
-										<button type="button" ng-click="purgeAll()"
-											class="btn btn-default">
-											<i class="fa fa-trash fa-fw" aria-hidden="true"></i>
-										</button>
-										<button type="button" ng-click="refreshAll()"
-											class="btn btn-default">
-											<i class="fa fa-refresh fa-fw" aria-hidden="true"></i>
-										</button>
-									</div>
-								</div>
-							</div>
-
-						</div>
-						<div class="panel-body">
-							<table class="table table-striped table-hover">
-								<thead>
-									<tr>
-										<th>Trade Inject Message Id</th>
-										<th>User</th>
-										<th>Date Injected</th>
-										<th>Trade Count</th>
-										<th>Client Count</th>
-										<th>Instrument Count</th>
-										<th>Message Count</th>
-										<th>Run Mode</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr ng-repeat="x in tradeInjectMessages">
-										<td>{{x.id}}</td>
-										<td>{{x.userId}}</td>
-										<td>{{x.injectDate}}</td>
-										<td>{{x.noOfTrades}}</td>
-										<td>{{x.noOfClients}}</td>
-										<td>{{x.noOfClients}}</td>
-										<td><i ng-show="x.run_mode==0"
-											class="fa fa-spinner fa-spin fa-1x fa-fw"></i> <span>{{x.currenMessageCount}}/{{x.noOfTrades}}</span>
-										</td>
-										
-										<td ng-show="x.run_mode==0">
-											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" ng-click="stop(x.id)"
-													type="button">
-													<i class="fa fa-stop fa-fw" aria-hidden="true"></i>
-												</button>
-												<button class="btn btn-default" ng-click="showTable(x.id)"
-													type="button">
-													<i class="fa fa-bar-chart fa-fw" aria-hidden="true"></i>
-												</button>
-											</div>
-
-										</td>
-										
-										<td ng-show="x.run_mode==2">
-											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" ng-click="repeat(x.id)"
-													type="button">
-													<i class="fa fa-repeat fa-fw" aria-hidden="true"></i>
-												</button>
-											</div>
-
-										</td>
-										
-										<td ng-show="x.run_mode==3">
-											<div class="btn-group-xs" role="group" aria-label="...">
-												<button class="btn btn-default" ng-click="play(x.id)"
-													type="button">
-													<i class="fa fa-play fa-fw" aria-hidden="true"></i>
-												</button>
-											</div>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-				-->
-				<!-- End of Panel and col-md-6 for table displa -->
+				<!-- End of Panel Container -->
 			</div>
-
-			<!-- End of Panel Container -->
-		</div>
-		<!-- End of ng show for Generate Trades -->
+			<!-- End of ng show for Generate Trades -->
 
 
-		<div ng-show="isSet(4)" ng-show="authenticated">
-			<h2>Construction in progress</h2>
-			<!-- a class="btn btn-default" ng-click="showCreateProfile()">Show a
+			<div ng-show="isSet(4)" ng-show="authenticated">
+				<h2>Construction in progress</h2>
+				<!-- a class="btn btn-default" ng-click="showCreateProfile()">Show a
 				modal</a>
 			<p>{{message}}</p-->
+			</div>
+			<!-- End of ng show Configure -->
 		</div>
-		<!-- End of ng show Configure -->
-	</div>
-	<!-- End of Controller -->
+		<!-- End of Controller -->
 
-	<hr>
+		<hr>
 
-	<footer>
-		<p>&copy; 2016 Company, Inc.</p>
-	</footer>
+		<footer>
+			<p>&copy; 2016 Company, Inc.</p>
+		</footer>
 
-	<!-- /container -->
+		<!-- /container -->
 
 
-	<!-- Bootstrap core JavaScript
+		<!-- Bootstrap core JavaScript
     ================================================== -->
-	<!-- Pla
+		<!-- Pla
 	
 	
 	ced at the end of the document so the pages load faster -->
 
 
-	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-	<!-- script src="../../assets/js/ie10-viewport-bug-workaround.js"></script-->
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<!-- script src="../../assets/js/ie10-viewport-bug-workaround.js"></script-->
 </body>
 </html>
