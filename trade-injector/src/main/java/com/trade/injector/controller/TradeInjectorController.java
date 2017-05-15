@@ -369,6 +369,31 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		
 
 	}
+	
+	@RequestMapping(value = "/deleteProfile", method = RequestMethod.POST)
+	public void deleteProfile(@RequestBody String profileId)
+			throws Exception {
+
+		profileId = profileId.substring(profileId.indexOf('=') + 1,
+				profileId.length());
+		
+		LOG.info("Deleting profile... "+profileId);
+		TradeInjectorProfile profile = coreTemplate.findOne(
+				Query.query(Criteria.where("id").is(profileId)),
+				TradeInjectorProfile.class);
+
+		if (profile != null) {
+				
+			profileRepo.delete(profile);
+		
+		}else{
+			LOG.warn("No profile found with the following id "+profileId);
+		}
+		LOG.info("Done deleting profile "+profileId);
+		
+
+	}
+
 
 	private void runTradeInjectForTradeProfileId(TradeInjectorProfile profile)
 			throws Exception {

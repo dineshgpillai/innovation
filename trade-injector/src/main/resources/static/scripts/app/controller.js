@@ -1,22 +1,6 @@
 var app = angular.module("TradeInjectorApp.controllers", [
 		'angularModalService', 'ngAnimate' ]);
 
-/*
- * app.service('UserService', function($http) {
- * 
- * this.getLoggedInUser : function() {
- * 
- * $http.get("/user").success(function(data) { return
- * data.userAuthentication.details.name;
- * 
- * if (data.userAuthentication.details.name == null) { // must be github return
- * data.userAuthentication.details.login; }
- * 
- * }).error(function() { return "N/A" }); }
- * 
- * });
- * 
- */
 
 app.factory('UserService', function($http, $q){
 	
@@ -94,17 +78,7 @@ app.controller("TradeInjectCtrl", function($scope, $http, $location,
 		  $scope.authenticated = false;
 	  });
 	
-	  
-	  
-	 
-	// $http.get("/user").success(function(data) {
-		// $scope.user = data.userAuthentication.details.name;
-		// $scope.authenticated = true;
-	// }).error(function() {
-		// $scope.user = "N/A";
-		// $scope.authenticated = false;
-	// });
-
+		 
 	// logout
 	$scope.logout = function() {
 		$http.post('/logout', {}).success(function() {
@@ -140,7 +114,8 @@ app.controller("TradeInjectCtrl", function($scope, $http, $location,
 }
 
 );
-app
+
+/*app
 		.controller(
 				"TradeInjectTableDisplay",
 				function($scope, $http, $location, TradeInjectorService,
@@ -305,6 +280,7 @@ app
 
 					};
 				});
+*/
 app
 		.controller(
 				'ModalTableController',
@@ -370,19 +346,11 @@ app
 												if (injectId === filteredData[0].injectorProfileId) {
 													console
 															.log("Yes we have got the right inject id");
-													// $scope.tradeAcks.push(data);
-													// var clientNameIndex =
-													// $scope.labels
-													// .indexOf(data[0].parties[0].id)
+													
 
 													filteredData[0].parties
 															.forEach(changePartyData);
-													// $scope.labels.splice(0,$scope.labels.length,
-													// data[0].parties.id);
-
-													// $scope.clientCount.splice(0,$scope.clientCount.length,
-													// data[0].parties.currentTradeCount);
-
+													
 													function changePartyData(
 															element, index,
 															array) {
@@ -427,9 +395,7 @@ app
 													// do the same for
 													// instruments
 
-													// var instrumentIdIndex =
-													// $scope.labels_instrument
-													// .indexOf(data[0].instrumentId)
+													
 
 													filteredData[0].instruments
 															.forEach(changeInstrumentData);
@@ -519,7 +485,7 @@ app.controller('ModalCreateNewController', [
 					$http.post('/saveTradeInjectProfile', data, config)
 							.success(
 									function(data, status, headers, config) {
-										$scope.PostDataResponse = data;
+										$scope.tradeInjectorProfile = data;
 										$scope.showStatus = "Success!";
 										console.log('Data received after save '
 												+ data);
@@ -658,6 +624,40 @@ app
 													+ config;
 										});
 
+					}
+					
+					//delete the profile
+					$scope.delete=function(profileId){
+						
+						var data = $.param({
+							id : profileId
+						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http
+								.post('/deleteProfile', data,
+										config)
+								.success(
+										function(data, status, headers, config) {
+											$scope.PostDataResponse = data;
+											$scope.showGeneration = false;
+										}).error(
+										function(data, status, header, config) {
+											$scope.ResponseDetails = "Data: "
+													+ data + "<hr />status: "
+													+ status
+													+ "<hr />headers: "
+													+ header + "<hr />config: "
+													+ config;
+										});
+
+
+						
 					}
 					
 					// Receives the trade inject messages
