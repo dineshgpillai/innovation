@@ -198,8 +198,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	public ResourceServerProperties githubResource() {
 		return new ResourceServerProperties();
 	}
+
 	@RequestMapping(value = "/tradeMessageStopForProfile", method = RequestMethod.POST)
-	public void tradeStopForProfile(@RequestBody String messageId) throws Exception {
+	public void tradeStopForProfile(@RequestBody String messageId)
+			throws Exception {
 
 		LOG.info("Stop run for the following Id " + messageId);
 
@@ -212,8 +214,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				TradeInjectorProfile.class);
 
 		if (profile != null) {
-			profile.setRun_mode(TradeInjectRunModes.STOP
-					.getRunMode());
+			profile.setRun_mode(TradeInjectRunModes.STOP.getRunMode());
 			profileRepo.save(profile);
 
 			// refreshTradeInjectQueue();
@@ -223,8 +224,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					+ messageId);
 
 	}
-	
-
 
 	@Deprecated
 	@RequestMapping(value = "/tradeMessageStop", method = RequestMethod.POST)
@@ -252,9 +251,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					+ messageId);
 
 	}
-	
+
 	@RequestMapping(value = "/tradeMessagePlayForProfile", method = RequestMethod.POST)
-	public void tradePlayForProfile(@RequestBody String messageId) throws Exception {
+	public void tradePlayForProfile(@RequestBody String messageId)
+			throws Exception {
 
 		// we need to remove the id= bit from message id
 		messageId = messageId.substring(messageId.indexOf('=') + 1,
@@ -273,7 +273,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	
 	@Deprecated
 	@RequestMapping(value = "/tradeMessagePlay", method = RequestMethod.POST)
 	public void tradePlay(@RequestBody String messageId) throws Exception {
@@ -325,9 +324,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					+ messageId);
 
 	}
-	
+
 	@RequestMapping(value = "/tradeMessageRepeatForProfile", method = RequestMethod.POST)
-	public void repeatRunOnProfile(@RequestBody String profileId) throws Exception {
+	public void repeatRunOnProfile(@RequestBody String profileId)
+			throws Exception {
 
 		// we need to remove the id= bit from message id
 		profileId = profileId.substring(profileId.indexOf('=') + 1,
@@ -345,7 +345,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					Query.query(Criteria.where("injectorProfileId").is(
 							profileId)), TradeReport.class);
 			if (tradeReport != null)
-					reportRepo.delete(tradeReport);
+				reportRepo.delete(tradeReport);
 
 			// reset the message count to 0
 			profile.setCurrentMessageCount(0);
@@ -356,44 +356,51 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					+ profileId);
 
 	}
-	
 
 	@RequestMapping(value = "/tradeRunStart", method = RequestMethod.POST)
 	public void injectTradesOnProfile(@RequestBody TradeInjectorProfile profile)
 			throws Exception {
 
-		
-		LOG.info("Running for the following profile... "+profile.id);
+		LOG.info("Running for the following profile... " + profile.id);
 		runTradeInjectForTradeProfileId(profile);
-		LOG.info("Done running for the following Profile "+profile.id);
-		
+		LOG.info("Done running for the following Profile " + profile.id);
 
 	}
-	
+
 	@RequestMapping(value = "/deleteProfile", method = RequestMethod.POST)
-	public void deleteProfile(@RequestBody String profileId)
-			throws Exception {
+	public void deleteProfile(@RequestBody String profileId) throws Exception {
 
 		profileId = profileId.substring(profileId.indexOf('=') + 1,
 				profileId.length());
-		
-		LOG.info("Deleting profile... "+profileId);
+
+		// delete any reports associated to this profile
+		TradeReport report = coreTemplate.findOne(
+				Query.query(Criteria.where("injectorProfileId").is(profileId)),
+				TradeReport.class);
+
+		LOG.info("Deleting TradeReport... " + profileId);
+		if (report != null) {
+			reportRepo.delete(report);
+		} else {
+			LOG.warn("No trade report found with the following profile id "
+					+ profileId);
+		}
+
+		LOG.info("Deleting profile... " + profileId);
 		TradeInjectorProfile profile = coreTemplate.findOne(
 				Query.query(Criteria.where("id").is(profileId)),
 				TradeInjectorProfile.class);
 
 		if (profile != null) {
-				
+
 			profileRepo.delete(profile);
-		
-		}else{
-			LOG.warn("No profile found with the following id "+profileId);
+
+		} else {
+			LOG.warn("No profile found with the following id " + profileId);
 		}
-		LOG.info("Done deleting profile "+profileId);
-		
+		LOG.info("Done deleting profile " + profileId);
 
 	}
-
 
 	private void runTradeInjectForTradeProfileId(TradeInjectorProfile profile)
 			throws Exception {
@@ -413,28 +420,28 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			startFrom++;
 			Trade aTrade = tradeData.createTradeData(startFrom, listOfParties,
 					listOfInstruments);
-			convertToReportAndSaveForProfile(convertToAckForProfile(aTrade, profile.id),
+			convertToReportAndSaveForProfile(
+					convertToAckForProfile(aTrade, profile.id),
 					profile.getUserId());
 			profile.setCurrentMessageCount(startFrom);
-			
-			//sleep for simulated wait time
-			profileRepo.save(profile);Thread.sleep(profile.getSimulatedWaitTime());
+
+			// sleep for simulated wait time
+			profileRepo.save(profile);
+			Thread.sleep(profile.getSimulatedWaitTime());
 
 			// if the kill flag is set by the UI return the process.
 			if (profileRepo.findOne(profile.id).getRun_mode() == TradeInjectRunModes.STOP
 					.getRunMode())
 
 				// kill it and return
-				
+
 				break;
-			}
-		
-		//finally mark it as complete
+		}
+
+		// finally mark it as complete
 		if (startFrom == numberOfTrades) {
-			profile
-					.setCurrentMessageCount(startFrom);
-			profile.setRun_mode(TradeInjectRunModes.COMPLETED
-					.getRunMode());
+			profile.setCurrentMessageCount(startFrom);
+			profile.setRun_mode(TradeInjectRunModes.COMPLETED.getRunMode());
 			profileRepo.save(profile);
 		}
 
@@ -501,9 +508,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		// refreshTradeInjectQueue();
 
 	}
-	
-	private void convertToReportAndSaveForProfile(TradeAcknowledge ack, String username) throws Exception{
-		
+
+	private void convertToReportAndSaveForProfile(TradeAcknowledge ack,
+			String username) throws Exception {
+
 		TradeReport tradeReport = coreTemplate.findOne(
 				Query.query(Criteria.where("injectorProfileId").is(
 						ack.getProfileIdentifier())), TradeReport.class);
@@ -598,7 +606,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 		reportRepo.save(tradeReport);
 
-		
 	}
 
 	@Deprecated
@@ -720,9 +727,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	public ResponseEntity<TradeInjectorProfile> saveTradeInjectProfile(
 			@RequestBody TradeInjectorProfile profile) throws Exception {
 
-		//set it to stop so that it can show up as play on the profile
+		// set it to stop so that it can show up as play on the profile
 		profile.setRun_mode(TradeInjectRunModes.STOP.getRunMode());
-		
+
 		profileRepo.save(profile);
 
 		return ResponseEntity.ok(profile);
@@ -734,6 +741,25 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			throws Exception {
 
 		return ResponseEntity.ok(profileRepo.findAll());
+
+	}
+
+	@RequestMapping(value = "/getProfile", method = RequestMethod.POST)
+	public ResponseEntity<TradeInjectorProfile> getProfile(
+			@RequestBody String profileId) throws Exception {
+
+		profileId = profileId.substring(profileId.indexOf('=') + 1,
+				profileId.length());
+		
+		TradeInjectorProfile profile = coreTemplate.findOne(
+				Query.query(Criteria.where("id").is(profileId)),
+				TradeInjectorProfile.class);
+
+		if (profile == null)
+
+			LOG.warn("No profile found with the following id " + profileId);
+
+		return ResponseEntity.ok(profile);
 
 	}
 
@@ -838,7 +864,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		return ack;
 	}
 
-	
 	@Deprecated
 	private TradeAcknowledge convertToAck(Trade aTrade, String id) {
 		TradeAcknowledge ack = new TradeAcknowledge();
