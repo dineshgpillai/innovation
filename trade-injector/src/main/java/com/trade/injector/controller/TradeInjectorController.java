@@ -21,7 +21,9 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceS
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
@@ -51,6 +53,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.CompositeFilter;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.core.HazelcastInstance;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -79,9 +83,22 @@ import com.trade.injector.jto.repository.TradeReportRepository;
 @RestController
 @EnableMongoRepositories(basePackages = "com.trade.injector.jto.repository")
 @EnableScheduling
+@EnableCaching
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
+
+	@Bean
+	@Profile("client")
+	HazelcastInstance hazelcastInstance() {
+
+		// for client HazelcastInstance LocalMapStatistics will not available
+
+		return HazelcastClient.newHazelcastClient();
+
+		// return Hazelcast.newHazelcastInstance();
+
+	}
 
 	@Autowired
 	OAuth2ClientContext oauth2ClientContext;
@@ -91,6 +108,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private MongoDBTemplate template;
+
+	@Autowired
+	private HazelcastInstance hzInstance;
 
 	@Autowired
 	private MongoTemplate coreTemplate;
@@ -750,7 +770,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 		profileId = profileId.substring(profileId.indexOf('=') + 1,
 				profileId.length());
-		
+
 		TradeInjectorProfile profile = coreTemplate.findOne(
 				Query.query(Criteria.where("id").is(profileId)),
 				TradeInjectorProfile.class);

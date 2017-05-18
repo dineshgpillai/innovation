@@ -2,7 +2,6 @@ package com.trade.injector.business.service;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.trade.injector.jto.Party;
 
 public class GenerateRandomParty implements RandomDataService<Party> {
@@ -18,5 +17,6 @@ public class GenerateRandomParty implements RandomDataService<Party> {
 		
 		return partyList;
 	}
-
+	
+	
 }
