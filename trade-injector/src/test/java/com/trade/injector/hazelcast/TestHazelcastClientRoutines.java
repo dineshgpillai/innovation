@@ -27,6 +27,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.SqlPredicate;
 import com.trade.injector.business.service.GenerateInstrumentCache;
 import com.trade.injector.business.service.GeneratePartyCache;
+import com.trade.injector.business.service.GenerateTradeCacheData;
 import com.trade.injector.controller.TradeInjectorController;
 
 @RunWith(SpringRunner.class)
@@ -36,42 +37,12 @@ public class TestHazelcastClientRoutines {
 	@Autowired
 	HazelcastInstance hzInstance;
 
-	String executionId = UUID.randomUUID().toString();
+	
 
 	@Before
 	public void setUpCache() {
 
-		Map<String, Trade> map = hzInstance.getMap("trade");
-		assertNotNull(map);
-
-		assertEquals(0, map.size());
-
-		Trade atrade = new Trade();
-		atrade.setClientId("CLI1");
-		atrade.setCurrency("USD");
-		atrade.setExecutingFirmId("EX1");
-		atrade.setExecutingTraderId("TEST_TRD1");
-		atrade.setExecutionId(executionId);
-		atrade.setExecutionVenueId("EX1");
-		atrade.setFirmTradeId(executionId);
-		atrade.setInstrumentId("INS1");
-		atrade.setOriginalTradeDate(new Date(System.currentTimeMillis()));
-		atrade.setPositionAccountId("POSACC1");
-		atrade.setPrice(100.00);
-		atrade.setQuantity(12);
-		atrade.setSecondaryFirmTradeId(executionId);
-		atrade.setSecondaryTradeId(executionId);
-		atrade.setSettlementDate(new Date(System.currentTimeMillis()));
-		atrade.setTradeDate(new Date(System.currentTimeMillis()));
-		atrade.setTradeId(executionId);
-		atrade.setTradeType("0");
-
-		map.put(executionId, atrade);
-
-		map = hzInstance.getMap("trade");
-
-		assertEquals(1, map.size());
-
+		
 	}
 
 	/*
@@ -114,6 +85,7 @@ public class TestHazelcastClientRoutines {
 		// now delete the parties
 		for (String aparty : partiesKeys) {
 
+
 			System.out.println("Party in question is " + aparty);
 			map.remove(aparty);
 		}
@@ -125,6 +97,64 @@ public class TestHazelcastClientRoutines {
 
 		map = hzInstance.getMap("party");
 		assertEquals(0, map.size());
+	}
+	
+	@Test
+	public void testTradeGeneration() throws Exception{
+		
+		//first generate party information
+		IMap<String, Party> map = hzInstance.getMap("party");
+		assertNotNull(map);
+
+		assertEquals(0, map.size());
+
+		GeneratePartyCache cacheGenerator = new GeneratePartyCache();
+		cacheGenerator.populateMap(1000, map);
+
+		map = hzInstance.getMap("party");
+		assertEquals(1000, map.size());
+
+		
+		//now generate instrument information
+		System.out.println("Runnning many instruments...");
+
+		IMap<String, Instrument> mapInstruments = hzInstance.getMap("instrument");
+		assertNotNull(mapInstruments);
+
+		assertEquals(0, mapInstruments.size());
+
+		GenerateInstrumentCache cacheGeneratorInstruments = new GenerateInstrumentCache();
+		cacheGeneratorInstruments.populateMap(1000, mapInstruments);
+
+		mapInstruments = hzInstance.getMap("instrument");
+		assertEquals(1000, mapInstruments.size());
+		
+		//now generate trades
+		IMap<String, Trade> mapTrades = hzInstance.getMap("trade");
+		assertEquals(0, mapTrades.size());
+		GenerateTradeCacheData tradeGen = new GenerateTradeCacheData();
+		for(int i=0; i<100; i++){
+			//generate 100 trades
+			Trade[] trades = tradeGen.createTrade(i, map, mapInstruments);
+			mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
+			mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
+		}
+
+		//now check to see if it is done
+		mapTrades = hzInstance.getMap("trade");
+		assertEquals(200, mapTrades.size());
+		
+		
+	}
+	
+	@Test
+	public void testConversionToReport() throws Exception{
+		System.out.println("test report generation...");
+		testTradeGeneration();
+		IMap mapTrades = hzInstance.getMap("trade");
+		assertEquals(200, mapTrades.size());
+		
+		
 	}
 
 	@Test
@@ -143,17 +173,7 @@ public class TestHazelcastClientRoutines {
 		map = hzInstance.getMap("party");
 		assertEquals(1000, map.size());
 
-		Predicate predicate = new SqlPredicate(String.format("name like %s",
-				"TRDINJECT_CLI_%"));
-		Set<String> parties = (Set<String>) map.keySet(predicate);
-
-		for (String aParty : parties) {
-			map.remove(aParty);
-		}
-
-		map = hzInstance.getMap("party");
-		assertEquals(0, map.size());
-
+		
 		System.out.println("Finished");
 
 	}
@@ -178,17 +198,7 @@ public class TestHazelcastClientRoutines {
 		cacheGenerator.populateMap(1500, map);
 		assertEquals(1500, map.size());
 
-		Predicate predicate = new SqlPredicate(String.format("name like %s",
-				"TRDINJECT_CLI_%"));
-		Set<String> parties = (Set<String>) map.keySet(predicate);
-
-		for (String aParty : parties) {
-			map.remove(aParty);
-		}
-
-		map = hzInstance.getMap("party");
-		assertEquals(0, map.size());
-
+		
 		System.out.println("Finished");
 
 	}
@@ -210,19 +220,7 @@ public class TestHazelcastClientRoutines {
 		map = hzInstance.getMap("instrument");
 		assertEquals(1000, map.size());
 
-		Predicate predicate = new SqlPredicate(String.format("symbol like %s",
-				"ISIN_INJ_%"));
-		Set<String> ins = (Set<String>) map.keySet(predicate);
-
-		for (String aIns : ins) {
-			map.remove(aIns);
-		}
-
-		map = hzInstance.getMap("instrument");
-		assertEquals(0, map.size());
-
-		System.out.println("Finished");
-
+		
 		
 		
 		
@@ -231,12 +229,61 @@ public class TestHazelcastClientRoutines {
 	@After
 	public void removeCache() {
 
-		Map<String, Trade> map = hzInstance.getMap("trade");
-		assertNotNull(map);
+		IMap<String, Trade> mapTrade = hzInstance.getMap("trade");
+		assertNotNull(mapTrade);
 
-		map.remove(executionId);
-		map = hzInstance.getMap("trade");
-		assertEquals(0, map.size());
+		
+		
+		Predicate predicateTrade = new SqlPredicate(String.format("executionVenueId = %s",
+				"EX1"));
+		
+		Set<String> tradeId = (Set<String>)mapTrade.keySet(predicateTrade);
+		for(String key : tradeId){
+			mapTrade.remove(key);
+		}
+		
+		mapTrade = hzInstance.getMap("trade");
+		assertEquals(0, mapTrade.size());
+		
+		
+		//now delete Instruments
+		IMap<String, Instrument> mapInstruments = hzInstance.getMap("instrument");
+		assertNotNull(mapInstruments);
+		
+		Predicate predicate = new SqlPredicate(String.format("symbol like %s",
+				"ISIN_INJ_%"));
+		Set<String> ins = (Set<String>) mapInstruments.keySet(predicate);
+
+		for (String aIns : ins) {
+			mapInstruments.remove(aIns);
+		}
+
+		mapInstruments = hzInstance.getMap("instrument");
+		assertEquals(0, mapInstruments.size());
+
+		
+		//now delete parties
+		IMap<String, Instrument> parties = hzInstance.getMap("party");
+		assertNotNull(parties);
+		
+		Predicate predicateParty = new SqlPredicate(String.format("name like %s",
+				"TRDINJECT_CLI_%"));
+		Set<String> partiesKey = (Set<String>) parties.keySet(predicateParty);
+
+		for (String aParty : partiesKey) {
+			parties.remove(aParty);
+		}
+
+		parties = hzInstance.getMap("party");
+		assertEquals(0, parties.size());
+
+		System.out.println("Finished");
+
+		
+		
+		
+		
+		
 
 	}
 

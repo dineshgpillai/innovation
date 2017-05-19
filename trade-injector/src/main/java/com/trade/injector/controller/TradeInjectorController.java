@@ -293,58 +293,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	@Deprecated
-	@RequestMapping(value = "/tradeMessagePlay", method = RequestMethod.POST)
-	public void tradePlay(@RequestBody String messageId) throws Exception {
-
-		// we need to remove the id= bit from message id
-		messageId = messageId.substring(messageId.indexOf('=') + 1,
-				messageId.length());
-		LOG.info("Replaying for the following Id " + messageId);
-
-		TradeInjectorMessage tradeInjectMessagetoReplay = coreTemplate.findOne(
-				Query.query(Criteria.where("id").is(messageId)),
-				TradeInjectorMessage.class);
-
-		if (tradeInjectMessagetoReplay != null) {
-			runTradeInjectForTradeInjectId(tradeInjectMessagetoReplay);
-		} else
-			LOG.error("Unable to find message for the following id "
-					+ messageId);
-
-	}
-
-	@Deprecated
-	@RequestMapping(value = "/tradeMessageRepeat", method = RequestMethod.POST)
-	public void tradeRepeat(@RequestBody String messageId) throws Exception {
-
-		// we need to remove the id= bit from message id
-		messageId = messageId.substring(messageId.indexOf('=') + 1,
-				messageId.length());
-		LOG.info("Repeating for the following Id " + messageId);
-
-		TradeInjectorMessage tradeInjectMessagetoRepeat = coreTemplate.findOne(
-				Query.query(Criteria.where("id").is(messageId)),
-				TradeInjectorMessage.class);
-
-		if (tradeInjectMessagetoRepeat != null) {
-
-			// remove the reports for Trade Data
-			TradeReport tradeReport = coreTemplate.findOne(
-					Query.query(Criteria.where("injectorMessageId").is(
-							messageId)), TradeReport.class);
-			reportRepo.delete(tradeReport);
-
-			// reset the message count to 0
-			tradeInjectMessagetoRepeat.setCurrenMessageCount("0");
-			runTradeInjectForTradeInjectId(tradeInjectMessagetoRepeat);
-
-		} else
-			LOG.error("Unable to find message for the following id "
-					+ messageId);
-
-	}
-
+	
+	
 	@RequestMapping(value = "/tradeMessageRepeatForProfile", method = RequestMethod.POST)
 	public void repeatRunOnProfile(@RequestBody String profileId)
 			throws Exception {
@@ -467,68 +417,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	@Deprecated
-	private void runTradeInjectForTradeInjectId(
-			TradeInjectorMessage tradeInjectMessagetoRun) throws Exception {
-
-		List<Instrument> listOfInstruments = new GenerateRandomInstruments()
-				.createRandomData(new Integer(tradeInjectMessagetoRun
-						.getNoOfInstruments()));
-		List<Party> listOfParties = new GenerateRandomParty()
-				.createRandomData(new Integer(tradeInjectMessagetoRun
-						.getNoOfClients()));
-
-		int startFrom = new Integer(
-				tradeInjectMessagetoRun.getCurrenMessageCount());
-		int numberOfTrades = new Integer(
-				tradeInjectMessagetoRun.getNoOfTrades());
-
-		// set it to run
-		tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.RUNNING
-				.getRunMode());
-
-		while (startFrom != numberOfTrades) {
-
-			startFrom++;
-			Trade aTrade = tradeData.createTradeData(startFrom, listOfParties,
-					listOfInstruments);
-			convertToReportAndSave(
-					convertToAck(aTrade, tradeInjectMessagetoRun.id),
-					tradeInjectMessagetoRun.getUserId());
-			// messageSender.convertAndSend("/topic/tradeAck", ack);
-			LOG.debug(("Following trade was generated " + aTrade.toString()));
-
-			tradeInjectMessagetoRun
-					.setCurrenMessageCount(new Integer(startFrom).toString());
-			repo.save(tradeInjectMessagetoRun);
-
-			// refreshTradeInjectQueue();
-
-			Thread.sleep(new Integer(tradeInjectMessagetoRun.getTimeDelay()));
-
-			// if the kill flag is set by the UI return the process.
-			if (repo.findOne(tradeInjectMessagetoRun.id).getRun_mode() == TradeInjectRunModes.STOP
-					.getRunMode())
-
-				// kill it and return
-				// return ResponseEntity.ok().build();
-				break;
-
-		}
-
-		// finally set to complete only if we have a genuine complete
-		if (startFrom == numberOfTrades) {
-			tradeInjectMessagetoRun
-					.setCurrenMessageCount(new Integer(startFrom).toString());
-			tradeInjectMessagetoRun.setRun_mode(TradeInjectRunModes.COMPLETED
-					.getRunMode());
-			repo.save(tradeInjectMessagetoRun);
-		}
-
-		// refreshTradeInjectQueue();
-
-	}
-
+	
 	private void convertToReportAndSaveForProfile(TradeAcknowledge ack,
 			String username) throws Exception {
 
@@ -628,121 +517,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	@Deprecated
-	private void convertToReportAndSave(TradeAcknowledge ack, String username)
-			throws Exception {
-
-		TradeReport tradeReport = coreTemplate.findOne(
-				Query.query(Criteria.where("injectorMessageId").is(
-						ack.getInjectIdentifier())), TradeReport.class);
-
-		if (tradeReport == null) {
-			// create a new one
-			tradeReport = new TradeReport();
-			tradeReport.setCurrentTradeProgress(1);
-			tradeReport.setInjectorMessageId(ack.getInjectIdentifier());
-			tradeReport.setName("Report_" + ack.getInjectIdentifier());
-			tradeReport.setReportDate(new Date(System.currentTimeMillis()));
-			tradeReport.setTradeCount(1);
-			tradeReport.setUserId(username);
-
-			List<PartyReport> parties = new ArrayList<PartyReport>();
-			PartyReport newParty = new PartyReport();
-			newParty.setCurrentTradeCount(1);
-			newParty.setPreviousTradeCount(1);
-			newParty.setId(ack.getClientName());
-			newParty.setName(ack.getClientName());
-			parties.add(newParty);
-
-			tradeReport.setParties(parties);
-
-			// now add the newly created instrument
-			List<InstrumentReport> instruments = new ArrayList<InstrumentReport>();
-			InstrumentReport newInstrument = new InstrumentReport();
-			newInstrument.setId(ack.getInstrumentId());
-			newInstrument.setName(ack.getInstrumentId());
-			newInstrument.setCurrentTradeCount(1);
-			instruments.add(newInstrument);
-
-			tradeReport.setInstruments(instruments);
-
-		} else {
-			// we have found it now update the all the counters
-			int progress = tradeReport.getCurrentTradeProgress();
-			tradeReport.setCurrentTradeProgress(++progress);
-			List<PartyReport> parties = tradeReport.getParties();
-			List<InstrumentReport> instruments = tradeReport.getInstruments();
-
-			List<PartyReport> modifiedParties = parties.stream()
-					.filter(a -> a.getId().equals(ack.getClientName()))
-					.map(a -> a.incrementCountByOne())
-					.collect(Collectors.toList());
-			List<PartyReport> nonModifiedParties = parties.stream()
-					.filter(a -> !a.getId().equals(ack.getClientName()))
-					.collect(Collectors.toList());
-
-			if (modifiedParties.size() == 0) {
-				// add the new Party in
-				PartyReport newParty = new PartyReport();
-				newParty.setCurrentTradeCount(1);
-				newParty.setId(ack.getClientName());
-				newParty.setName(ack.getClientName());
-				modifiedParties.add(newParty);
-			}
-
-			parties = Stream.concat(modifiedParties.stream(),
-					nonModifiedParties.stream()).collect(Collectors.toList());
-
-			// now do the same for the instruments
-			List<InstrumentReport> modifiedInstruments = instruments.stream()
-					.filter(a -> a.getId().equals(ack.getInstrumentId()))
-					.map(a -> a.incrementCountByOne())
-					.collect(Collectors.toList());
-			List<InstrumentReport> nonModifiedInstruments = instruments
-					.stream()
-					.filter(a -> !a.getId().equals(ack.getInstrumentId()))
-					.collect(Collectors.toList());
-
-			if (modifiedInstruments.size() == 0) {
-
-				InstrumentReport newInstrument = new InstrumentReport();
-				newInstrument.setId(ack.getInstrumentId());
-				newInstrument.setName(ack.getInstrumentId());
-				newInstrument.setCurrentTradeCount(1);
-				modifiedInstruments.add(newInstrument);
-
-			}
-
-			// finally concat the list
-			instruments = Stream.concat(modifiedInstruments.stream(),
-					nonModifiedInstruments.stream()).collect(
-					Collectors.toList());
-
-			tradeReport.setParties(parties);
-			tradeReport.setInstruments(instruments);
-
-		}
-
-		reportRepo.save(tradeReport);
-	}
-
-	@Deprecated
-	@RequestMapping(value = "/purgeAllInjects", method = RequestMethod.POST)
-	public void purgeAllInjects() {
-		repo.deleteAll();
-		reportRepo.deleteAll();
-		profileRepo.deleteAll();
-		LOG.info("successfully deleted all trade inject messages records");
-	}
-
-	@Deprecated
-	@RequestMapping(value = "/retrieveAllInjects", method = RequestMethod.GET)
-	public List<TradeInjectorMessage> retrieveAllInjects() {
-
-		return repo.findAll();
-
-	}
-
+	
 	@RequestMapping(value = "/saveTradeInjectProfile", method = RequestMethod.POST)
 	public ResponseEntity<TradeInjectorProfile> saveTradeInjectProfile(
 			@RequestBody TradeInjectorProfile profile) throws Exception {
@@ -783,92 +558,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	@Deprecated
-	@MessageMapping("/tradeMessageInject")
-	// @RequestMapping(method = RequestMethod.POST)
-	public void tradeInject(@RequestBody TradeInjectorMessage message)
-			throws Exception {
-
-		int numberOfTrades = new Integer(message.getNoOfTrades());
-		int numberOfClients = new Integer(message.getNoOfClients());
-		int numberOfInstruments = new Integer(message.getNoOfInstruments());
-		int timedelay = 0;
-		message.setRun_mode(TradeInjectRunModes.RUNNING.getRunMode());
-		String pattern = "MM/dd/yyyy";
-		SimpleDateFormat format = new SimpleDateFormat(pattern);
-
-		message.setInjectDate(format.format(new Date(System.currentTimeMillis())));
-		LOG.info("Injecting trades with the following user "
-				+ message.getUserId());
-
-		// save the trade inject message
-		TradeInjectorMessage savedMessage = repo.save(message);
-
-		if (message.getTimeDelay() != null)
-			timedelay = new Integer(message.getTimeDelay());
-		else {
-			LOG.debug("Time Delay is not set, defaulting to 1000ms");
-			timedelay = 1000;
-		}
-
-		if (numberOfTrades < 1 || numberOfClients < 1
-				|| numberOfInstruments < 1)
-			throw new Exception(
-					"Minimum 1 must be specified for Trades, Clients and Instruments");
-		List<Instrument> listOfInstruments = new GenerateRandomInstruments()
-				.createRandomData(numberOfInstruments);
-		List<Party> listOfParties = new GenerateRandomParty()
-				.createRandomData(numberOfClients);
-
-		int iterations = 0;
-
-		for (int i = 0; i < numberOfTrades; i++) {
-
-			Trade aTrade = tradeData.createTradeData(i, listOfParties,
-					listOfInstruments);
-			convertToReportAndSave(convertToAck(aTrade, message.id),
-					message.getUserId());
-			// messageSender.convertAndSend("/topic/tradeAck", ack);
-			LOG.debug(("Following trade was generated " + aTrade.toString()));
-			LOG.debug("Sleeping for " + timedelay + " ms");
-
-			// update the counter push the updated message back to the client
-			TradeInjectorMessage retrieveForUpdate = repo
-					.findOne(savedMessage.id);
-			retrieveForUpdate.setCurrenMessageCount(new Integer(i + 1)
-					.toString());
-			repo.save(retrieveForUpdate);
-
-			// refreshTradeInjectQueue();
-
-			Thread.sleep(timedelay);
-
-			// if the kill flag is set by the UI return the process.
-			if (repo.findOne(savedMessage.id).getRun_mode() == TradeInjectRunModes.STOP
-					.getRunMode())
-
-				// kill it and return
-				// return ResponseEntity.ok().build();
-				break;
-
-			iterations++;
-
-		}
-
-		// finally set to complete only if we have a genuine complete
-		if (iterations == numberOfTrades) {
-			TradeInjectorMessage retrieveForUpdate = repo
-					.findOne(savedMessage.id);
-			retrieveForUpdate.setRun_mode(TradeInjectRunModes.COMPLETED
-					.getRunMode());
-			repo.save(retrieveForUpdate);
-		}
-
-		// refreshTradeInjectQueue();
-
-		// return ResponseEntity.ok().build();
-	}
-
+	
 	private TradeAcknowledge convertToAckForProfile(Trade aTrade, String id) {
 		TradeAcknowledge ack = new TradeAcknowledge();
 		if (aTrade != null) {
@@ -884,22 +574,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		return ack;
 	}
 
-	@Deprecated
-	private TradeAcknowledge convertToAck(Trade aTrade, String id) {
-		TradeAcknowledge ack = new TradeAcknowledge();
-		if (aTrade != null) {
-			ack.setInjectIdentifier(id);
-			ack.setClientName(aTrade.getClientName());
-			ack.setInstrumentId(aTrade.getInstrumentId());
-			ack.setSide(aTrade.getSide());
-			ack.setTradeDate(aTrade.getTradeDate().toString());
-			ack.setTradePx(new Double(aTrade.getTradePx()).toString());
-			ack.setTradeQty(new Integer(aTrade.getTradeQty()).toString());
-		}
-
-		return ack;
-	}
-
+	
 	public static void main(String[] args) {
 		SpringApplication.run(TradeInjectorController.class, args);
 	}
