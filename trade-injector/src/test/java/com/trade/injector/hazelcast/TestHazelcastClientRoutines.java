@@ -1,9 +1,14 @@
 package com.trade.injector.hazelcast;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -15,11 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.example.mu.domain.Instrument;
 import com.example.mu.domain.Party;
 import com.example.mu.domain.Trade;
+import com.google.common.collect.Maps;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.client.HazelcastClient;
@@ -29,6 +38,11 @@ import com.trade.injector.business.service.GenerateInstrumentCache;
 import com.trade.injector.business.service.GeneratePartyCache;
 import com.trade.injector.business.service.GenerateTradeCacheData;
 import com.trade.injector.controller.TradeInjectorController;
+import com.trade.injector.jto.InstrumentReport;
+import com.trade.injector.jto.PartyReport;
+import com.trade.injector.jto.TradeAcknowledge;
+import com.trade.injector.jto.TradeReport;
+import com.trade.injector.jto.repository.TradeReportRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TradeInjectorController.class)
@@ -37,8 +51,14 @@ public class TestHazelcastClientRoutines {
 	@Autowired
 	HazelcastInstance hzInstance;
 
-	
+	@Autowired
+	private MongoTemplate coreTemplate;
 
+	@Autowired
+	private TradeReportRepository reportRepo;
+	
+	final String injectProfileId = UUID.randomUUID().toString();
+	
 	@Before
 	public void setUpCache() {
 
@@ -135,7 +155,7 @@ public class TestHazelcastClientRoutines {
 		GenerateTradeCacheData tradeGen = new GenerateTradeCacheData();
 		for(int i=0; i<100; i++){
 			//generate 100 trades
-			Trade[] trades = tradeGen.createTrade(i, map, mapInstruments);
+			Trade[] trades = tradeGen.createTrade(i, map, 20, mapInstruments,30);
 			mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
 			mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
 		}
@@ -149,13 +169,196 @@ public class TestHazelcastClientRoutines {
 	
 	@Test
 	public void testConversionToReport() throws Exception{
-		System.out.println("test report generation...");
-		testTradeGeneration();
+		System.out.println("test report generation..."+new Date(System.currentTimeMillis()));
+		//testTradeGeneration();
+		
+		
 		IMap mapTrades = hzInstance.getMap("trade");
-		assertEquals(200, mapTrades.size());
+		assertEquals(0, mapTrades.size());
+		
+		//create 100 clients
+		IMap<String, Party> partyMap = hzInstance.getMap("party");
+		assertNotNull(partyMap);
+
+		assertEquals(0, partyMap.size());
+
+		GeneratePartyCache cacheGenerator = new GeneratePartyCache();
+		cacheGenerator.populateMap(100, partyMap);
+
+		partyMap = hzInstance.getMap("party");
+		assertEquals(100, partyMap.size());
+
+		
+		//create 1000 instruments
+		IMap<String, Instrument> mapInstruments = hzInstance.getMap("instrument");
+		assertNotNull(mapInstruments);
+
+		assertEquals(0, mapInstruments.size());
+
+		GenerateInstrumentCache cacheGeneratorInstruments = new GenerateInstrumentCache();
+		cacheGeneratorInstruments.populateMap(1000, mapInstruments);
+
+		mapInstruments = hzInstance.getMap("instrument");
+		assertEquals(1000, mapInstruments.size());
+
+		
+		//generate 1000 trades and report it
+		mapTrades = hzInstance.getMap("trade");
+		assertEquals(0, mapTrades.size());
+		GenerateTradeCacheData tradeGen = new GenerateTradeCacheData();
+		
+		
+		
+		for(int i=0; i<1000/2; i++){
+			Trade[] trades = tradeGen.createTrade(i, partyMap, 10, mapInstruments, 10);
+			mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
+			mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
+			
+			convertToReportAndSaveForProfile(trades[0], "Dinesh Pillai", injectProfileId);
+			convertToReportAndSaveForProfile(trades[1], "Dinesh Pillai", injectProfileId);
+			
+		}
+		
+		
+		//finally assert and display results
+		mapTrades = hzInstance.getMap("trade");
+		assertEquals(1000, mapTrades.size());
+		
+		TradeReport tradeReport = coreTemplate.findOne(
+				Query.query(Criteria.where("injectorProfileId").is(
+						injectProfileId)), TradeReport.class);
+		
+		assertNotNull(tradeReport);
+		assertEquals(1000, tradeReport.getCurrentTradeProgress());
+		
+		System.out.println("trade report party size is "+tradeReport.getParties().size());
+		System.out.println("trade report instrument size is "+tradeReport.getInstruments().size());
+		
+		System.out.println("finished report generation "+new Date(System.currentTimeMillis()));
 		
 		
 	}
+	
+	@Test
+	public void testWithLimitedInstrumentsParties(){
+		//create 100 clients
+				IMap<String, Party> partyMap = hzInstance.getMap("party");
+				assertNotNull(partyMap);
+
+				assertEquals(0, partyMap.size());
+
+				GeneratePartyCache cacheGenerator = new GeneratePartyCache();
+				cacheGenerator.populateMap(100, partyMap);
+
+				partyMap = hzInstance.getMap("party");
+				assertEquals(100, partyMap.size());
+				
+				//now get only limited set 10
+				
+				
+
+		
+	}
+	
+	
+	private void convertToReportAndSaveForProfile(Trade ack,
+			String username, String injectorProfileId) throws Exception {
+
+		TradeReport tradeReport = coreTemplate.findOne(
+				Query.query(Criteria.where("injectorProfileId").is(
+						injectorProfileId)), TradeReport.class);
+
+		if (tradeReport == null) {
+			// create a new one
+			tradeReport = new TradeReport();
+			tradeReport.setCurrentTradeProgress(1);
+			tradeReport.setInjectorProfileId(injectorProfileId);
+			tradeReport.setName("Report_" + injectorProfileId);
+			tradeReport.setReportDate(new Date(System.currentTimeMillis()));
+			tradeReport.setTradeCount(1);
+			tradeReport.setUserId(username);
+
+			List<PartyReport> parties = new ArrayList<PartyReport>();
+			PartyReport newParty = new PartyReport();
+			newParty.setCurrentTradeCount(1);
+			newParty.setPreviousTradeCount(1);
+			newParty.setId(ack.getClientId());
+			newParty.setName(ack.getClientId());
+			parties.add(newParty);
+
+			tradeReport.setParties(parties);
+
+			// now add the newly created instrument
+			List<InstrumentReport> instruments = new ArrayList<InstrumentReport>();
+			InstrumentReport newInstrument = new InstrumentReport();
+			newInstrument.setId(ack.getInstrumentId());
+			newInstrument.setName(ack.getInstrumentId());
+			newInstrument.setCurrentTradeCount(1);
+			instruments.add(newInstrument);
+
+			tradeReport.setInstruments(instruments);
+
+		} else {
+			// we have found it now update the all the counters
+			int progress = tradeReport.getCurrentTradeProgress();
+			tradeReport.setCurrentTradeProgress(++progress);
+			List<PartyReport> parties = tradeReport.getParties();
+			List<InstrumentReport> instruments = tradeReport.getInstruments();
+
+			List<PartyReport> modifiedParties = parties.stream()
+					.filter(a -> a.getName().equals(ack.getClientId()))
+					.map(a -> a.incrementCountByOne())
+					.collect(Collectors.toList());
+			List<PartyReport> nonModifiedParties = parties.stream()
+					.filter(a -> !a.getName().equals(ack.getClientId()))
+					.collect(Collectors.toList());
+
+			if (modifiedParties.size() == 0) {
+				// add the new Party in
+				PartyReport newParty = new PartyReport();
+				newParty.setCurrentTradeCount(1);
+				newParty.setId(ack.getClientId());
+				newParty.setName(ack.getClientId());
+				modifiedParties.add(newParty);
+			}
+
+			parties = Stream.concat(modifiedParties.stream(),
+					nonModifiedParties.stream()).collect(Collectors.toList());
+
+			// now do the same for the instruments
+			List<InstrumentReport> modifiedInstruments = instruments.stream()
+					.filter(a -> a.getId().equals(ack.getInstrumentId()))
+					.map(a -> a.incrementCountByOne())
+					.collect(Collectors.toList());
+			List<InstrumentReport> nonModifiedInstruments = instruments
+					.stream()
+					.filter(a -> !a.getId().equals(ack.getInstrumentId()))
+					.collect(Collectors.toList());
+
+			if (modifiedInstruments.size() == 0) {
+
+				InstrumentReport newInstrument = new InstrumentReport();
+				newInstrument.setId(ack.getInstrumentId());
+				newInstrument.setName(ack.getInstrumentId());
+				newInstrument.setCurrentTradeCount(1);
+				modifiedInstruments.add(newInstrument);
+
+			}
+
+			// finally concat the list
+			instruments = Stream.concat(modifiedInstruments.stream(),
+					nonModifiedInstruments.stream()).collect(
+					Collectors.toList());
+
+			tradeReport.setParties(parties);
+			tradeReport.setInstruments(instruments);
+
+		}
+
+		reportRepo.save(tradeReport);
+
+	}
+
 
 	@Test
 	public void testManyClients() {
@@ -276,6 +479,14 @@ public class TestHazelcastClientRoutines {
 
 		parties = hzInstance.getMap("party");
 		assertEquals(0, parties.size());
+		
+		
+		TradeReport tradeReport = coreTemplate.findOne(
+				Query.query(Criteria.where("injectorProfileId").is(
+						injectProfileId)), TradeReport.class);
+		
+		if(tradeReport != null)
+		reportRepo.delete(tradeReport);
 
 		System.out.println("Finished");
 
