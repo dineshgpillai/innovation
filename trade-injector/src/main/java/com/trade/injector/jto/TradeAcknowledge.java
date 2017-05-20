@@ -2,6 +2,8 @@ package com.trade.injector.jto;
 
 public class TradeAcknowledge {
 	
+	private String injectIdentifier;
+	private String profileIdentifier;
 	private String clientName;
 	private String tradeDate;
 	private String instrumentId;
@@ -43,6 +45,18 @@ public class TradeAcknowledge {
 	}
 	public void setTradePx(String tradePx) {
 		this.tradePx = tradePx;
+	}
+	public String getInjectIdentifier() {
+		return injectIdentifier;
+	}
+	public void setInjectIdentifier(String injectIdentifier) {
+		this.injectIdentifier = injectIdentifier;
+	}
+	public String getProfileIdentifier() {
+		return profileIdentifier;
+	}
+	public void setProfileIdentifier(String profileIdentifier) {
+		this.profileIdentifier = profileIdentifier;
 	}
 	
 	

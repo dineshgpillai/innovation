@@ -3,12 +3,16 @@ package com.trade.injector.controller;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Date;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -16,10 +20,13 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.trade.injector.application.Application;
 import com.trade.injector.jto.TradeInjectorMessage;
+import com.trade.injector.jto.TradeInjectorProfile;
+import com.trade.injector.jto.repository.TradeInjectorProfileRepository;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -28,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
+@SpringBootTest(classes = TradeInjectorController.class)
 @WebAppConfiguration
 public class TradeInjectorControllerTest {
 
@@ -37,10 +44,16 @@ public class TradeInjectorControllerTest {
 			MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
 
 	private MockMvc mockMvc;
-    private HttpMessageConverter mappingJackson2HttpMessageConverter;
+	private HttpMessageConverter mappingJackson2HttpMessageConverter;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
+
+	@Autowired
+	private MongoTemplate coreTemplate;
+
+	@Autowired
+	TradeInjectorProfileRepository repo;
 
 	@Autowired
 	void setConverters(HttpMessageConverter<?>[] converters) {
@@ -63,6 +76,13 @@ public class TradeInjectorControllerTest {
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(webApplicationContext).build();
 
+		BasicQuery query = new BasicQuery("{ name : 'testProfile'}");
+		TradeInjectorProfile profile = coreTemplate.findOne(query,
+				TradeInjectorProfile.class);
+
+		if (profile != null)
+			repo.delete(profile);
+
 		/*
 		 * this.bookmarkRepository.deleteAllInBatch();
 		 * this.accountRepository.deleteAllInBatch();
@@ -83,21 +103,107 @@ public class TradeInjectorControllerTest {
 		msg.setNoOfInstruments("3");
 		msg.setNoOfTrades("200");
 		msg.setTimeDelay("1000");
-		
+
 		String jsonMessage = this.json(msg);
+
 		
-		mockMvc.perform(
-				get("/tradeInjector/tradeMessageInject").content(jsonMessage)
-						.contentType(contentType)).andExpect(
-				status().isOk());
+		  mockMvc.perform(
+		  get("/tradeMessageInject").content(jsonMessage)
+		 .contentType(contentType));
+		 
+	}
+
+	@Test
+	public void testTradeProfileSave() throws Exception {
+
+		TradeInjectorProfile testProfile = new TradeInjectorProfile();
+		testProfile.setName("testProfile");
+		testProfile.setNumberOfParties(10);
+		testProfile.setNumberOfInstruments(10);
+		testProfile.setMaxPxRange(200.00);
+		testProfile.setMaxQtyRange(200);
+		testProfile.setMinPxRange(50.00);
+		testProfile.setMinQtyRange(10);
+		testProfile.setNumberOfTrades(1000);
+		testProfile.setSimulatedWaitTime(1000);
+		testProfile.setThreads(5);
+		testProfile.setTradeDate(new Date(System.currentTimeMillis()));
+
+		String jsonMessage = this.json(testProfile);
+
+		MvcResult result = mockMvc.perform(
+				post("/saveTradeInjectProfile").content(jsonMessage)
+						.contentType(contentType)).andExpect(status().isOk()).andReturn();
+
+		String content = result.getResponse().getContentAsString();
+		System.out.println(content);
+		assertTrue(content.contains("testProfile"));
+		// now confirm whether it actually saved the object
+		BasicQuery query = new BasicQuery("{ name : 'testProfile'}");
+		TradeInjectorProfile profile = coreTemplate.findOne(query,
+				TradeInjectorProfile.class);
+		assertNotNull(profile);
+
+		repo.delete(profile);
 
 	}
 	
+	@Test
+	public void testGetProfiles() throws Exception {
+
+		TradeInjectorProfile testProfile = new TradeInjectorProfile();
+		testProfile.setName("testProfile");
+		testProfile.setNumberOfParties(10);
+		testProfile.setNumberOfInstruments(10);
+		testProfile.setMaxPxRange(200.00);
+		testProfile.setMaxQtyRange(200);
+		testProfile.setMinPxRange(50.00);
+		testProfile.setMinQtyRange(10);
+		testProfile.setNumberOfTrades(1000);
+		testProfile.setSimulatedWaitTime(1000);
+		testProfile.setThreads(5);
+		testProfile.setTradeDate(new Date(System.currentTimeMillis()));
+
+		String jsonMessage = this.json(testProfile);
+
+		mockMvc.perform(
+				post("/saveTradeInjectProfile").content(jsonMessage)
+						.contentType(contentType)).andExpect(status().isOk());
+		// now confirm whether it actually saved the object
+		BasicQuery query = new BasicQuery("{ name : 'testProfile'}");
+		TradeInjectorProfile profile = coreTemplate.findOne(query,
+				TradeInjectorProfile.class);
+		assertNotNull(profile);
+		
+		//now read it back through get method
+		MvcResult result = mockMvc.perform(
+				get("/getAllInjectProfiles")).andExpect(status().isOk()).andReturn();
+		String content = result.getResponse().getContentAsString();
+		System.out.println(content);
+		assertTrue(content.contains("testProfile"));
+
+		repo.delete(profile);
+
+	}
+
+	
+	@After
+	public void cleanUp(){
+		
+		BasicQuery query = new BasicQuery("{ name : 'testProfile'}");
+		TradeInjectorProfile profile = coreTemplate.findOne(query,
+				TradeInjectorProfile.class);
+
+		if (profile != null)
+			repo.delete(profile);
+		
+	}
+
 	protected String json(Object o) throws IOException {
-        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
-        this.mappingJackson2HttpMessageConverter.write(
-                o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
-        return mockHttpOutputMessage.getBodyAsString();
-    }
+		MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
+		this.mappingJackson2HttpMessageConverter.write(o,
+				MediaType.APPLICATION_JSON, mockHttpOutputMessage);
+		return mockHttpOutputMessage.getBodyAsString();
+	}
 
 }

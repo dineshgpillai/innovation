@@ -1,193 +1,670 @@
-angular
-		.module("TradeInjectorApp.controllers")
+var app = angular.module("TradeInjectorApp.controllers", [
+		'angularModalService', 'ngAnimate' ]);
+
+
+app.factory('UserService', function($http, $q){
+	
+	var UserService={
+			user:[],
+			loginType:[],
+			getUser: getUser
+	};
+	
+	return UserService;
+	
+	function getUser(){
+		
+		 return $http.get("/user").success(function(data) { 
+				
+				console.log(data.userAuthentication.details.name);
+				
+				 UserService.user=data.userAuthentication.details.name;
+				 
+					 if (data.userAuthentication.details.name == null) 
+					 { 
+						 // must be github
+						 UserService.user= data.userAuthentication.details.login;
+						 UserService.loginType="github";
+					 }else{
+						 UserService.loginType="facebook";
+					 }
+					 console.log("before returning this is the user "+UserService.user+" "+UserService.loginType);
+				 });
+	}
+				
+			
+	
+	
+	
+});
+
+app.controller("TradeInjectCtrl", function($scope, $http, $location,
+		TradeInjectorService, ModalService, UserService) {
+
+	$scope.tradeAcks = [];
+	// $scope.tradeInjectorMessage = [];
+	$scope.labels = [];
+	$scope.data = [];
+	$scope.labels_instrument = [];
+	$scope.instrumentCount = [];
+	$scope.clientCount = [];
+	$scope.showGeneration = false;
+	$scope.totalMsgCount = [ 0 ];
+	$scope.tab = 1;
+	$scope.user = [];
+	$scope.authenticated = false;
+	$scope.loginType = [];
+
+	$scope.setTab = function(newTab) {
+		$scope.tab = newTab;
+	}
+
+	$scope.isSet = function(tabNum) {
+		return $scope.tab === tabNum;
+	}
+
+	// login
+	
+	// UserService.getUserService().success(function(result){
+		// $scope.user=result;
+	// });
+	  UserService.getUser().success(function(user){
+		  $scope.user=UserService.user;
+		  $scope.authenticated = true;
+		  $scope.loginType=UserService.loginType;
+			  console.log("+++login type +++"+$scope.loginType+" "+$scope.user);
+	  }).error(function(){
+		  $scope.user="N/A";
+		  $scope.authenticated = false;
+	  });
+	
+		 
+	// logout
+	$scope.logout = function() {
+		$http.post('/logout', {}).success(function() {
+			$scope.authenticated = false;
+			$location.path("/");
+		}).error(function(data) {
+			console.log("Logout failed")
+			$scope.authenticated = false;
+		});
+	};
+
+	$scope.datasetOverride = {
+		fill : false
+	};
+
+	$scope.injectTrades = function() {
+		$scope.tradeAcks = [];
+		$scope.labels = [];
+		$scope.data = [];
+		$scope.labels_instrument = [];
+		$scope.instrumentCount = [];
+		$scope.clientCount = [];
+		$scope.totalMsgCount = [ 0 ];
+		console.log('Before sending ' + $scope.tradeInjectorMessage);
+		// set the user id
+		$scope.tradeInjectorMessage.userId = $scope.user
+		TradeInjectorService.send($scope.tradeInjectorMessage);
+	};
+
+		
+	
+
+}
+
+);
+
+/*
+ * app .controller( "TradeInjectTableDisplay", function($scope, $http,
+ * $location, TradeInjectorService, ModalService) {
+ * 
+ * $scope.user = []; $scope.authenticated = false;
+ * 
+ * $http.get("/user").success(function(data) { $scope.user =
+ * data.userAuthentication.details.name; $scope.authenticated = true;
+ * }).error(function() { $scope.user = "N/A"; $scope.authenticated = false; });
+ * 
+ * $scope.tradeInjectMessages = []; // ensure all messages are retrieved first
+ * $http.get("/retrieveAllInjects").success(function(data) {
+ * $scope.tradeInjectMessages = data; });
+ * 
+ * $scope.stop = function(injectId) { var data = $.param({ id : injectId });
+ * 
+ * var config = { headers : { 'Content-Type' :
+ * 'application/x-www-form-urlencoded;charset=utf-8;' } }
+ * 
+ * $http.post('/tradeMessageStop', data, config).success( function(data, status,
+ * headers, config) { $scope.PostDataResponse = data; $scope.showGeneration =
+ * false; }).error( function(data, status, header, config) {
+ * $scope.ResponseDetails = "Data: " + data + "<hr />status: " + status + "<hr />headers: " +
+ * header + "<hr />config: " + config; }); // $http.post('/tradeMessageStop'); }
+ * 
+ * $scope.repeat = function(injectId) { var data = $.param({ id : injectId });
+ * 
+ * var config = { headers : { 'Content-Type' :
+ * 'application/x-www-form-urlencoded;charset=utf-8;' } }
+ * 
+ * $http .post('/tradeMessageRepeat', data, config) .success( function(data,
+ * status, headers, config) { $scope.PostDataResponse = data;
+ * $scope.showGeneration = false; }).error( function(data, status, header,
+ * config) { $scope.ResponseDetails = "Data: " + data + "<hr />status: " +
+ * status + "<hr />headers: " + header + "<hr />config: " + config; }); }
+ * 
+ * $scope.play = function(injectId) { var data = $.param({ id : injectId });
+ * 
+ * var config = { headers : { 'Content-Type' :
+ * 'application/x-www-form-urlencoded;charset=utf-8;' } }
+ * 
+ * $http.post('/tradeMessagePlay', data, config).success( function(data, status,
+ * headers, config) { $scope.PostDataResponse = data; $scope.showGeneration =
+ * false; }).error( function(data, status, header, config) {
+ * $scope.ResponseDetails = "Data: " + data + "<hr />status: " + status + "<hr />headers: " +
+ * header + "<hr />config: " + config; }); }
+ * 
+ * $scope.purgeAll = function() { $http .post('/purgeAllInjects') .success(
+ * function(data) { // refresh the table list $http .get("/retrieveAllInjects")
+ * .success( function(data) {
+ * 
+ * var newData = data .slice(0); $scope.tradeInjectMessages.length = 0
+ * $scope.tradeInjectMessages.push .apply( $scope.tradeInjectMessages, newData);
+ * }); }); }; // refresh the entire table $scope.refreshAll = function() {
+ * 
+ * $http.get("/retrieveAllInjects").success( function(data) {
+ * 
+ * $scope.tradeInjectMessages = data; }); }; // Receives the trade inject
+ * messages //TradeInjectorService.receiveTradeInjectMessage().then(
+ * 
+ * //null, null, function(data) { //$scope.tradeInjectMessages = data; //}); //
+ * show the angular window $scope.showTable = function(injectid) {
+ * 
+ * ModalService.showModal({ templateUrl : '/showTableData.html', controller :
+ * "ModalTableController", inputs : { injectId : injectid }
+ * 
+ * }).then(function(modal) { modal.element.modal();
+ * modal.close.then(function(result) { $scope.message = "You said " + result;
+ * }); }); }; });
+ */
+app
 		.controller(
-				"TradeInjectCtrl",
-				function($scope, $http, $location, TradeInjectorService) {
+				'ModalTableController',
+				[
+						'$scope',
+						'$element',
+						'injectId',
+						'close',
+						'TradeInjectorService',
+						'filterFilter',
+						function($scope, $element, injectId, close,
+								TradeInjectorService, filterFilter) {
 
-					$scope.tradeAcks = [];
-					// $scope.tradeInjectorMessage = [];
-					$scope.labels = [];
-					$scope.data = [];
-					$scope.labels_instrument = [];
-					$scope.instrumentCount = [];
-					$scope.clientCount = [];
-					$scope.showGeneration = false;
-					$scope.totalMsgCount = [ 0 ];
-					$scope.tab = 1;
-					$scope.user = [];
-					$scope.authenticated = false;
+							$scope.injectId = injectId;
+							$scope.tradeAcks = [];
+							$scope.labels = [];
+							$scope.data = [];
+							$scope.labels_instrument = [];
+							$scope.instrumentCount = [];
+							$scope.clientCount = [];
+							$scope.totalMsgCount = [ 0 ];
 
-					$scope.setTab = function(newTab) {
-						$scope.tab = newTab;
+							$scope.options = {
+								responsive : true,
+								responsiveAnimationDuration : 10,
+								title : {
+									display : false,
+									text : 'Trade Count by Client '
+								}
+							};
+
+							$scope.options_instrument = {
+								responsive : true,
+								responsiveAnimationDuration : 1000,
+								title : {
+									display : false,
+									text : 'Trade Count by Instrument'
+								}
+							};
+
+							TradeInjectorService
+									.receive()
+									.then(
+
+											null,
+											null,
+											function(data) {
+
+												var filteredData = filterFilter(
+														data,
+														{
+															injectorProfileId : injectId
+														})
+												console
+														.log("data received "
+																+ data[0].injectorProfileId);
+												console.log("injector profile id "
+														+ injectId);
+
+												console.log("filtered data "
+														+ filteredData[0]);
+
+												if (injectId === filteredData[0].injectorProfileId) {
+													console
+															.log("Yes we have got the right inject id");
+													
+
+													filteredData[0].parties
+															.forEach(changePartyData);
+													
+													function changePartyData(
+															element, index,
+															array) {
+
+														// first check if the
+														// party exist
+														var clientNameIndex = $scope.labels
+																.indexOf(element.id);
+
+														if (clientNameIndex == -1) {
+
+															// do the push
+															$scope.clientCount
+																	.push(element.currentTradeCount);
+															$scope.labels
+																	.push(element.id);
+
+														} else {
+
+															// splice only if
+															// the value has
+															// changed or dont
+															// change the array
+															if (element.previousTradeCount != element.currentTradeCount) {
+																$scope.labels
+																		.splice(
+																				clientNameIndex,
+																				1,
+																				element.id);
+																$scope.clientCount
+																		.splice(
+																				clientNameIndex,
+																				1,
+																				element.currentTradeCount);
+															}
+
+														}
+
+													}
+													;
+
+													// do the same for
+													// instruments
+
+													
+
+													filteredData[0].instruments
+															.forEach(changeInstrumentData);
+
+													function changeInstrumentData(
+															instrument, index,
+															callback) {
+														var instrumentIdIndex = $scope.labels_instrument
+																.indexOf(instrument.id);
+														if (instrumentIdIndex == -1) {
+															// push
+															$scope.instrumentCount
+																	.push(instrument.currentTradeCount);
+															$scope.labels_instrument
+																	.push(instrument.id);
+														} else {
+															// splice
+															$scope.instrumentCount
+																	.splice(
+																			instrumentIdIndex,
+																			1,
+																			instrument.currentTradeCount);
+															$scope.labels_instrument
+																	.splice(
+																			instrumentIdIndex,
+																			1,
+																			instrument.id)
+														}
+													}
+													;
+												}
+
+											});
+
+							$scope.close = function(result) {
+								close(result, 1500);
+							}
+						} ]);
+app.controller('ModalCreateNewController', [
+		'$scope',
+		'$element',
+		'$http',
+		'UserService',
+		'injectId',
+		'close',		
+		'filterFilter',
+		'isEdit',
+		function($scope, $element, $http, UserService, injectId, close, filterFilter, isEdit) {
+
+			$scope.showStatus = [];
+			$scope.user=[];
+			var profileUser=[];
+			$scope.isEdit=[];
+			// $scope.tradeInjectorProfile={};
+			$scope.isEdit = isEdit;
+			UserService.getUser().success(function(user){
+				profileUser=UserService.user;
+			  }).error(function(){
+				  profileUser="N/A";
+			  });
+			
+			// console.log("user in create profile is "+profileUser);
+			
+			// get the profile for the following profile id
+			if(injectId !=null){
+				var data = $.param({
+					id : injectId
+				});
+
+				var config = {
+					headers : {
+						'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
 					}
+				}
 
-					$scope.isSet = function(tabNum) {
-						return $scope.tab === tabNum;
-					}
+				$http
+						.post('/getProfile', data,
+								config)
+						.success(
+								function(data, status, headers, config) {
+									$scope.tradeInjectorProfile = data;
+									$scope.showStatus = "Retrieved data for the following id "+$scope.tradeInjectorProfile.id;
+									
+								}).error(
+								function(data, status, header, config) {
+									$scope.showStatus = "Data: "
+											+ data + "<hr />status: "
+											+ status
+											+ "<hr />headers: "
+											+ header + "<hr />config: "
+											+ config;
+								});
 
-					// login
-					$http.get("/user").success(function(data) {
-						$scope.user = data.userAuthentication.details.name;
-						$scope.authenticated = true;
-					}).error(function() {
-						$scope.user = "N/A";
-						$scope.authenticated = false;
-					});
+				
+			}
+			
 
-					// logout
-					$scope.logout = function() {
-						$http.post('/logout', {}).success(function() {
-							$scope.authenticated = false;
-							$location.path("/");
-						}).error(function(data) {
-							console.log("Logout failed")
-							$scope.authenticated = false;
-						});
-					};
+			$scope.addInstruments = function() {
+				alert('we are in add Instruments');
+			};
 
-					$scope.options = {
-						responsive : true,
-						responsiveAnimationDuration : 1000,
-						title : {
-							display : true,
-							text : 'Trade Count by Client Chart'
+			$scope.save = function(isValid) {
+
+				// check to make sure the form is completely
+				// valid
+				if (isValid) {
+					$scope.tradeInjectorProfile.userId=profileUser;
+					$scope.showStatus = [];
+					var data = $scope.tradeInjectorProfile;
+					console.log('Data before post '
+							+ $scope.tradeInjectorProfile);
+
+					var config = {
+						headers : {
+							'Content-Type' : 'application/json;'
 						}
-					};
-
-					$scope.options_instrument = {
-						responsive : true,
-						responsiveAnimationDuration : 1000,
-						title : {
-							display : true,
-							text : 'Trade Count by Instrument Chart'
-						}
-					};
-
-					$scope.datasetOverride = {
-						fill : false
-					};
-
-					$scope.stop = function() {
-						$http.post('/tradeMessageStop');
-						$scope.showGeneration = false;
-
 					}
 
-					$scope.injectTrades = function() {
-						$scope.tradeAcks = [];
-						$scope.labels = [];
-						$scope.data = [];
-						$scope.labels_instrument = [];
-						$scope.instrumentCount = [];
-						$scope.clientCount = [];
-						$scope.totalMsgCount = [ 0 ];
-						console.log('Before sending '
-								+ $scope.tradeInjectorMessage);
-						TradeInjectorService.send($scope.tradeInjectorMessage);
-					};
+					$http.post('/saveTradeInjectProfile', data, config)
+							.success(
+									function(data, status, headers, config) {
+										$scope.tradeInjectorProfile = data;
+										$scope.showStatus = "Success! Created with following id  "+$scope.tradeInjectorProfile.id;
+										console.log('Data received after save '
+												+ data);
 
-					// Receives the trade ack and summarises the trade count
-					TradeInjectorService
-							.receive()
-							.then(
-
-									null,
-									null,
-									function(data) {
-										$scope.showGeneration = true;
-										$scope.tradeAcks.push(data);
-										var clientNameIndex = $scope.labels
-												.indexOf(data.clientName)
-
-										if (clientNameIndex == -1) {
-											// this is a new client set the
-											// trade count
-											// appropriately
-											$scope.clientCount.push(1);
-											$scope.labels.push(data.clientName);
-										} else {
-											// existing client, update the trade
-											// count
-											$scope.clientCount
-													.splice(
-															clientNameIndex,
-															1,
-															$scope.clientCount[clientNameIndex] + 1);
-											$scope.labels.splice(
-													clientNameIndex, 1,
-													data.clientName);
-										}
-
-										// do the same for instruments
-										var instrumentIdIndex = $scope.labels_instrument
-												.indexOf(data.instrumentId)
-
-										if (instrumentIdIndex == -1) {
-											$scope.instrumentCount.push(1);
-											$scope.labels_instrument
-													.push(data.instrumentId);
-										} else {
-											$scope.instrumentCount
-													.splice(
-															instrumentIdIndex,
-															1,
-															$scope.instrumentCount[instrumentIdIndex] + 1);
-											$scope.labels_instrument.splice(
-													instrumentIdIndex, 1,
-													data.instrumentId)
-										}
-
-										// increment the msg count
-										$scope.totalMsgCount.splice(0, 1,
-												$scope.totalMsgCount[0] + 1);
-
-										// kill the generation message once we
-										// reach end
-										if ($scope.totalMsgCount[0] == $scope.tradeInjectorMessage.noOfTrades) {
-											$scope.showGeneration = false;
-										}
-
+									}).error(
+									function(data, status, header, config) {
+										$scope.showStatus = "Data: " + data
+												+ "<hr />status: " + status
+												+ "<hr />headers: " + header
+												+ "<hr />config: " + config;
 									});
 
 				}
 
-		).controller("TradeInjectTableDisplay",
-				function($scope, $http, $location, TradeInjectorService) {
+			};
+			
+			
 
-					$http.get("/user").success(function(data) {
-						$scope.user = data.userAuthentication.details.name;
-						$scope.authenticated = true;
-					}).error(function() {
-						$scope.user = "N/A";
-						$scope.authenticated = false;
+			$scope.close = function(result) {
+				close(result, 500);
+			};
+		} ]);
+app
+		.controller(
+				"TradeInjectProfileTableDisplay",
+				function($scope, $http, $location, TradeInjectorService,
+						ModalService) {
+
+					$scope.tradeInjectProfiles = [];
+					$scope.showStatus = [];
+
+					$http.get("/getAllInjectProfiles").success(function(data) {
+
+						$scope.tradeInjectProfiles = data;
+					}).error(function(data) {
+						$scope.showStatus = data;
 					});
 
-					
-					$scope.tradeInjectMessages = [];
-					
-					// ensure all messages are retrieved first
-					$http.get("/retrieveAllInjects").success(function(data) {
-						$scope.tradeInjectMessages = data;
-					});
-					
-					$scope.purgeAll = function() {
-						$http.post('/purgeAllInjects');
-						
-						// refresh the table list
-						$http.get("/retrieveAllInjects").success(function(data) {
-							
-							var newData = data.slice(0);
-							$scope.tradeInjectMessages.length=0
-							$scope.tradeInjectMessages.push.apply($scope.tradeInjectMessages, newData);
+					// refresh the entire table
+					$scope.refreshAll = function() {
+
+						$http.get("/getAllInjectProfiles").success(
+								function(data) {
+
+									$scope.tradeInjectProfiles = data;
+								}).error(function(data) {
+							$scope.showStatus = data;
 						});
+
+					};
+
+					// stop the run
+					$scope.stop = function(profileId) {
+						var data = $.param({
+							id : profileId
+						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http
+								.post('/tradeMessageStopForProfile', data,
+										config)
+								.success(
+										function(data, status, headers, config) {
+											$scope.PostDataResponse = data;
+											$scope.showGeneration = false;
+										}).error(
+										function(data, status, header, config) {
+											$scope.ResponseDetails = "Data: "
+													+ data + "<hr />status: "
+													+ status
+													+ "<hr />headers: "
+													+ header + "<hr />config: "
+													+ config;
+										});
+
+						// $http.post('/tradeMessageStop');
 
 					}
 
+					// repeat the run
+					$scope.repeat = function(profileId) {
+						var data = $.param({
+							id : profileId
+						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http.post('/tradeMessageRepeatForProfile', data,
+								config).success(
+								function(data, status, headers, config) {
+									$scope.PostDataResponse = data;
+									$scope.showGeneration = false;
+								}).error(
+								function(data, status, header, config) {
+									$scope.ResponseDetails = "Data: " + data
+											+ "<hr />status: " + status
+											+ "<hr />headers: " + header
+											+ "<hr />config: " + config;
+								});
+
+					}
+
+					// play button
+					$scope.play = function(profileId) {
+						var data = $.param({
+							id : profileId
+						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http
+								.post('/tradeMessagePlayForProfile', data,
+										config)
+								.success(
+										function(data, status, headers, config) {
+											$scope.PostDataResponse = data;
+											$scope.showGeneration = false;
+										}).error(
+										function(data, status, header, config) {
+											$scope.ResponseDetails = "Data: "
+													+ data + "<hr />status: "
+													+ status
+													+ "<hr />headers: "
+													+ header + "<hr />config: "
+													+ config;
+										});
+
+					}
+					
+					// delete the profile
+					$scope.delete=function(profileId){
+						
+						var data = $.param({
+							id : profileId
+						});
+
+						var config = {
+							headers : {
+								'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+							}
+						}
+
+						$http
+								.post('/deleteProfile', data,
+										config)
+								.success(
+										function(data, status, headers, config) {
+											$scope.PostDataResponse = data;
+											$scope.showGeneration = false;
+										}).error(
+										function(data, status, header, config) {
+											$scope.ResponseDetails = "Data: "
+													+ data + "<hr />status: "
+													+ status
+													+ "<hr />headers: "
+													+ header + "<hr />config: "
+													+ config;
+										});
+
+
+						
+					}
 					
 					// Receives the trade inject messages
 					TradeInjectorService.receiveTradeInjectMessage().then(
 
 					null, null, function(data) {
-						$scope.tradeInjectMessages = data;
+						$scope.tradeInjectProfiles = data;
 					});
+					
+					// show the angular window
+					$scope.showCreateProfile = function(profileId) {
+
+						ModalService.showModal({
+							templateUrl : '/createNewProfile.html',
+							controller : "ModalCreateNewController",
+							inputs : {
+								injectId : profileId,
+								isEdit : "Y"
+							}
+
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.message = "You said " + result;
+							});
+						});
+
+					};
+					
+					// view profile only
+					$scope.viewProfile = function(injectid) {
+
+						ModalService.showModal({
+							templateUrl : '/createNewProfile.html',
+							controller : "ModalCreateNewController",
+							inputs : {
+								injectId : injectid,
+								isEdit : "N"
+							}
+
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.message = "You said " + result;
+							});
+						});
+
+					};
+
+					
+					$scope.showTable = function(injectid) {
+
+						ModalService.showModal({
+							templateUrl : '/showTableData.html',
+							controller : "ModalTableController",
+							inputs : {
+								injectId : injectid
+							}
+
+						}).then(function(modal) {
+							modal.element.modal();
+							modal.close.then(function(result) {
+								$scope.message = "You said " + result;
+							});
+						});
+
+					};
+
+
+
+
 				});
