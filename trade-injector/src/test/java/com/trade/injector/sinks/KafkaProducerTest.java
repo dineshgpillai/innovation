@@ -5,12 +5,14 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
+
 import static org.junit.Assert.*;
 
 import com.trade.injector.controller.TradeInjectorController;
@@ -19,15 +21,18 @@ import com.trade.injector.controller.TradeInjectorController;
 @SpringBootTest(classes = TradeInjectorController.class)
 public class KafkaProducerTest {
 	
+	@Value("${kafka.topic.marketData}")
+	private String topic;
+	
 	@Autowired
-	private KafkaTemplate<String, String> kafkaTemplate;
+	private KafkaSink sender;
 	@Autowired
-	private Listener listener;
+	private MarketDataReceiver receive;
 	
 	@Test
-	public void loadTest() throws InterruptedException {
+	public void loadStringTest() throws InterruptedException {
 
-		ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send("maket_data", "testpricemessage");
+		/*ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send("maket_data", "testpricemessage");
 		future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
 			@Override
 			public void onSuccess(SendResult<String, String> result) {
@@ -40,7 +45,13 @@ public class KafkaProducerTest {
 			}
 		});
 		System.out.println(Thread.currentThread().getId());
-		assertTrue(this.listener.countDownLatch1.await(60, TimeUnit.SECONDS));
+		assertTrue(this.listener.countDownLatch1.await(60, TimeUnit.SECONDS));*/
+		
+		sender.send(topic, "Hi there");
+		
+		Thread.sleep(2000);
+		
+		//receive.receive(message);
 
 	}
 

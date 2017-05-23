@@ -1,3 +1,6 @@
+kafka.bootstrap-servers: 138.68.168.237:9092
+kafka.topic.marketData: maket_data
+
 facebook:
     client:
       clientId: 1969633719925522
