@@ -394,8 +394,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			//convertToReportAndSaveForProfile(
 					//convertToAckForProfile(aTrade, profile.id),
 					//profile.getUserId());
-			convertToReportAndSaveForProfile(trades[0], profile.getUserId(), profile.id);
-			convertToReportAndSaveForProfile(trades[1], profile.getUserId(), profile.id);
+			//convertToReportAndSaveForProfile(trades[0], profile.getUserId(), profile.id);
+			//convertToReportAndSaveForProfile(trades[1], profile.getUserId(), profile.id);
 			profile.setCurrentMessageCount(startFrom);
 
 			// sleep for simulated wait time

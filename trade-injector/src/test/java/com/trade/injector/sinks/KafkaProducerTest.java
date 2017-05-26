@@ -44,10 +44,11 @@ public class KafkaProducerTest {
 				System.out.println("failed");
 			}
 		});
-		System.out.println(Thread.currentThread().getId());
-		assertTrue(this.listener.countDownLatch1.await(60, TimeUnit.SECONDS));*/
+		System.out.println(Thread.currentThread().getId());*/
 		
-		sender.send(topic, "Hi there");
+		
+		sender.send(topic,  "Hi there");
+		assertTrue(this.receive.getLatch().await(60, TimeUnit.SECONDS));
 		
 		Thread.sleep(2000);
 		

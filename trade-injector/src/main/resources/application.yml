@@ -1,5 +1,5 @@
-kafka.bootstrap-servers: 138.68.168.237:9092
-kafka.topic.marketData: maket_data
+#kafka.bootstrap-servers: 138.68.168.237:9092
+kafka.topic.marketData: market_data
 
 facebook:
     client:

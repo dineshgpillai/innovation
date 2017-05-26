@@ -1,6 +1,7 @@
 package com.trade.injector.hazelcast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -27,15 +28,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.example.mu.domain.Instrument;
 import com.example.mu.domain.Party;
+import com.example.mu.domain.Price;
 import com.example.mu.domain.Trade;
 import com.google.common.collect.Maps;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.jet.Jet;
+import com.hazelcast.jet.JetInstance;
+import com.hazelcast.jet.stream.IStreamMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.SqlPredicate;
 import com.trade.injector.business.service.GenerateInstrumentCache;
 import com.trade.injector.business.service.GeneratePartyCache;
+import com.trade.injector.business.service.GeneratePriceData;
 import com.trade.injector.business.service.GenerateTradeCacheData;
 import com.trade.injector.controller.TradeInjectorController;
 import com.trade.injector.jto.InstrumentReport;
@@ -43,6 +49,8 @@ import com.trade.injector.jto.PartyReport;
 import com.trade.injector.jto.TradeAcknowledge;
 import com.trade.injector.jto.TradeReport;
 import com.trade.injector.jto.repository.TradeReportRepository;
+import com.trade.injector.sinks.ISink;
+import com.trade.injector.sinks.KafkaSink;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TradeInjectorController.class)
@@ -56,13 +64,15 @@ public class TestHazelcastClientRoutines {
 
 	@Autowired
 	private TradeReportRepository reportRepo;
-	
+
+	@Autowired
+	private KafkaSink sender;
+
 	final String injectProfileId = UUID.randomUUID().toString();
-	
+
 	@Before
 	public void setUpCache() {
 
-		
 	}
 
 	/*
@@ -105,7 +115,6 @@ public class TestHazelcastClientRoutines {
 		// now delete the parties
 		for (String aparty : partiesKeys) {
 
-
 			System.out.println("Party in question is " + aparty);
 			map.remove(aparty);
 		}
@@ -118,11 +127,11 @@ public class TestHazelcastClientRoutines {
 		map = hzInstance.getMap("party");
 		assertEquals(0, map.size());
 	}
-	
+
 	@Test
-	public void testTradeGeneration() throws Exception{
-		
-		//first generate party information
+	public void testTradeGeneration() throws Exception {
+
+		// first generate party information
 		IMap<String, Party> map = hzInstance.getMap("party");
 		assertNotNull(map);
 
@@ -134,8 +143,42 @@ public class TestHazelcastClientRoutines {
 		map = hzInstance.getMap("party");
 		assertEquals(1000, map.size());
 
+		// now generate instrument information
+		System.out.println("Runnning many instruments...");
+
+		IMap<String, Instrument> mapInstruments = hzInstance
+				.getMap("instrument");
+		assertNotNull(mapInstruments);
+
+		assertEquals(0, mapInstruments.size());
+
+		GenerateInstrumentCache cacheGeneratorInstruments = new GenerateInstrumentCache();
+		cacheGeneratorInstruments.populateMap(1000, mapInstruments);
+
+		mapInstruments = hzInstance.getMap("instrument");
+		assertEquals(1000, mapInstruments.size());
+
+		// now generate trades
+		IMap<String, Trade> mapTrades = hzInstance.getMap("trade");
+		assertEquals(0, mapTrades.size());
+		GenerateTradeCacheData tradeGen = new GenerateTradeCacheData();
+		for (int i = 0; i < 100; i++) {
+			// generate 100 trades
+			Trade[] trades = tradeGen.createTrade(i, map, 20, mapInstruments,
+					30);
+			mapTrades.put(trades[0].getExecutionId(), trades[0]); // for buy
+			mapTrades.put(trades[1].getExecutionId(), trades[1]); // for sell
+		}
+
+		// now check to see if it is done
+		mapTrades = hzInstance.getMap("trade");
+		assertEquals(200, mapTrades.size());
+
+	}
+
+	@Test
+	public void testGeneratePrices() throws Exception{
 		
-		//now generate instrument information
 		System.out.println("Runnning many instruments...");
 
 		IMap<String, Instrument> mapInstruments = hzInstance.getMap("instrument");
@@ -149,34 +192,42 @@ public class TestHazelcastClientRoutines {
 		mapInstruments = hzInstance.getMap("instrument");
 		assertEquals(1000, mapInstruments.size());
 		
-		//now generate trades
-		IMap<String, Trade> mapTrades = hzInstance.getMap("trade");
-		assertEquals(0, mapTrades.size());
-		GenerateTradeCacheData tradeGen = new GenerateTradeCacheData();
-		for(int i=0; i<100; i++){
-			//generate 100 trades
-			Trade[] trades = tradeGen.createTrade(i, map, 20, mapInstruments,30);
-			mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
-			mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
+		
+		
+		//generate price and sink it to Kafka
+		Predicate predicate = new SqlPredicate(String.format("symbol like %s",
+				"ISIN_INJ_%"));
+		Collection<Instrument>ins = mapInstruments.values(predicate);
+		for(Instrument aIns : ins){
+			sinkToKafka(GeneratePriceData.generateRandomDataOnInstruments(aIns), sender, "market_data");
+			System.out.println("Successfully created prices");
 		}
-
-		//now check to see if it is done
-		mapTrades = hzInstance.getMap("trade");
-		assertEquals(200, mapTrades.size());
+		//GeneratePriceData.generateRandomDataOnInstruments(a);
+		//JetInstance jet = Jet.newJetInstance();
+		//Jet.newJetInstance();
 		
-		
+		//IStreamMap<Integer, String> source = jet.getMap("instrument");
+		//assertTrue(source.size() ==1000);
 	}
-	
+
+	private void sinkToKafka(Price data, ISink sink, String topic)
+			throws Exception {
+
+		System.out.println("price data is " + data.toJSON());
+		sink.writeTo(topic, data.toJSON());
+
+	}
+
 	@Test
-	public void testConversionToReport() throws Exception{
-		System.out.println("test report generation..."+new Date(System.currentTimeMillis()));
-		//testTradeGeneration();
-		
-		
+	public void testConversionToReport() throws Exception {
+		System.out.println("test report generation..."
+				+ new Date(System.currentTimeMillis()));
+		// testTradeGeneration();
+
 		IMap mapTrades = hzInstance.getMap("trade");
 		assertEquals(0, mapTrades.size());
-		
-		//create 100 clients
+
+		// create 100 clients
 		IMap<String, Party> partyMap = hzInstance.getMap("party");
 		assertNotNull(partyMap);
 
@@ -188,9 +239,9 @@ public class TestHazelcastClientRoutines {
 		partyMap = hzInstance.getMap("party");
 		assertEquals(100, partyMap.size());
 
-		
-		//create 1000 instruments
-		IMap<String, Instrument> mapInstruments = hzInstance.getMap("instrument");
+		// create 1000 instruments
+		IMap<String, Instrument> mapInstruments = hzInstance
+				.getMap("instrument");
 		assertNotNull(mapInstruments);
 
 		assertEquals(0, mapInstruments.size());
@@ -201,68 +252,65 @@ public class TestHazelcastClientRoutines {
 		mapInstruments = hzInstance.getMap("instrument");
 		assertEquals(1000, mapInstruments.size());
 
-		
-		//generate 1000 trades and report it
+		// generate 1000 trades and report it
 		mapTrades = hzInstance.getMap("trade");
 		assertEquals(0, mapTrades.size());
 		GenerateTradeCacheData tradeGen = new GenerateTradeCacheData();
-		
-		
-		
-		for(int i=0; i<1000/2; i++){
-			Trade[] trades = tradeGen.createTrade(i, partyMap, 10, mapInstruments, 10);
-			mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
-			mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
-			
-			convertToReportAndSaveForProfile(trades[0], "Dinesh Pillai", injectProfileId);
-			convertToReportAndSaveForProfile(trades[1], "Dinesh Pillai", injectProfileId);
-			
+
+		for (int i = 0; i < 1000 / 2; i++) {
+			Trade[] trades = tradeGen.createTrade(i, partyMap, 10,
+					mapInstruments, 10);
+			mapTrades.put(trades[0].getExecutionId(), trades[0]); // for buy
+			mapTrades.put(trades[1].getExecutionId(), trades[1]); // for sell
+
+			convertToReportAndSaveForProfile(trades[0], "Dinesh Pillai",
+					injectProfileId);
+			convertToReportAndSaveForProfile(trades[1], "Dinesh Pillai",
+					injectProfileId);
+
 		}
-		
-		
-		//finally assert and display results
+
+		// finally assert and display results
 		mapTrades = hzInstance.getMap("trade");
 		assertEquals(1000, mapTrades.size());
-		
+
 		TradeReport tradeReport = coreTemplate.findOne(
 				Query.query(Criteria.where("injectorProfileId").is(
 						injectProfileId)), TradeReport.class);
-		
+
 		assertNotNull(tradeReport);
 		assertEquals(1000, tradeReport.getCurrentTradeProgress());
-		
-		System.out.println("trade report party size is "+tradeReport.getParties().size());
-		System.out.println("trade report instrument size is "+tradeReport.getInstruments().size());
-		
-		System.out.println("finished report generation "+new Date(System.currentTimeMillis()));
-		
-		
+
+		System.out.println("trade report party size is "
+				+ tradeReport.getParties().size());
+		System.out.println("trade report instrument size is "
+				+ tradeReport.getInstruments().size());
+
+		System.out.println("finished report generation "
+				+ new Date(System.currentTimeMillis()));
+
 	}
-	
+
 	@Test
-	public void testWithLimitedInstrumentsParties(){
-		//create 100 clients
-				IMap<String, Party> partyMap = hzInstance.getMap("party");
-				assertNotNull(partyMap);
+	public void testWithLimitedInstrumentsParties() {
+		// create 100 clients
+		IMap<String, Party> partyMap = hzInstance.getMap("party");
+		assertNotNull(partyMap);
 
-				assertEquals(0, partyMap.size());
+		assertEquals(0, partyMap.size());
 
-				GeneratePartyCache cacheGenerator = new GeneratePartyCache();
-				cacheGenerator.populateMap(100, partyMap);
+		GeneratePartyCache cacheGenerator = new GeneratePartyCache();
+		cacheGenerator.populateMap(100, partyMap);
 
-				partyMap = hzInstance.getMap("party");
-				assertEquals(100, partyMap.size());
-				
-				//now get only limited set 10
-				
-				
+		partyMap = hzInstance.getMap("party");
+		assertEquals(100, partyMap.size());
 
-		
+		// now get only limited set 10
+
 	}
-	
-	
-	private void convertToReportAndSaveForProfile(Trade ack,
-			String username, String injectorProfileId) throws Exception {
+
+	private void convertToReportAndSaveForProfile(Trade ack, String username,
+			String injectorProfileId) throws Exception {
 
 		TradeReport tradeReport = coreTemplate.findOne(
 				Query.query(Criteria.where("injectorProfileId").is(
@@ -359,7 +407,6 @@ public class TestHazelcastClientRoutines {
 
 	}
 
-
 	@Test
 	public void testManyClients() {
 
@@ -376,7 +423,6 @@ public class TestHazelcastClientRoutines {
 		map = hzInstance.getMap("party");
 		assertEquals(1000, map.size());
 
-		
 		System.out.println("Finished");
 
 	}
@@ -401,15 +447,14 @@ public class TestHazelcastClientRoutines {
 		cacheGenerator.populateMap(1500, map);
 		assertEquals(1500, map.size());
 
-		
 		System.out.println("Finished");
 
 	}
-	
+
 	@Test
-	public void generateInstruments(){
-		
-		//instrument
+	public void generateInstruments() {
+
+		// instrument
 		System.out.println("Runnning many instruments...");
 
 		IMap<String, Instrument> map = hzInstance.getMap("instrument");
@@ -423,10 +468,6 @@ public class TestHazelcastClientRoutines {
 		map = hzInstance.getMap("instrument");
 		assertEquals(1000, map.size());
 
-		
-		
-		
-		
 	}
 
 	@After
@@ -435,24 +476,22 @@ public class TestHazelcastClientRoutines {
 		IMap<String, Trade> mapTrade = hzInstance.getMap("trade");
 		assertNotNull(mapTrade);
 
-		
-		
-		Predicate predicateTrade = new SqlPredicate(String.format("executionVenueId = %s",
-				"EX1"));
-		
-		Set<String> tradeId = (Set<String>)mapTrade.keySet(predicateTrade);
-		for(String key : tradeId){
+		Predicate predicateTrade = new SqlPredicate(String.format(
+				"executionVenueId = %s", "EX1"));
+
+		Set<String> tradeId = (Set<String>) mapTrade.keySet(predicateTrade);
+		for (String key : tradeId) {
 			mapTrade.remove(key);
 		}
-		
+
 		mapTrade = hzInstance.getMap("trade");
 		assertEquals(0, mapTrade.size());
-		
-		
-		//now delete Instruments
-		IMap<String, Instrument> mapInstruments = hzInstance.getMap("instrument");
+
+		// now delete Instruments
+		IMap<String, Instrument> mapInstruments = hzInstance
+				.getMap("instrument");
 		assertNotNull(mapInstruments);
-		
+
 		Predicate predicate = new SqlPredicate(String.format("symbol like %s",
 				"ISIN_INJ_%"));
 		Set<String> ins = (Set<String>) mapInstruments.keySet(predicate);
@@ -464,13 +503,12 @@ public class TestHazelcastClientRoutines {
 		mapInstruments = hzInstance.getMap("instrument");
 		assertEquals(0, mapInstruments.size());
 
-		
-		//now delete parties
+		// now delete parties
 		IMap<String, Instrument> parties = hzInstance.getMap("party");
 		assertNotNull(parties);
-		
-		Predicate predicateParty = new SqlPredicate(String.format("name like %s",
-				"TRDINJECT_CLI_%"));
+
+		Predicate predicateParty = new SqlPredicate(String.format(
+				"name like %s", "TRDINJECT_CLI_%"));
 		Set<String> partiesKey = (Set<String>) parties.keySet(predicateParty);
 
 		for (String aParty : partiesKey) {
@@ -479,22 +517,15 @@ public class TestHazelcastClientRoutines {
 
 		parties = hzInstance.getMap("party");
 		assertEquals(0, parties.size());
-		
-		
+
 		TradeReport tradeReport = coreTemplate.findOne(
 				Query.query(Criteria.where("injectorProfileId").is(
 						injectProfileId)), TradeReport.class);
-		
-		if(tradeReport != null)
-		reportRepo.delete(tradeReport);
+
+		if (tradeReport != null)
+			reportRepo.delete(tradeReport);
 
 		System.out.println("Finished");
-
-		
-		
-		
-		
-		
 
 	}
 
