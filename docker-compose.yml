@@ -26,6 +26,7 @@ service :
   - kafka
  environment:
    kafka.bootstrap-servers: 138.68.168.237:9092
+   spring.data.mongodb.host: 138.68.168.237
 
 mongo:
  image : dineshpillai/mongo-db-repo
