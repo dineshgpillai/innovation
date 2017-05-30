@@ -1,0 +1,35 @@
+zookeeper:
+  image: oddpoet/zookeeper
+  hostname: zookeeper
+  command:
+    - "2181"
+  ports:
+    - "2181:2181"
+
+kafka:
+  image: wurstmeister/kafka
+  hostname: kafka
+  ports:
+    - "9092:9092"
+  links: 
+    - zookeeper:zk
+  environment:
+   KAFKA_ADVERTISED_HOST_NAME: 138.68.168.237
+   KAFKA_ADVERTISED_PORT: 9092
+
+service :
+ image : dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
+ ports : 
+   - "8090:8090"
+ links :
+  - mongo
+  - kafka
+ environment:
+   kafka.bootstrap-servers: kafka:9092
+   spring.data.mongodb.host: 138.68.168.237
+
+mongo:
+ image : dineshpillai/mongo-db-repo
+ ports :
+  - "27017:27017"
+
