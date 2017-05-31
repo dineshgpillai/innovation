@@ -16,6 +16,7 @@ kafka:
   environment:
    KAFKA_ADVERTISED_HOST_NAME: 138.68.168.237
    KAFKA_ADVERTISED_PORT: 9092
+   KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
 service :
  image : dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
