@@ -17,6 +17,7 @@ import javax.servlet.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
@@ -87,6 +88,7 @@ import com.trade.injector.jto.repository.MongoDBTemplate;
 import com.trade.injector.jto.repository.TradeInjectorMessageRepository;
 import com.trade.injector.jto.repository.TradeInjectorProfileRepository;
 import com.trade.injector.jto.repository.TradeReportRepository;
+import com.trade.injector.sinks.KafkaSink;
 
 @SpringBootApplication(scanBasePackages = "com.trade.injector")
 @EnableOAuth2Client
@@ -139,6 +141,12 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private TradeInjectorProfileRepository profileRepo;
+	
+	@Autowired
+	private KafkaSink sender;
+	
+	@Value("${kafka.topic.trade}")
+	private String tradeTopic;
 
 	@RequestMapping("/user")
 	public Principal user(Principal principal) {
@@ -387,13 +395,15 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 			startFrom++;
 			Trade[] trades = tradeDataCache.createTrade(startFrom, partyMap, profile.getNumberOfParties(), instrumentMap, profile.getNumberOfInstruments());
-			mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
-			mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
-			//Trade aTrade = tradeData.createTradeData(startFrom, listOfParties,
-				//	listOfInstruments);
-			//convertToReportAndSaveForProfile(
-					//convertToAckForProfile(aTrade, profile.id),
-					//profile.getUserId());
+			
+			//send it to the Kafka sink
+			sender.send(tradeTopic, trades[0].toJSON());
+			sender.send(tradeTopic, trades[1].toJSON());
+			
+			
+			//mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
+			//mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
+			
 			//convertToReportAndSaveForProfile(trades[0], profile.getUserId(), profile.id);
 			//convertToReportAndSaveForProfile(trades[1], profile.getUserId(), profile.id);
 			profile.setCurrentMessageCount(startFrom);

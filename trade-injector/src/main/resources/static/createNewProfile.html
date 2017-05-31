@@ -41,6 +41,7 @@
 									</div>
 								</div>
 							</div>
+							<!-- Main trade information -->
 							<div class="form-group">
 
 								<div class="row">
@@ -63,7 +64,7 @@
 										<label for="timeDelay">Time delay</label> <input type="number"
 											name="timeDelay" class="form-control" id="timeDelay"
 											ng-model="tradeInjectorProfile.simulatedWaitTime"
-											aria-describedby="timeDelayHelp" ng-minlength="3" required>
+											aria-describedby="timeDelayHelp" ng-minlength="2" required>
 										<small id="timeDelayHelp" class="form-text text-muted">Time
 											delay must be stated in milliseconds</small>
 
@@ -82,6 +83,7 @@
 											to spawn from the same profile</small>
 									</div>
 								</div>
+								<!-- Parties and Instruments -->
 								<div class="row">
 									<div class="col-sm-4">
 										<label for="numberOfClients">Number of Parties</label> <input
@@ -115,6 +117,12 @@
 
 								</div>
 
+							</div>
+							<!-- Sink section -->
+							<div class="form-group">
+								<div class="row">
+									<p>Currently configured to Kafka only</p>
+								</div>
 							</div>
 
 							<div class="form-group" align="right">

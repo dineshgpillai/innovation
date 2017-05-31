@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
@@ -19,15 +20,26 @@ import com.trade.injector.controller.TradeInjectorController;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TradeInjectorController.class)
+@TestPropertySource(properties = {"kafka.bootstrap-servers=138.68.168.237:9092", "spring.data.mongodb.host=localhost"})
 public class KafkaProducerTest {
 	
 	@Value("${kafka.topic.marketData}")
 	private String topic;
 	
+	@Value("${kafka.topic.trade}")
+	private String tradeTopic;
+	
+	
+	
+	
+	
 	@Autowired
 	private KafkaSink sender;
 	@Autowired
 	private MarketDataReceiver receive;
+	
+	@Autowired
+	private TradeReceiver tradeReceiver;
 	
 	@Test
 	public void loadStringTest() throws InterruptedException {
@@ -50,7 +62,8 @@ public class KafkaProducerTest {
 		sender.send(topic,  "Hi there");
 		assertTrue(this.receive.getLatch().await(60, TimeUnit.SECONDS));
 		
-		Thread.sleep(2000);
+		sender.send(tradeTopic, "a trade message");
+		assertTrue(this.tradeReceiver.getLatch().await(60, TimeUnit.SECONDS));
 		
 		//receive.receive(message);
 

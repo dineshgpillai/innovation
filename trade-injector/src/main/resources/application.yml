@@ -1,5 +1,6 @@
 #kafka.bootstrap-servers: 138.68.168.237:9092
 kafka.topic.marketData: market_data
+kafka.topic.trade: trade
 
 facebook:
     client:
@@ -15,8 +16,8 @@ facebook:
       
 github:
   client:
-    clientId: 865d170b579264bdb57e
-    clientSecret: 15e11844bc08372174da83f34265ff6159f1f8df
+    clientId: 737ab53a83661587550c
+    clientSecret: a9fd34af9a7e6c56dfecce80d4c06cfdfb4411c9
     accessTokenUri: https://github.com/login/oauth/access_token
     userAuthorizationUri: https://github.com/login/oauth/authorize
     clientAuthenticationScheme: form

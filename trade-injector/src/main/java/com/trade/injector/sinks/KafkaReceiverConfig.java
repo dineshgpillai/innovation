@@ -54,5 +54,10 @@ public class KafkaReceiverConfig {
 	public MarketDataReceiver marketDataReceiver() {
 		return new MarketDataReceiver();
 	}
+	
+	@Bean
+	public TradeReceiver tradeReceiver() {
+		return new TradeReceiver();
+	}
 
 }
