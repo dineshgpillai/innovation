@@ -1,4 +1,6 @@
-zookeeper:
+version: '2.1' 
+services:
+ zookeeper:
   image: oddpoet/zookeeper
   hostname: 138.68.168.237
   command:
@@ -6,7 +8,7 @@ zookeeper:
   ports:
     - "2181:2181"
 
-kafka:
+ kafka:
   image: wurstmeister/kafka
   hostname: kafka
   ports:
@@ -18,7 +20,7 @@ kafka:
    KAFKA_ADVERTISED_PORT: 9092
    KAFKA_ZOOKEEPER_CONNECT: 138.68.168.237:2181
 
-hazelcast:
+ hazelcast:
   build: .  
   #image: hazelcast/hazelcast
   hostname: hz
@@ -32,21 +34,22 @@ hazelcast:
      # - default
      # - innovation_default
 
-service :
- image : dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
- ports : 
+ trade-injector :
+  image : dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
+  ports : 
    - "8090:8090"
- links :
-  - mongo
-  - kafka
- environment:
+  links :
+   - mongo
+   - kafka
+  environment:
    kafka.bootstrap-servers: 138.68.168.237:9092
    spring.data.mongodb.host: 138.68.168.237
+   spring.hazelcast.client.config: mu1-client-config.xml
 
-mongo:
- image : dineshpillai/mongo-db-repo
- ports :
-  - "27017:27017"
+ mongo:
+  image : dineshpillai/mongo-db-repo
+  ports :
+   - "27017:27017"
 
 #networks:
    # innovation_default:
