@@ -28,18 +28,6 @@ services:
     ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
 
 
-
-
- 
-
-#zookeeper:
-  #image: oddpoet/zookeeper
-  #hostname: 138.68.168.237
-  #command:
-   # - "2181"
-  #ports:
-   # - "2181:2181"
-
  kafka:
   image: wurstmeister/kafka
   hostname: kafka
@@ -65,6 +53,21 @@ services:
   #networks:
      # - default
      # - innovation_default
+ 
+ hbase:
+   image: kevinsvds/hbase
+   hostname: hbase
+   ports:
+     - "9090:9090"
+     - "9095:9095"
+     - "60000:60000"
+     - "60010:60010"
+     - "60020:60020"
+     - "60030:60030"
+   links:
+     - zoo3:zk
+
+
 
  trade-injector :
   image : dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
@@ -87,3 +90,7 @@ services:
    # innovation_default:
       #external: true
 
+networks:
+  vnet:
+    external:
+      name: vnet 
