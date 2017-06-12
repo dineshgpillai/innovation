@@ -95,7 +95,7 @@ import com.trade.injector.sinks.KafkaSink;
 @RestController
 @EnableMongoRepositories(basePackages = "com.trade.injector.jto.repository")
 @EnableScheduling
-@EnableCaching
+//@EnableCaching
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
@@ -122,7 +122,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	private MongoDBTemplate template;
 
 	@Autowired
-	private HazelcastInstance hzInstance;
+	private HazelcastInstance hazelcastInstance;
 
 	@Autowired
 	private MongoTemplate coreTemplate;
@@ -376,13 +376,13 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 				//.createRandomData(new Integer(profile.getNumberOfParties()));
 		
 		
-		IMap<String, Trade>mapTrades = hzInstance.getMap("trade");
-		IMap<String, Party> partyMap = hzInstance.getMap("party");
+		IMap<String, Trade>mapTrades = hazelcastInstance.getMap("trade");
+		IMap<String, Party> partyMap = hazelcastInstance.getMap("party");
 		
 		GeneratePartyCache cacheGenerator = new GeneratePartyCache();
 		cacheGenerator.populateMap(profile.getNumberOfParties(), partyMap);
 
-		IMap<String, Instrument> instrumentMap = hzInstance.getMap("instrument");
+		IMap<String, Instrument> instrumentMap = hazelcastInstance.getMap("instrument");
 		GenerateInstrumentCache insCacheGenerator = new GenerateInstrumentCache();
 		insCacheGenerator.populateMap(profile.getNumberOfInstruments(), instrumentMap);
 

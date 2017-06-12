@@ -24,19 +24,23 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.example.mu.domain.Instrument;
 import com.example.mu.domain.Party;
 import com.example.mu.domain.Price;
 import com.example.mu.domain.Trade;
-import com.google.common.collect.Maps;
+//import com.google.common.collect.Maps;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.jet.Jet;
-import com.hazelcast.jet.JetInstance;
-import com.hazelcast.jet.stream.IStreamMap;
+//import com.hazelcast.jet.DAG;
+//import com.hazelcast.jet.Jet;
+//import com.hazelcast.jet.JetInstance;
+//import com.hazelcast.jet.Processors;
+//import com.hazelcast.jet.Vertex;
+//import com.hazelcast.jet.stream.IStreamMap;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.SqlPredicate;
 import com.trade.injector.business.service.GenerateInstrumentCache;
@@ -54,6 +58,7 @@ import com.trade.injector.sinks.KafkaSink;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TradeInjectorController.class)
+@TestPropertySource(properties = {"kafka.bootstrap-servers=138.68.168.237:9092", "spring.data.mongodb.host=localhost"})
 public class TestHazelcastClientRoutines {
 
 	@Autowired
@@ -426,6 +431,42 @@ public class TestHazelcastClientRoutines {
 		System.out.println("Finished");
 
 	}
+	
+	@Test
+	public void testJetPrices(){
+		
+		System.out.println("Runnning many instruments...");
+
+		IMap<String, Instrument> mapInstruments = hzInstance.getMap("instrument");
+		assertNotNull(mapInstruments);
+
+		assertEquals(0, mapInstruments.size());
+
+		GenerateInstrumentCache cacheGeneratorInstruments = new GenerateInstrumentCache();
+		cacheGeneratorInstruments.populateMap(1000, mapInstruments);
+
+		mapInstruments = hzInstance.getMap("instrument");
+		assertEquals(1000, mapInstruments.size());
+		
+		//JetInstance jet = Jet.newJetInstance();
+        //Jet.newJetInstance();
+
+		
+		//DAG dag = new DAG();
+		//Vertex source = dag.newVertex("source", Processors.readMap("instrument"));
+		
+		//Create a vertex to populate the price
+		//Vertex priceConverter = dag.newVertex("priceConverter", Processors.flatMap((Entry<String, Instrument> e)->
+		//Traversers.traverseArray(GeneratePriceData.generateRandomDataOnInstruments(e.getValue())))
+        //);
+		
+		//finally create the vertex to store the prices in map
+		//Vertex sink = dag.newVertex("sink", Processors.writeMap("price"));
+		
+		//Jet.shutdownAll();
+
+		
+	}
 
 	@Test
 	public void testManyClientsAndIncrease() {
@@ -525,7 +566,13 @@ public class TestHazelcastClientRoutines {
 		if (tradeReport != null)
 			reportRepo.delete(tradeReport);
 
+		
+		//
+
+		
 		System.out.println("Finished");
+		
+		
 
 	}
 

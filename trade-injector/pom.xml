@@ -83,9 +83,15 @@
 			<groupId>com.example.mu</groupId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
+			<version>3.8.1</version>
+		</dependency-->
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-x-discovery</artifactId>
+			<version>3.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.hazelcast</groupId>
@@ -111,19 +117,11 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.hazelcast.jet/hazelcast-jet-core -->
-		<dependency>
-			<groupId>com.hazelcast.jet</groupId>
-			<artifactId>hazelcast-jet-core</artifactId>
-			<version>0.3.1</version>
-		</dependency>
+		<!-- dependency> <groupId>com.hazelcast.jet</groupId> <artifactId>hazelcast-jet</artifactId> 
+			<version>0.3</version> </dependency -->
 		<!-- https://mvnrepository.com/artifact/com.hazelcast.jet/hazelcast-jet-kafka -->
-		<!--  
-		<dependency>
-			<groupId>com.hazelcast.jet</groupId>
-			<artifactId>hazelcast-jet-kafka</artifactId>
-			<version>0.3.1</version>
-		</dependency>
-		-->
+		<!-- <dependency> <groupId>com.hazelcast.jet</groupId> <artifactId>hazelcast-jet-kafka</artifactId> 
+			<version>0.3.1</version> </dependency> -->
 	</dependencies>
 
 	<properties>
