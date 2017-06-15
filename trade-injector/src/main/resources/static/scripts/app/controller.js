@@ -668,3 +668,17 @@ app
 
 
 				});
+app.controller("InstrumentStaticController", function($scope, $http, $location, TradeInjectorService,
+		ModalService) {
+	$scope.allInstrumentsData = [];
+	// GET ALL INSTRUMENTS
+	$http.get("/getAllInstruments").success(function(data) {
+
+		$scope.allInstrumentsData = data;
+	}).error(function(data) {
+		$scope.showStatus = data;
+	});
+
+		
+});
+

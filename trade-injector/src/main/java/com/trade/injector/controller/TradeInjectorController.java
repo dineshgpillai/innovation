@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -68,8 +69,10 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.trade.injector.application.Application;
+import com.trade.injector.business.service.BusinessServiceCacheNames;
 import com.trade.injector.business.service.GenerateInstrumentCache;
 import com.trade.injector.business.service.GeneratePartyCache;
+import com.trade.injector.business.service.GeneratePriceData;
 //import com.trade.injector.business.service.GenerateRandomInstruments;
 //import com.trade.injector.business.service.GenerateRandomParty;
 import com.trade.injector.business.service.GenerateTradeCacheData;
@@ -95,13 +98,13 @@ import com.trade.injector.sinks.KafkaSink;
 @RestController
 @EnableMongoRepositories(basePackages = "com.trade.injector.jto.repository")
 @EnableScheduling
-//@EnableCaching
+@EnableCaching
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
 
 	@Bean
-	@Profile("client")
+	// @Profile("client")
 	HazelcastInstance hazelcastInstance() {
 
 		// for client HazelcastInstance LocalMapStatistics will not available
@@ -129,7 +132,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	GenerateTradeData tradeData;
-	
+
 	@Autowired
 	GenerateTradeCacheData tradeDataCache;
 
@@ -141,10 +144,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private TradeInjectorProfileRepository profileRepo;
-	
+
 	@Autowired
 	private KafkaSink sender;
-	
+
 	@Value("${kafka.topic.trade}")
 	private String tradeTopic;
 
@@ -266,7 +269,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	
 	@RequestMapping(value = "/tradeMessagePlayForProfile", method = RequestMethod.POST)
 	public void tradePlayForProfile(@RequestBody String messageId)
 			throws Exception {
@@ -288,8 +290,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	
-	
 	@RequestMapping(value = "/tradeMessageRepeatForProfile", method = RequestMethod.POST)
 	public void repeatRunOnProfile(@RequestBody String profileId)
 			throws Exception {
@@ -370,21 +370,22 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	private void runTradeInjectForTradeProfileId(TradeInjectorProfile profile)
 			throws Exception {
 
-		//List<Instrument> listOfInstruments = new GenerateRandomInstruments()
-				//.createRandomData(new Integer(profile.getNumberOfInstruments()));
-		//List<Party> listOfParties = new GenerateRandomParty()
-				//.createRandomData(new Integer(profile.getNumberOfParties()));
-		
-		
-		IMap<String, Trade>mapTrades = hazelcastInstance.getMap("trade");
+		// List<Instrument> listOfInstruments = new GenerateRandomInstruments()
+		// .createRandomData(new Integer(profile.getNumberOfInstruments()));
+		// List<Party> listOfParties = new GenerateRandomParty()
+		// .createRandomData(new Integer(profile.getNumberOfParties()));
+
+		IMap<String, Trade> mapTrades = hazelcastInstance.getMap("trade");
 		IMap<String, Party> partyMap = hazelcastInstance.getMap("party");
-		
+
 		GeneratePartyCache cacheGenerator = new GeneratePartyCache();
 		cacheGenerator.populateMap(profile.getNumberOfParties(), partyMap);
 
-		IMap<String, Instrument> instrumentMap = hazelcastInstance.getMap("instrument");
+		IMap<String, Instrument> instrumentMap = hazelcastInstance
+				.getMap("instrument");
 		GenerateInstrumentCache insCacheGenerator = new GenerateInstrumentCache();
-		insCacheGenerator.populateMap(profile.getNumberOfInstruments(), instrumentMap);
+		insCacheGenerator.populateMap(profile.getNumberOfInstruments(),
+				instrumentMap);
 
 		int startFrom = new Integer(profile.getCurrentMessageCount());
 		int numberOfTrades = new Integer(profile.getNumberOfTrades());
@@ -394,18 +395,21 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		while (startFrom != numberOfTrades) {
 
 			startFrom++;
-			Trade[] trades = tradeDataCache.createTrade(startFrom, partyMap, profile.getNumberOfParties(), instrumentMap, profile.getNumberOfInstruments());
-			
-			//send it to the Kafka sink
+			Trade[] trades = tradeDataCache.createTrade(startFrom, partyMap,
+					profile.getNumberOfParties(), instrumentMap,
+					profile.getNumberOfInstruments());
+
+			// send it to the Kafka sink
 			sender.send(tradeTopic, trades[0].toJSON());
 			sender.send(tradeTopic, trades[1].toJSON());
-			
-			
-			//mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy 
-			//mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
-			
-			//convertToReportAndSaveForProfile(trades[0], profile.getUserId(), profile.id);
-			//convertToReportAndSaveForProfile(trades[1], profile.getUserId(), profile.id);
+
+			// mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy
+			// mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell
+
+			// convertToReportAndSaveForProfile(trades[0], profile.getUserId(),
+			// profile.id);
+			// convertToReportAndSaveForProfile(trades[1], profile.getUserId(),
+			// profile.id);
 			profile.setCurrentMessageCount(startFrom);
 
 			// sleep for simulated wait time
@@ -429,9 +433,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		}
 
 	}
-	
-	private void convertToReportAndSaveForProfile(Trade ack,
-			String username, String injectorProfileId) throws Exception {
+
+	private void convertToReportAndSaveForProfile(Trade ack, String username,
+			String injectorProfileId) throws Exception {
 
 		TradeReport tradeReport = coreTemplate.findOne(
 				Query.query(Criteria.where("injectorProfileId").is(
@@ -527,7 +531,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		reportRepo.save(tradeReport);
 
 	}
-
 
 	@Deprecated
 	private void convertToReportAndSaveForProfile(TradeAcknowledge ack,
@@ -629,7 +632,6 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	
 	@RequestMapping(value = "/saveTradeInjectProfile", method = RequestMethod.POST)
 	public ResponseEntity<TradeInjectorProfile> saveTradeInjectProfile(
 			@RequestBody TradeInjectorProfile profile) throws Exception {
@@ -670,23 +672,45 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	}
 
-	
-	/*private TradeAcknowledge convertToAckForProfile(Trade aTrade, String id) {
-		TradeAcknowledge ack = new TradeAcknowledge();
-		if (aTrade != null) {
-			ack.setProfileIdentifier(id);
-			ack.setClientName(aTrade.getClientName());
-			ack.setInstrumentId(aTrade.getInstrumentId());
-			ack.setSide(aTrade.getSide());
-			ack.setTradeDate(aTrade.getTradeDate().toString());
-			ack.setTradePx(new Double(aTrade.getTradePx()).toString());
-			ack.setTradeQty(new Integer(aTrade.getTradeQty()).toString());
+	/**
+	 * Returns the list of instruments available in the cache
+	 * 
+	 * @return ResponseEntity
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getAllInstruments", method = RequestMethod.GET)
+	public ResponseEntity<Collection<Instrument>> getAllInstruments()
+			throws Exception {
+
+		IMap<String, Instrument> mapInstruments = hazelcastInstance
+				.getMap(BusinessServiceCacheNames.INSTRUMENT_CACHE);
+
+		// no data do not generate
+		if (mapInstruments.size() == 0) {
+			LOG.warn("No instruments found");
+			return ResponseEntity.ok(new ArrayList<Instrument>());
 		}
 
-		return ack;
+		Collection<Instrument> ins = mapInstruments.values();
+		LOG.info("Number of Instruments to return " + ins.size());
+
+		return ResponseEntity.ok(ins);
+
 	}
-*/
-	
+
+	/*
+	 * private TradeAcknowledge convertToAckForProfile(Trade aTrade, String id)
+	 * { TradeAcknowledge ack = new TradeAcknowledge(); if (aTrade != null) {
+	 * ack.setProfileIdentifier(id); ack.setClientName(aTrade.getClientName());
+	 * ack.setInstrumentId(aTrade.getInstrumentId());
+	 * ack.setSide(aTrade.getSide());
+	 * ack.setTradeDate(aTrade.getTradeDate().toString()); ack.setTradePx(new
+	 * Double(aTrade.getTradePx()).toString()); ack.setTradeQty(new
+	 * Integer(aTrade.getTradeQty()).toString()); }
+	 * 
+	 * return ack; }
+	 */
+
 	public static void main(String[] args) {
 		SpringApplication.run(TradeInjectorController.class, args);
 	}

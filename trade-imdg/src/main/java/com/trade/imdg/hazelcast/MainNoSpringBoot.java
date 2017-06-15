@@ -7,11 +7,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 
 import com.example.mu.database.Schema;
+import com.example.mu.domain.Instrument;
 import com.example.mu.domain.Party;
 import com.example.mu.domain.Trade;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.jet.Jet;
+import com.hazelcast.jet.JetInstance;
 
 public class MainNoSpringBoot {
 
@@ -31,17 +34,20 @@ public class MainNoSpringBoot {
 */		
 		HazelcastInstance hz = Hazelcast.newHazelcastInstance();
 		
-		IMap<String, Trade> map = hz.getMap("party");
+		IMap<String, Instrument> map = hz.getMap(Main.MAP_INSTRUMENTS);
 		
-		/*while(true){
-			Thread.sleep(1000);
+		 
+		while(true){
+			Thread.sleep(30000);
 			System.out.println("Map size is "+map.size());
-		}*/
+		}
 		
 		//load the map with instrument data
 		
 		
 		//System.out.println("Shutting down.");
+	     
+	   
 
 	}
 

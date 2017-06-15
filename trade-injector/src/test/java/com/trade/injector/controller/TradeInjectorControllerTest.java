@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
@@ -17,13 +18,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.http.MockHttpOutputMessage;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.example.mu.domain.Instrument;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.trade.injector.application.Application;
+import com.trade.injector.business.service.BusinessServiceCacheNames;
 import com.trade.injector.jto.TradeInjectorMessage;
 import com.trade.injector.jto.TradeInjectorProfile;
 import com.trade.injector.jto.repository.TradeInjectorProfileRepository;
@@ -37,6 +43,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TradeInjectorController.class)
 @WebAppConfiguration
+@TestPropertySource(properties = {"kafka.bootstrap-servers=138.68.168.237:9092", "spring.data.mongodb.host=localhost"})
 public class TradeInjectorControllerTest {
 
 	private MediaType contentType = new MediaType(
@@ -55,6 +62,9 @@ public class TradeInjectorControllerTest {
 	@Autowired
 	TradeInjectorProfileRepository repo;
 
+	@Autowired
+	private HazelcastInstance hazelcastInstance; 
+	
 	@Autowired
 	void setConverters(HttpMessageConverter<?>[] converters) {
 
@@ -184,6 +194,30 @@ public class TradeInjectorControllerTest {
 
 		repo.delete(profile);
 
+	}
+	
+	
+	@Test
+	public void testGetAllInstrumentsFromCache() throws Exception{
+		
+		Instrument testInstrument = new Instrument();
+		testInstrument.setAssetClass("TEST");
+		testInstrument.setInstrumentId(UUID.randomUUID().toString());
+		testInstrument.setIssuer("TEST");
+		testInstrument.setProduct("TESTPRODUCT");
+		testInstrument.setSymbol("TESTSYM");
+		
+		IMap<String, Instrument> mapInstruments = hazelcastInstance.getMap(BusinessServiceCacheNames.INSTRUMENT_CACHE);
+		mapInstruments.put(testInstrument.getInstrumentId(), testInstrument);
+		
+		//now call the business service
+		MvcResult result = mockMvc.perform(
+				get("/getAllInstruments")).andExpect(status().isOk()).andReturn();
+		String content = result.getResponse().getContentAsString();
+		System.out.println(content);
+		assertTrue(content.contains("TESTPRODUCT"));
+		
+		
 	}
 
 	
