@@ -1,4 +1,4 @@
-package com.trade.injector.business.service;
+package com.trade.imdg.business.service;
 
 public class BusinessServiceCacheNames {
 	
