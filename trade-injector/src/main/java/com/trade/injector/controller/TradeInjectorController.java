@@ -293,6 +293,15 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					+ messageId);
 
 	}
+	
+	private String getRHSOfString(String equation){
+		
+		if(equation == null)
+			return null;
+		
+		return equation.substring(equation.indexOf('=') + 1,
+				equation.length());
+	}
 
 	@RequestMapping(value = "/tradeMessageRepeatForProfile", method = RequestMethod.POST)
 	public void repeatRunOnProfile(@RequestBody String profileId)
@@ -688,6 +697,9 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 		IMap<String, Instrument> mapInstruments = hazelcastInstance
 				.getMap(BusinessServiceCacheNames.INSTRUMENT_CACHE);
+		
+		pageMarker = getRHSOfString(pageMarker);
+		LOG.info("Page Marker is  "+pageMarker);
 
 		// no data do not generate
 		if (mapInstruments.size() == 0) {
