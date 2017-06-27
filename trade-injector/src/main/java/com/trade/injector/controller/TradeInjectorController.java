@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoT
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Example;
@@ -64,6 +65,8 @@ import com.example.mu.domain.Trade;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.SqlPredicate;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -99,6 +102,7 @@ import com.trade.injector.sinks.KafkaSink;
 @EnableMongoRepositories(basePackages = "com.trade.injector.jto.repository")
 @EnableScheduling
 @EnableCaching
+@EnableDiscoveryClient
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
@@ -678,8 +682,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 	 * @return ResponseEntity
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/getAllInstruments", method = RequestMethod.GET)
-	public ResponseEntity<Collection<Instrument>> getAllInstruments()
+	@RequestMapping(value = "/getAllInstruments", method = RequestMethod.POST)
+	public ResponseEntity<Collection<InstrumentReport>> getAllInstruments(@RequestBody String pageMarker)
 			throws Exception {
 
 		IMap<String, Instrument> mapInstruments = hazelcastInstance
@@ -688,14 +692,24 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 		// no data do not generate
 		if (mapInstruments.size() == 0) {
 			LOG.warn("No instruments found");
-			return ResponseEntity.ok(new ArrayList<Instrument>());
+			return ResponseEntity.ok(new ArrayList<InstrumentReport>());
 		}
-
-		Collection<Instrument> ins = mapInstruments.values();
-		LOG.info("Number of Instruments to return " + ins.size());
+		
+		Predicate predicate = new SqlPredicate(String.format("instrumentId like %s", pageMarker+"%"));
+		Collection<InstrumentReport> ins =  mapInstruments.values(predicate).stream().map(x->convertInstrumentToReport(x)).collect(Collectors.toList());
+		LOG.info("Number of Instruments to return for following page marker "+pageMarker+" " + ins.size());
 
 		return ResponseEntity.ok(ins);
 
+	}
+	
+	private InstrumentReport convertInstrumentToReport(Instrument ins){
+		InstrumentReport report = new InstrumentReport();
+		report.setId(ins.getSymbol());
+		report.setName(ins.getIssuer());
+		
+		
+		return report;
 	}
 
 	/*

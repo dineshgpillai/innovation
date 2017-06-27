@@ -10,6 +10,7 @@
 		<version>1.4.1.RELEASE</version>
 	</parent>
 
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -110,6 +111,20 @@
 			<artifactId>spring-kafka</artifactId>
 			<version>1.0.0.RELEASE</version>
 		</dependency>
+		<!-- dependency> <groupId>org.springframework.cloud</groupId> <artifactId>spring-cloud-commons</artifactId> 
+			<version>1.1.1.RELEASE</version> </dependency> <dependency> <groupId>org.springframework.cloud</groupId> 
+			<artifactId>spring-cloud-zookeeper-discovery</artifactId> <version>1.1.1.RELEASE</version> 
+			</dependency -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zookeeper-all</artifactId>
+			<version>1.1.1.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>io.reactivex</groupId>
+			<artifactId>rxjava</artifactId>
+			<version>1.1.5</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
@@ -122,7 +137,24 @@
 		<!-- https://mvnrepository.com/artifact/com.hazelcast.jet/hazelcast-jet-kafka -->
 		<!-- <dependency> <groupId>com.hazelcast.jet</groupId> <artifactId>hazelcast-jet-kafka</artifactId> 
 			<version>0.3.1</version> </dependency> -->
+
+
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>Brixton.SR7</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+
+
 
 	<properties>
 		<java.version>1.8</java.version>

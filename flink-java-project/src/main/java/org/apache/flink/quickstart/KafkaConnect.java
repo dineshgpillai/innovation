@@ -76,7 +76,7 @@ public class KafkaConnect {
 				return "Price stored in hz "+arg0.getInstrumentId();
 			}
 			
-		}).print();
+		});
 		
 
 		env.execute();

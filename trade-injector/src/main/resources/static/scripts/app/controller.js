@@ -669,15 +669,105 @@ app
 
 				});
 app.controller("InstrumentStaticController", function($scope, $http, $location, TradeInjectorService,
-		ModalService) {
+		ModalService, filterFilter) {
+	
+	$scope.tab = 1;
+	
 	$scope.allInstrumentsData = [];
 	// GET ALL INSTRUMENTS
-	$http.get("/getAllInstruments").success(function(data) {
+	//$http.get("/getAllInstruments").success(function(data) {
 
-		$scope.allInstrumentsData = data;
-	}).error(function(data) {
-		$scope.showStatus = data;
-	});
+		//$scope.allInstrumentsData = data;
+	//}).error(function(data) {
+		//$scope.showStatus = data;
+	//});
+	
+	$scope.setTab = function(newTab) {
+		$scope.tab = newTab;
+	}
+
+	$scope.isTab = function(tabNum) {
+		return $scope.tab === tabNum;
+	}
+	
+	$scope.clickOnPage=function(pageMarker){
+		
+		var data = $.param({
+			pageMarker : pageMarker
+		});
+
+		var config = {
+			headers : {
+				'Content-Type' : 'application/x-www-form-urlencoded;charset=utf-8;'
+			}
+		}
+
+		$http
+				.post('/getAllInstruments', data,
+						config)
+				.success(
+						function(data, status, headers, config) {
+							$scope.allInstrumentsData = data;
+							$scope.showGeneration = false;
+						}).error(
+						function(data, status, header, config) {
+							$scope.ResponseDetails = "Data: "
+									+ data + "<hr />status: "
+									+ status
+									+ "<hr />headers: "
+									+ header + "<hr />config: "
+									+ config;
+						});
+
+
+		
+	}
+
+
+	
+	/*TradeInjectorService
+	.receive()
+	.then(
+
+			null,
+			null,
+			function(data) {
+
+				
+					//run through the instruments and add the price data to it
+
+				var filteredData = $scope.allInstrumentsData.filter(function (data) {
+				    return (data.instruments[id=="A"]);
+				});
+
+					
+					filteredData[0].instruments
+							.forEach(changeInstrumentData);
+					
+					
+
+					function changeInstrumentData(
+							instrument, index,
+							callback) {
+						
+													
+						console.log("the instrument id is "+instrument.id);
+						if(instrument.id===$scope.allInstrumentsData[index].id){
+							$scope.allInstrumentsData[index].price = instrument.price;
+							$scope.allInstrumentsData[index].prevPrice = instrument.prevPrice;
+							
+							//console.log("full instrument data is "+$scope.allInstrumentsData[index].price);
+							$scope.allInstrumentsData[index].push;
+						}
+						
+											 
+						
+					};
+				
+
+			});
+
+*/
 
 		
 });
