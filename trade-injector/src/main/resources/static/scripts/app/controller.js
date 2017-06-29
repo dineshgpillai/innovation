@@ -672,6 +672,7 @@ app.controller("InstrumentStaticController", function($scope, $http, $location, 
 		ModalService, filterFilter) {
 	
 	$scope.tab = 1;
+	$scope.pageActive = "A";
 	
 	$scope.allInstrumentsData = [];
 	// GET ALL INSTRUMENTS
@@ -690,7 +691,13 @@ app.controller("InstrumentStaticController", function($scope, $http, $location, 
 		return $scope.tab === tabNum;
 	}
 	
+	$scope.isPageActive = function(page) {
+		return $scope.pageActive === page;
+	}
+	
 	$scope.clickOnPage=function(pageMarker){
+		
+		$scope.pageActive = pageMarker;
 		
 		var data = $.param({
 			pageMarker : pageMarker
