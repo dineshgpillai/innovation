@@ -36,6 +36,8 @@ public class KafkaConnect {
 				StringDeserializer.class);
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
 				JsonDeserializer.class);
+		props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+		
 		// allows a pool of processes to divide the work of consuming and
 		// processing records
 		props.put(ConsumerConfig.GROUP_ID_CONFIG, "mu");
@@ -47,9 +49,9 @@ public class KafkaConnect {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment
 				.getExecutionEnvironment();
 		
-
-		DataStream<String> stream = env.addSource(new FlinkKafkaConsumer010(
-				"market_data", new SimpleStringSchema(), consumerConfigs()));
+		FlinkKafkaConsumer010 kafkaConsumer = new FlinkKafkaConsumer010(
+				"market_data", new SimpleStringSchema(), consumerConfigs());
+		DataStream<String> stream = env.addSource(kafkaConsumer);
 
 		stream.map(new MapFunction<String, Price>() {
 			private static final long serialVersionUID = -6867736771747690202L;
@@ -74,14 +76,17 @@ public class KafkaConnect {
 				IMap<String, Price> priceMap = hazelcastInstance.getMap("price");
 				priceMap.put(arg0.getInstrumentId(), arg0);
 				return "Price stored in hz "+arg0.getInstrumentId();
+				
 			}
 			
-		});
+		}).print();
 		
-
+		
 		env.execute();
 
 	}
+	//docker run -e JAVA_OPTS="-Dhazelcast.config=/home/pillaid/innovation/configFolder/hazelcast.xml" -v /home/pillaid/innovation/configFolder:/home/pillaid/innovation/configFolder -ti hazelcast/hazelcast
+
 	
 	public static void main(String[]args) throws Exception{
 		new KafkaConnect().connectToMarketData();
