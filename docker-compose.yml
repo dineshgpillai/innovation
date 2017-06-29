@@ -1,76 +1,91 @@
 version: '2.1' 
 services:
- zoo1:
+ jobmanager:
+    image: ${FLINK_DOCKER_IMAGE_NAME:-flink}
+    networks: ["vnet"]
+    expose:
+      - "6123"
+    depends_on:
+      - zookeeper-1
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+ taskmanager:
+    image: ${FLINK_DOCKER_IMAGE_NAME:-flink}
+    networks: ["vnet"]
+    expose:
+      - "6121"
+      - "6122"
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    links:
+      - "jobmanager:jobmanager"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+
+ zookeeper-1:
+  container_name: zookeeper-1
   image: mu_zoo
+  networks: ["vnet"]
+  hostname: zookeeper-1.vnet
   restart: always
   ports:
     - 2181:2181
   environment:
-    ZOO_MY_ID: 1
-    ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+    - SERVICE_2181_NAME=zookeeper
+    - SERVICE_2888_IGNORE=true
+    - SERVICE_3888_IGNORE=true    
 
- zoo2:
-  image: mu_zoo
-  restart: always
-  ports:
-   - 2182:2181
-  environment:
-    ZOO_MY_ID: 2
-    ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
-
- zoo3:
-   image: mu_zoo
-   restart: always
+ hbase:
+   image: oddpoet/hbase-local
+   hostname: hbase-1.vnet
+   networks: ["vnet"]
    ports:
-     - 2183:2181
+     - "60000:60000"
+     - "60010:60010"
+     - "60020:60020"
+     - "60030:60030"
    environment:
-    ZOO_MY_ID: 3
-    ZOO_SERVERS: server.1=zoo1:2888:3888 server.2=zoo2:2888:3888 server.3=zoo3:2888:3888
+    - ZK_HOSTS=zookeeper-1.vnet:2181
+    - MASTER_PORT=60000
+    - MASTER_INFO_PORT=60010
+    - REGIONSERVER_PORT=60020
+    - REGIONSERVER_INFO_PORT=60030
+   links:
+     - zookeeper-1
 
 
  kafka:
   image: wurstmeister/kafka
   hostname: kafka
+  networks: ["vnet"]
   ports:
     - "9092:9092"
   links: 
-    - zoo3:zk
+    - zookeeper-1:zk
   environment:
    KAFKA_ADVERTISED_HOST_NAME: 138.68.168.237
    KAFKA_ADVERTISED_PORT: 9092
-   KAFKA_ZOOKEEPER_CONNECT: 138.68.168.237:2183
+   KAFKA_ZOOKEEPER_CONNECT: 138.68.168.237:2181
 
  hazelcast:
   build: .  
-  #image: hazelcast/hazelcast
-  hostname: hz
+  hostname: hazelcast
+  networks: ["vnet"]
   ports:
    - "5701:5701"
   links:
-    - zoo3:zk
+    - zookeeper-1:zk
   environment:
     JAVA_OPTS: -Dhazelcast.config=hazelcast.xml
-  #networks:
-     # - default
-     # - innovation_default
- 
- hbase:
-   image: kevinsvds/hbase
-   hostname: hbase
-   ports:
-     - "9090:9090"
-     - "9095:9095"
-     - "60000:60000"
-     - "60010:60010"
-     - "60020:60020"
-     - "60030:60030"
-   links:
-     - zoo3:zk
-
-
-
+   
  trade-injector :
   image : dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
+  networks: ["vnet"]
   ports : 
    - "8090:8090"
   links :
@@ -85,10 +100,6 @@ services:
   image : dineshpillai/mongo-db-repo
   ports :
    - "27017:27017"
-
-#networks:
-   # innovation_default:
-      #external: true
 
 networks:
   vnet:
