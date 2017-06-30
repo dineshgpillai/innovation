@@ -102,7 +102,7 @@ import com.trade.injector.sinks.KafkaSink;
 @EnableMongoRepositories(basePackages = "com.trade.injector.jto.repository")
 @EnableScheduling
 @EnableCaching
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 	final Logger LOG = LoggerFactory.getLogger(TradeInjectorController.class);
