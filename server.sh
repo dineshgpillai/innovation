@@ -24,7 +24,14 @@ fi
 # trap the signal and delegate to sigterm_handler function, which will notify hazelcast instance process
 trap sigterm_handler SIGTERM SIGINT
 
-export CLASSPATH=./hazelcast-all-$HZ_VERSION.jar:./cache-1.0-SNAPSHOT.jar:./domain-1.0-SNAPSHOT.jar:./curator-client-3.3.0.jar:./curator-framework-3.3.0.jar:./curator-recipes-3.3.0.jar:./curator-x-discovery-3.3.0.jar:./hazelcast-zookeeper-3.6.3.jar:./zookeeper-3.5.1-alpha.jar:./slf4j-api-1.7.21.jar:./guava-16.0.1.jar:./jackson-core-asl-1.9.13.jar:./jackson-mapper-asl-1.9.13.jar
+THE_CLASSPATH=
+for i in `ls ./libs/*.jar`
+do
+  THE_CLASSPATH=${THE_CLASSPATH}:${i}
+done
+
+export CLASSPATH=.:$THE_CLASSPATH
+#export CLASSPATH=./hbase-common-1.2.3.jar:./hazelcast-all-$HZ_VERSION.jar:./cache-1.0-SNAPSHOT.jar:./domain-1.0-SNAPSHOT.jar:./curator-client-3.3.0.jar:./curator-framework-3.3.0.jar:./curator-recipes-3.3.0.jar:./curator-x-discovery-3.3.0.jar:./hazelcast-zookeeper-3.6.3.jar:./zookeeper-3.5.1-alpha.jar:./slf4j-api-1.7.21.jar:./guava-16.0.1.jar:./jackson-core-asl-1.9.13.jar:./jackson-mapper-asl-1.9.13.jar:./log4j-1.2.16.jar:./hbase-client-1.2.3.jar:./hbase-annotations-1.2.3.jar:./hbase-protocol-1.2.3.jar:./hadoop-common-2.5.1.jar:./hadoop-mapreduce-client-core-2.5.1.jar:./commons-logging-1.2.jar
 
 
 echo "########################################"
