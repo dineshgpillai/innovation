@@ -85,21 +85,26 @@
 			<version>1.0-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
+					<groupId>com.hazelcast</groupId>
+					<artifactId>hazelcast-zookeeper</artifactId>
+				</exclusion>
+				<exclusion>
 					<groupId>org.apache.zookeeper</groupId>
 					<artifactId>zookeeper</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
 			<version>3.8.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.curator</groupId>
-			<artifactId>curator-x-discovery</artifactId>
-			<version>3.3.0</version>
-		</dependency>
+		
 		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast-client</artifactId>
@@ -116,16 +121,22 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 			<version>1.0.0.RELEASE</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.zookeeper</groupId>
+					<artifactId>zookeeper</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- dependency> <groupId>org.springframework.cloud</groupId> <artifactId>spring-cloud-commons</artifactId> 
 			<version>1.1.1.RELEASE</version> </dependency> <dependency> <groupId>org.springframework.cloud</groupId> 
 			<artifactId>spring-cloud-zookeeper-discovery</artifactId> <version>1.1.1.RELEASE</version> 
 			</dependency -->
-		<dependency>
+		<!-- dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-zookeeper-all</artifactId>
 			<version>1.1.1.RELEASE</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>io.reactivex</groupId>
 			<artifactId>rxjava</artifactId>
@@ -136,6 +147,12 @@
 			<artifactId>spring-kafka-test</artifactId>
 			<version>1.2.0.RELEASE</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.zookeeper</groupId>
+					<artifactId>zookeeper</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.hazelcast.jet/hazelcast-jet-core -->
 		<!-- dependency> <groupId>com.hazelcast.jet</groupId> <artifactId>hazelcast-jet</artifactId> 
@@ -146,6 +163,7 @@
 
 
 	</dependencies>
+	<!-- 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -157,7 +175,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
+	 -->
 
 
 
