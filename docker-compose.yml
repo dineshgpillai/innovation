@@ -25,7 +25,8 @@ services:
       - jobmanager
     command: taskmanager
     links:
-      - "jobmanager:jobmanager"
+      - "jobmanager:jobmanager"      
+      - zookeeper-1:zk
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
 
