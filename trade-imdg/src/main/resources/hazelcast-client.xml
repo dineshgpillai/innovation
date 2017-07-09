@@ -11,7 +11,7 @@
     </group>
 
     <network>
-        <aws enabled="false"/>
+    	<aws enabled="false"/>
         <smart-routing>true</smart-routing>
         <redo-operation>true</redo-operation>
         <discovery-strategies>

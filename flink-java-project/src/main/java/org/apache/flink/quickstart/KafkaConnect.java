@@ -18,13 +18,14 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 public class KafkaConnect {
 	
 	private static Gson gson = new GsonBuilder().create();
-	private static HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient();
+	//private static HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient();
 
 	public Properties consumerConfigs() {
 		Properties props = new Properties();
@@ -48,6 +49,8 @@ public class KafkaConnect {
 	public void connectToMarketData() throws Exception {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment
 				.getExecutionEnvironment();
+		
+		HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
 		
 		FlinkKafkaConsumer010 kafkaConsumer = new FlinkKafkaConsumer010(
 				"market_data", new SimpleStringSchema(), consumerConfigs());
