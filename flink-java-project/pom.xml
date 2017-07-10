@@ -106,11 +106,11 @@
 			<artifactId>domain</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+		<!--  dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
 			<version>3.8.1</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-x-discovery</artifactId>
@@ -176,7 +176,7 @@
 				<activeByDefault>false</activeByDefault>
 			</activation>
 
-			<!-- dependencies>
+			<dependencies>
 				<dependency>
 					<groupId>org.apache.flink</groupId>
 					<artifactId>flink-java</artifactId>
@@ -225,7 +225,7 @@
 					<version>${log4j.version}</version>
 					<scope>provided</scope>
 				</dependency>
-			</dependencies-->
+			</dependencies>
 
 			<build>
 				<plugins>
@@ -342,6 +342,7 @@
 									<exclude>com.github.scopt:scopt_*</exclude>
 									<exclude>commons-io:commons-io</exclude>
 									<exclude>commons-cli:commons-cli</exclude>
+									<!-- >exclude>org.apache.zookeeper:zookeeper</exclude-->
 								</excludes>
 							</artifactSet>
 							<filters>

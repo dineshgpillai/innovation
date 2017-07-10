@@ -129,7 +129,7 @@ public class PositionAggregatorServiceApplication {
 					.groupBy(0).sum(1);
 
 			// execute and print result
-			counts.print();
+			//counts.print();
 
 		} catch (Exception e) {
 			e.printStackTrace();

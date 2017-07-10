@@ -56,29 +56,29 @@ public class KafkaConnect {
 				"market_data", new SimpleStringSchema(), consumerConfigs());
 		DataStream<String> stream = env.addSource(kafkaConsumer);
 
-		stream.map(new MapFunction<String, Price>() {
+		stream.map(new MapFunction<String, String>() {
 			private static final long serialVersionUID = -6867736771747690202L;
 			
 			
 			//returns a price object
 			@Override
-			public Price map(String value) throws Exception {
+			public String map(String value) throws Exception {
 				
 					
-		            Price p = gson.fromJson(value, Price.class);
+		            //Price p = gson.fromJson(value, Price.class);
 
-				return p;
+				return value;
 			}
-		}).map(new MapFunction<Price,String>(){
+		}).map(new MapFunction<String,String>(){
 
 			//stores the price object in hazelcast
 			@Override
-			public String map(Price arg0) throws Exception {
+			public String map(String arg0) throws Exception {
 				
 				
-				IMap<String, Price> priceMap = hazelcastInstance.getMap("price");
-				priceMap.put(arg0.getInstrumentId(), arg0);
-				return "Price stored in hz "+arg0.getInstrumentId();
+				//IMap<String, Price> priceMap = hazelcastInstance.getMap("price");
+				//priceMap.put(arg0.getInstrumentId(), arg0);
+				return "Price stored in hz "+arg0;
 				
 			}
 			
@@ -89,7 +89,7 @@ public class KafkaConnect {
 
 	}
 	//docker run -e JAVA_OPTS="-Dhazelcast.config=/home/pillaid/innovation/configFolder/hazelcast.xml" -v /home/pillaid/innovation/configFolder:/home/pillaid/innovation/configFolder -ti hazelcast/hazelcast
-
+    //find . -type f -name '*.jar' -print0 |  xargs -0 -I '{}' sh -c 'jar tf {} | grep QuorumMaj.class &&  echo {}'
 	
 	public static void main(String[]args) throws Exception{
 		new KafkaConnect().connectToMarketData();
