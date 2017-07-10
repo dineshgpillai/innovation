@@ -50,35 +50,35 @@ public class KafkaConnect {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment
 				.getExecutionEnvironment();
 		
-		HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
+		HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient();
 		
 		FlinkKafkaConsumer010 kafkaConsumer = new FlinkKafkaConsumer010(
 				"market_data", new SimpleStringSchema(), consumerConfigs());
 		DataStream<String> stream = env.addSource(kafkaConsumer);
 
-		stream.map(new MapFunction<String, String>() {
+		stream.map(new MapFunction<String, Price>() {
 			private static final long serialVersionUID = -6867736771747690202L;
 			
 			
 			//returns a price object
 			@Override
-			public String map(String value) throws Exception {
+			public Price map(String value) throws Exception {
 				
 					
-		            //Price p = gson.fromJson(value, Price.class);
+		            Price p = gson.fromJson(value, Price.class);
 
-				return value;
+				return p;
 			}
-		}).map(new MapFunction<String,String>(){
+		}).map(new MapFunction<Price,String>(){
 
 			//stores the price object in hazelcast
 			@Override
-			public String map(String arg0) throws Exception {
+			public String map(Price arg0) throws Exception {
 				
 				
-				//IMap<String, Price> priceMap = hazelcastInstance.getMap("price");
+				IMap<String, Price> priceMap = hazelcastInstance.getMap("price");
 				//priceMap.put(arg0.getInstrumentId(), arg0);
-				return "Price stored in hz "+arg0;
+				return "Price stored in hz "+arg0.getInstrumentId();
 				
 			}
 			
