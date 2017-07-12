@@ -42,7 +42,8 @@ public class Main {
 	@Bean
 	HazelcastInstance hzInstance() {
 
-		return Hazelcast.newHazelcastInstance();
+		//return Hazelcast.newHazelcastInstance();
+		return HazelcastClient.newHazelcastClient();
 
 	}
 	
@@ -60,7 +61,7 @@ public class Main {
 		//LOG.info("Group name is "+groupName);
 		
 		//JetInstance instance = Jet.newJetInstance(config);
-		return Jet.newJetInstance();
+		return Jet.newJetClient();
 
 		//return instance;
 
