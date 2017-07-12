@@ -42,30 +42,30 @@ public class Main {
 	@Bean
 	HazelcastInstance hzInstance() {
 
-		//return Hazelcast.newHazelcastInstance();
-		return HazelcastClient.newHazelcastClient();
+		return Hazelcast.newHazelcastInstance();
+		//return HazelcastClient.newHazelcastClient();
 
 	}
 	
-	@Bean
-	JetInstance jet() {
-
-		//JetConfig config = new JetConfig();
-		//config.getInstanceConfig().setCooperativeThreadCount(2);
-		
-		
-		
-		//config.setHazelcastConfig(hzInstance.getConfig());
-		
-		//String groupName = config.getHazelcastConfig().getGroupConfig().getName();
-		//LOG.info("Group name is "+groupName);
-		
-		//JetInstance instance = Jet.newJetInstance(config);
-		return Jet.newJetClient();
-
-		//return instance;
-
-	}
+//	@Bean
+//	JetInstance jet() {
+//
+//		//JetConfig config = new JetConfig();
+//		//config.getInstanceConfig().setCooperativeThreadCount(2);
+//		
+//		
+//		
+//		//config.setHazelcastConfig(hzInstance.getConfig());
+//		
+//		//String groupName = config.getHazelcastConfig().getGroupConfig().getName();
+//		//LOG.info("Group name is "+groupName);
+//		
+//		//JetInstance instance = Jet.newJetInstance(config);
+//		return Jet.newJetClient();
+//
+//		//return instance;
+//
+//	}
 
 	
 
