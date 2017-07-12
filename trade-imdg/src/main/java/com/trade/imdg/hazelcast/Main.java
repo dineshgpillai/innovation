@@ -46,25 +46,25 @@ public class Main {
 
 	}
 	
-	/*@Bean
+	@Bean
 	JetInstance jet() {
 
-		JetConfig config = new JetConfig();
-		config.getInstanceConfig().setCooperativeThreadCount(2);
+		//JetConfig config = new JetConfig();
+		//config.getInstanceConfig().setCooperativeThreadCount(2);
 		
 		
 		
-		config.setHazelcastConfig(hzInstance.getConfig());
+		//config.setHazelcastConfig(hzInstance.getConfig());
 		
-		String groupName = config.getHazelcastConfig().getGroupConfig().getName();
-		LOG.info("Group name is "+groupName);
+		//String groupName = config.getHazelcastConfig().getGroupConfig().getName();
+		//LOG.info("Group name is "+groupName);
 		
-		JetInstance instance = Jet.newJetInstance(config);
-		Jet.newJetInstance(config);
+		//JetInstance instance = Jet.newJetInstance(config);
+		return Jet.newJetInstance();
 
-		return instance;
+		//return instance;
 
-	}*/
+	}
 
 	
 
