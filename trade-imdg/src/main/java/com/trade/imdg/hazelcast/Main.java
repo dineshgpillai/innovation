@@ -61,7 +61,7 @@ public class Main {
 		//LOG.info("Group name is "+groupName);
 		
 		//JetInstance instance = Jet.newJetInstance(config);
-		return Jet.newJetClient();
+		return Jet.newJetInstance();
 
 		//return instance;
 
