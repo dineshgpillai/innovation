@@ -39,14 +39,14 @@ public class Main {
 	public static final String MAP_INSTRUMENTS = "instrument";
 	public final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-	@Bean
+	/*@Bean
 	HazelcastInstance hzInstance() {
 
 		return Hazelcast.newHazelcastInstance();
 		//return HazelcastClient.newHazelcastClient();
 
 	}
-	
+	*/
 	@Bean
 	JetInstance jet() {
 
@@ -69,11 +69,11 @@ public class Main {
 
 	
 
-	//@Autowired
-	//private JetInstance jet;
-
 	@Autowired
-	private HazelcastInstance hzInstance;
+	private JetInstance jet;
+
+	//@Autowired
+	//private HazelcastInstance hzInstance;
 
 	@PreDestroy
 	public void shutDownCache() {
@@ -87,7 +87,7 @@ public class Main {
 
 		try {
 
-			IMap<String, Instrument> instruments = hzInstance
+			IMap<String, Instrument> instruments = jet
 					.getMap(MAP_INSTRUMENTS);
 			System.out.println("Size of Instruments is " + instruments.size());
 			System.out.println("Loading instruments ...");
