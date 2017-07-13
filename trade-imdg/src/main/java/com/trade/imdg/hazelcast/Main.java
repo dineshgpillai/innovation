@@ -1,5 +1,8 @@
 package com.trade.imdg.hazelcast;
 
+import static com.example.mu.database.MuSchemaConstants.HBASE_HOST;
+import static com.example.mu.database.MuSchemaConstants.ZK_HOST;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +15,8 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 
+import com.example.mu.database.Schema;
 import com.example.mu.domain.Instrument;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.Hazelcast;
@@ -86,11 +92,22 @@ public class Main {
 	private void loadCache() throws Exception {
 
 		try {
+			
+			LOG.info("Creating the Hbase tables...");
+			Configuration config =  HBaseConfiguration.create();
+	        config.setInt("timeout", 120000);
+	        config.set("hbase.master", HBASE_HOST + ":60000");
+	        config.set("hbase.zookeeper.quorum",ZK_HOST);
+	        config.set("hbase.zookeeper.property.clientPort", "2181");
+	        Schema.
+	        createSchemaTables(config);
 
+	        
+	        LOG.info("Done creating the schema tables");
 			IMap<String, Instrument> instruments = jet
 					.getMap(MAP_INSTRUMENTS);
-			System.out.println("Size of Instruments is " + instruments.size());
-			System.out.println("Loading instruments ...");
+			LOG.info("Size of Instruments is " + instruments.size());
+			LOG.info("Loading instruments ...");
 
 			// load the tickers into Map
 			// AAL|American Airlines Group, Inc. - Common Stock|Q|N|N|100|N|N
@@ -110,7 +127,7 @@ public class Main {
 				throw new RuntimeException(e);
 			}
 
-			System.out.println("Size of Instruments is " + instruments.size());
+			LOG.info("Size of Instruments is " + instruments.size());
 			// instruments.loadAll(false);
 			
 			

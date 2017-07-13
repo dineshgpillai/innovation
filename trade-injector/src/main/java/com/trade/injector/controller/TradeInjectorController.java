@@ -393,12 +393,17 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 
 		GeneratePartyCache cacheGenerator = new GeneratePartyCache();
 		cacheGenerator.populateMap(profile.getNumberOfParties(), partyMap);
+		
+		LOG.info("Successfully generated party cache");
+		
 
 		IMap<String, Instrument> instrumentMap = hazelcastInstance
 				.getMap("instrument");
 		GenerateInstrumentCache insCacheGenerator = new GenerateInstrumentCache();
 		insCacheGenerator.populateMap(profile.getNumberOfInstruments(),
 				instrumentMap);
+		
+		LOG.info("Successfully generated instrument cache");
 
 		int startFrom = new Integer(profile.getCurrentMessageCount());
 		int numberOfTrades = new Integer(profile.getNumberOfTrades());
@@ -444,6 +449,8 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			profile.setRun_mode(TradeInjectRunModes.COMPLETED.getRunMode());
 			profileRepo.save(profile);
 		}
+		
+		LOG.info("Successfully generated trades, quitting");
 
 	}
 
