@@ -93,14 +93,14 @@ public class Main {
 
 		try {
 			
-			LOG.info("Creating the Hbase tables...");
-			Configuration config =  HBaseConfiguration.create();
-	        config.setInt("timeout", 120000);
-	        config.set("hbase.master", HBASE_HOST + ":60000");
-	        config.set("hbase.zookeeper.quorum",ZK_HOST);
-	        config.set("hbase.zookeeper.property.clientPort", "2181");
-	        Schema.
-	        createSchemaTables(config);
+//			LOG.info("Creating the Hbase tables...");
+//			Configuration config =  HBaseConfiguration.create();
+//	        config.setInt("timeout", 120000);
+//	        config.set("hbase.master", HBASE_HOST + ":60000");
+//	        config.set("hbase.zookeeper.quorum",ZK_HOST);
+//	        config.set("hbase.zookeeper.property.clientPort", "2181");
+//	        Schema.
+//	        createSchemaTables(config);
 
 	        
 	        LOG.info("Done creating the schema tables");
