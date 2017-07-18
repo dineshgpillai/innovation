@@ -1,34 +1,38 @@
 version: '2.1' 
 services:
- jobmanager:
-    image: ${FLINK_DOCKER_IMAGE_NAME:-flink}
-    networks: ["vnet"]
-    expose:
-      - "6123"
-    links:
-      - zookeeper-1:zk    
-    depends_on:
-      - zookeeper-1
-    ports:
-      - "8081:8081"
-    command: jobmanager
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+ #jobmanager:
+   # image: ${FLINK_DOCKER_IMAGE_NAME:-flink}
+    #networks: ["vnet"]
+    #hostname: jobmanager-1.vnet
+    #expose:
+     # - "6123"
+    #links:
+     # - zookeeper-1:zk
+     # #- trade-imdg:ti    
+    #depends_on:
+     # - zookeeper-1
+    #ports:
+     # - "8081:8081"
+    #command: jobmanager
+    #environment:
+     # - JOB_MANAGER_RPC_ADDRESS=jobmanager
 
- taskmanager:
-    image: ${FLINK_DOCKER_IMAGE_NAME:-flink}
-    networks: ["vnet"]
-    expose:
-      - "6121"
-      - "6122"
-    depends_on:
-      - jobmanager
-    command: taskmanager
-    links:
-      - "jobmanager:jobmanager"      
-      - zookeeper-1:zk
-    environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+ #taskmanager:
+   # image: ${FLINK_DOCKER_IMAGE_NAME:-flink}
+   # networks: ["vnet"]
+   # hostname: taskmanager-1.vnet
+   # expose:
+     # - "6121"
+     # - "6122"
+    #depends_on:
+     # - jobmanager
+    #command: taskmanager
+    #links:
+      #- "jobmanager:jobmanager"      
+      #- zookeeper-1:zk
+     # #- trade-imdg:ti
+    #environment:
+      #- JOB_MANAGER_RPC_ADDRESS=jobmanager
 
  zookeeper-1:
   container_name: zookeeper-1
@@ -37,29 +41,29 @@ services:
   hostname: zookeeper-1.vnet
   restart: always
   ports:
-    - 2181:2181
+    - 2182:2181
   environment:
     - SERVICE_2181_NAME=zookeeper
     - SERVICE_2888_IGNORE=true
     - SERVICE_3888_IGNORE=true    
 
- hbase:
-   image: oddpoet/hbase-local
-   hostname: hbase-1.vnet
-   networks: ["vnet"]
-   ports:
-     - "60000:60000"
-     - "60010:60010"
-     - "60020:60020"
-     - "60030:60030"
-   environment:
-    - ZK_HOSTS=zookeeper-1.vnet:2181
-    - MASTER_PORT=60000
-    - MASTER_INFO_PORT=60010
-    - REGIONSERVER_PORT=60020
-    - REGIONSERVER_INFO_PORT=60030
-   links:
-     - zookeeper-1
+ #hbase:
+  # image: oddpoet/hbase-local
+  # hostname: hbase-1.vnet
+  # networks: ["vnet"]
+  # ports:
+    # - "60000:60000"
+    # - "60010:60010"
+    # - "60020:60020"
+    # - "60030:60030"
+   #environment:
+    #- ZK_HOSTS=zookeeper-1.vnet:2181
+    #- MASTER_PORT=60000
+    #- MASTER_INFO_PORT=60010
+    #- REGIONSERVER_PORT=60020
+    #- REGIONSERVER_INFO_PORT=60030
+   #links:
+    # - zookeeper-1
 
 
  kafka:
@@ -73,7 +77,7 @@ services:
   environment:
    KAFKA_ADVERTISED_HOST_NAME: 138.68.168.237
    KAFKA_ADVERTISED_PORT: 9092
-   KAFKA_ZOOKEEPER_CONNECT: 138.68.168.237:2181
+   KAFKA_ZOOKEEPER_CONNECT: 138.68.168.237:2182
 
  hazelcast:
   build: .  
@@ -98,10 +102,11 @@ services:
    kafka.bootstrap-servers: 138.68.168.237:9092
    spring.data.mongodb.host: 138.68.168.237
    spring.hazelcast.client.config: mu1-client-config.xml
-   spring.cloud.zookeeper.connectString: 138.68.168.237:2181
+   spring.cloud.zookeeper.connectString: 138.68.168.237:2182
 
  trade-imdg :
   image: dineshpillai/innovation-trade-imdg:0.0.1-SNAPSHOT
+  hostname: trade-imdg.vnet
   networks: ["vnet"]
   ports :
     - "8092:8092"
