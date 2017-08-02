@@ -51,6 +51,7 @@ public class KafkaConnect {
 				.getExecutionEnvironment();
 		
 		HazelcastInstance hazelcastInstance = HazelcastClient.newHazelcastClient();
+		//HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
 		
 		FlinkKafkaConsumer010 kafkaConsumer = new FlinkKafkaConsumer010(
 				"market_data", new SimpleStringSchema(), consumerConfigs());
@@ -76,7 +77,7 @@ public class KafkaConnect {
 			public String map(Price arg0) throws Exception {
 				
 				
-				IMap<String, Price> priceMap = hazelcastInstance.getMap("price");
+				//IMap<String, String> priceMap = hazelcastInstance.getMap("price");
 				//priceMap.put(arg0.getInstrumentId(), arg0);
 				return "Price stored in hz "+arg0.getInstrumentId();
 				

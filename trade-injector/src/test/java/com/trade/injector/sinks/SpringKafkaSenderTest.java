@@ -88,7 +88,7 @@ public class SpringKafkaSenderTest {
   public void testSend() throws Exception {
     // send the message
     String greeting = "Hello Spring Kafka Sender!";
-    sender.send(KafkaEmbeddedTest.SENDER_TOPIC, greeting);
+    sender.send(KafkaEmbeddedTest.SENDER_TOPIC, greeting, greeting);
 
     // check that the message was received
     assertEquals(records.poll(10, TimeUnit.SECONDS), greeting);

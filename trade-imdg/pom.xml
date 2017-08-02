@@ -46,11 +46,11 @@
 			<artifactId>hazelcast</artifactId>
 			<version>3.8.1</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast-client</artifactId>
 			<version>3.8.1</version>
-		</dependency>
+		</dependency-->
 		 
 		<dependency>
 			<groupId>com.hazelcast.jet</groupId>

@@ -59,10 +59,10 @@ public class KafkaProducerTest {
 		System.out.println(Thread.currentThread().getId());*/
 		
 		
-		sender.send(topic,  "Hi there");
+		sender.send(topic, "Hi",  "Hi there");
 		assertTrue(this.receive.getLatch().await(60, TimeUnit.SECONDS));
 		
-		sender.send(tradeTopic, "a trade message");
+		sender.send(tradeTopic, "89", "a trade message");
 		assertTrue(this.tradeReceiver.getLatch().await(60, TimeUnit.SECONDS));
 		
 		//receive.receive(message);

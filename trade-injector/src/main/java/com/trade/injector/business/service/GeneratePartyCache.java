@@ -3,13 +3,21 @@ package com.trade.injector.business.service;
 import java.util.Map;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.example.mu.domain.Party;
 import com.trade.injector.enums.PartyRole;
 
 public class GeneratePartyCache implements RandomCacheDataService<String, Party> {
+	
+	final Logger LOG = LoggerFactory.getLogger(GeneratePartyCache.class);
 
 	@Override
 	public void populateMap(int number, Map<String, Party> cache) {
+		
+		
+		LOG.info("Current Party cache size is "+cache.size());
 		
 		int membersToGenerate = number-cache.size();
 		if(membersToGenerate < 0)

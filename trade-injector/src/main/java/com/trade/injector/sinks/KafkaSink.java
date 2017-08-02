@@ -26,11 +26,11 @@ public class KafkaSink implements ISink {
 	@Autowired
 	private KafkaTemplate<String, String> kafkaTemplate;
 
-	public void send(String topic, String message) {
+	public void send(String topic, String key, String message) {
 		// the KafkaTemplate provides asynchronous send methods returning a
 		// Future
 		ListenableFuture<SendResult<String, String>> future = kafkaTemplate
-				.send(topic,  message);
+				.send(topic, key,  message);
 
 		// register a callback with the listener to receive the result of the
 		// send asynchronously
@@ -53,9 +53,9 @@ public class KafkaSink implements ISink {
 	}
 
 	@Override
-	public void writeTo(String url, String message) throws Exception {
+	public void writeTo(String url, String key,  String message) throws Exception {
 		
-		send(url, message);
+		send(url, key, message);
 
 	}
 

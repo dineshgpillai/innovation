@@ -27,6 +27,7 @@
 <script src="./dist/js/angular.min.js"></script>
 <script
 	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-animate.min.js"></script>
+
 <script
 	src="https://rawgit.com/dwmkerr/angular-modal-service/master/dst/angular-modal-service.js"></script>
 <script
@@ -137,8 +138,7 @@
 			<ul class="nav nav-pills" ng-show="authenticated">
 				<li role="presentation" ng-class="{active: isSet(1)}"
 					ng-click="setTab(1)"><a href="#"><i
-						class="fa fa-cog fa-fw" aria-hidden="true"></i>Generate
-						Trades</a></li>
+						class="fa fa-cog fa-fw" aria-hidden="true"></i>Generate Trades</a></li>
 				<li role="presentation" ng-class="{active: isSet(2)}"
 					ng-click="setTab(2)"><a href="#"><i
 						class="fa fa-cube fa-fw" aria-hidden="true"></i>Reports</a></li>
@@ -281,7 +281,7 @@
 		</div>
 
 		<div ng-show="isSet(2)" ng-show="authenticated">
-			<div ng-controller="InstrumentStaticController">
+			<div ng-controller="ReportStaticController">
 				<div class="container">
 					<ul class="nav nav-pills" ng-show="authenticated">
 						<li role="presentation" ng-class="{active: isTab(1)}"
@@ -289,7 +289,7 @@
 								class="fa fa-line-chart fa-fw" aria-hidden="true"></i>Market
 								Data</a></li>
 						<li role="presentation" ng-class="{active: isTab(2)}"
-							ng-click="setTab(4)"><a href="#"><i
+							ng-click="setTab(2)"><a href="#"><i
 								class="fa fa-microchip fa-fw" aria-hidden="true"></i>Position
 								Report</a></li>
 
@@ -308,32 +308,59 @@
 											<ul class="pagination">
 
 												<!-- div ng-repeat="n in pageNavs"-->
-												<li ng-class="{active: isPageActive('A')}" ng-click="clickOnPage('A')" ng-init="clickOnPage('A')"><a href="#">A</a></li>
-												<li ng-class="{active: isPageActive('B')}" ng-click="clickOnPage('B')"><a href="#">B</a></li>
-												<li ng-class="{active: isPageActive('C')}" ng-click="clickOnPage('C')"><a href="#">C</a></li>
-												<li ng-class="{active: isPageActive('D')}" ng-click="clickOnPage('D')"><a href="#">D</a></li>
-												<li ng-class="{active: isPageActive('E')}" ng-click="clickOnPage('E')"><a href="#">E</a></li>
-												<li ng-class="{active: isPageActive('F')}" ng-click="clickOnPage('F')"><a href="#">F</a></li>
-												<li ng-class="{active: isPageActive('G')}" ng-click="clickOnPage('G')"><a href="#">G</a></li>
-												<li ng-class="{active: isPageActive('H')}" ng-click="clickOnPage('H')"><a href="#">H</a></li>
-												<li ng-class="{active: isPageActive('I')}" ng-click="clickOnPage('I')"><a href="#">I</a></li>
-								 				<li ng-class="{active: isPageActive('J')}" ng-click="clickOnPage('J')"><a href="#">J</a></li>
-												<li ng-class="{active: isPageActive('K')}" ng-click="clickOnPage('K')"><a href="#">K</a></li>
-												<li ng-class="{active: isPageActive('L')}" ng-click="clickOnPage('L')"><a href="#">L</a></li>
-												<li ng-class="{active: isPageActive('M')}" ng-click="clickOnPage('M')"><a href="#">M</a></li>
-												<li ng-class="{active: isPageActive('N')}" ng-click="clickOnPage('N')"><a href="#">N</a></li>
-												<li ng-class="{active: isPageActive('O')}" ng-click="clickOnPage('O')"><a href="#">O</a></li>
-												<li ng-class="{active: isPageActive('P')}" ng-click="clickOnPage('P')"><a href="#">P</a></li>
-												<li ng-class="{active: isPageActive('Q')}" ng-click="clickOnPage('Q')"><a href="#">Q</a></li>
-												<li ng-class="{active: isPageActive('R')}" ng-click="clickOnPage('R')"><a href="#">R</a></li>
-												<li ng-class="{active: isPageActive('S')}" ng-click="clickOnPage('S')"><a href="#">S</a></li>
-												<li ng-class="{active: isPageActive('T')}" ng-click="clickOnPage('T')"><a href="#">T</a></li>
-												<li ng-class="{active: isPageActive('U')}" ng-click="clickOnPage('U')"><a href="#">U</a></li>
-												<li ng-class="{active: isPageActive('V')}" ng-click="clickOnPage('V')"><a href="#">V</a></li>
-												<li ng-class="{active: isPageActive('W')}" ng-click="clickOnPage('W')"><a href="#">W</a></li>
-												<li ng-class="{active: isPageActive('X')}" ng-click="clickOnPage('X')"><a href="#">X</a></li>
-												<li ng-class="{active: isPageActive('Y')}" ng-click="clickOnPage('Y')"><a href="#">Y</a></li>
-												<li ng-class="{active: isPageActive('Z')}" ng-click="clickOnPage('Z')"><a href="#">Z</a></li>
+												<li ng-class="{active: isPageActive('A')}"
+													ng-click="clickOnPage('A')" ng-init="clickOnPage('A')"><a
+													href="#">A</a></li>
+												<li ng-class="{active: isPageActive('B')}"
+													ng-click="clickOnPage('B')"><a href="#">B</a></li>
+												<li ng-class="{active: isPageActive('C')}"
+													ng-click="clickOnPage('C')"><a href="#">C</a></li>
+												<li ng-class="{active: isPageActive('D')}"
+													ng-click="clickOnPage('D')"><a href="#">D</a></li>
+												<li ng-class="{active: isPageActive('E')}"
+													ng-click="clickOnPage('E')"><a href="#">E</a></li>
+												<li ng-class="{active: isPageActive('F')}"
+													ng-click="clickOnPage('F')"><a href="#">F</a></li>
+												<li ng-class="{active: isPageActive('G')}"
+													ng-click="clickOnPage('G')"><a href="#">G</a></li>
+												<li ng-class="{active: isPageActive('H')}"
+													ng-click="clickOnPage('H')"><a href="#">H</a></li>
+												<li ng-class="{active: isPageActive('I')}"
+													ng-click="clickOnPage('I')"><a href="#">I</a></li>
+												<li ng-class="{active: isPageActive('J')}"
+													ng-click="clickOnPage('J')"><a href="#">J</a></li>
+												<li ng-class="{active: isPageActive('K')}"
+													ng-click="clickOnPage('K')"><a href="#">K</a></li>
+												<li ng-class="{active: isPageActive('L')}"
+													ng-click="clickOnPage('L')"><a href="#">L</a></li>
+												<li ng-class="{active: isPageActive('M')}"
+													ng-click="clickOnPage('M')"><a href="#">M</a></li>
+												<li ng-class="{active: isPageActive('N')}"
+													ng-click="clickOnPage('N')"><a href="#">N</a></li>
+												<li ng-class="{active: isPageActive('O')}"
+													ng-click="clickOnPage('O')"><a href="#">O</a></li>
+												<li ng-class="{active: isPageActive('P')}"
+													ng-click="clickOnPage('P')"><a href="#">P</a></li>
+												<li ng-class="{active: isPageActive('Q')}"
+													ng-click="clickOnPage('Q')"><a href="#">Q</a></li>
+												<li ng-class="{active: isPageActive('R')}"
+													ng-click="clickOnPage('R')"><a href="#">R</a></li>
+												<li ng-class="{active: isPageActive('S')}"
+													ng-click="clickOnPage('S')"><a href="#">S</a></li>
+												<li ng-class="{active: isPageActive('T')}"
+													ng-click="clickOnPage('T')"><a href="#">T</a></li>
+												<li ng-class="{active: isPageActive('U')}"
+													ng-click="clickOnPage('U')"><a href="#">U</a></li>
+												<li ng-class="{active: isPageActive('V')}"
+													ng-click="clickOnPage('V')"><a href="#">V</a></li>
+												<li ng-class="{active: isPageActive('W')}"
+													ng-click="clickOnPage('W')"><a href="#">W</a></li>
+												<li ng-class="{active: isPageActive('X')}"
+													ng-click="clickOnPage('X')"><a href="#">X</a></li>
+												<li ng-class="{active: isPageActive('Y')}"
+													ng-click="clickOnPage('Y')"><a href="#">Y</a></li>
+												<li ng-class="{active: isPageActive('Z')}"
+													ng-click="clickOnPage('Z')"><a href="#">Z</a></li>
 												<!-- /div-->
 
 
@@ -371,6 +398,22 @@
 					</div>
 				</div>
 				<!-- End of isTab(1) -->
+				<div ng-show="isTab(2)">
+					<div class="container panel panel-default">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-md-2">
+										<h3 class="panel-title">Positions</h3>
+									</div>
+									<div class="col-md-6"></div>
+									<div class="col-md-2">Trade Registered:{{tradeCount}}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- End of isTab(2) -->
 			</div>
 		</div>
 		<!-- End of ng show Configure -->

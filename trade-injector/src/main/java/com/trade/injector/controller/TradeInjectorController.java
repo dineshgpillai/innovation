@@ -418,8 +418,10 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 					profile.getNumberOfInstruments());
 
 			// send it to the Kafka sink
-			sender.send(tradeTopic, trades[0].toJSON());
-			sender.send(tradeTopic, trades[1].toJSON());
+			LOG.info("Sending the following trades "+trades[0].toJSON()+ " ####### "+trades[1].toJSON());
+
+			sender.send(tradeTopic, trades[0].getTradeId(), trades[0].toJSON());
+			sender.send(tradeTopic, trades[1].getTradeId(), trades[1].toJSON());
 
 			// mapTrades.put(trades[0].getExecutionId(), trades[0]); //for buy
 			// mapTrades.put(trades[1].getExecutionId(), trades[1]); //for sell

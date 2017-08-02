@@ -219,7 +219,7 @@ public class TestHazelcastClientRoutines {
 			throws Exception {
 
 		System.out.println("price data is " + data.toJSON());
-		sink.writeTo(topic, data.toJSON());
+		sink.writeTo(topic, data.getPriceId(), data.toJSON());
 
 	}
 

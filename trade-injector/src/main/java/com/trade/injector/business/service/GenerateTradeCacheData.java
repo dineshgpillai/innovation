@@ -1,6 +1,7 @@
 package com.trade.injector.business.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +17,12 @@ import com.example.mu.domain.Trade;
 @Service
 public class GenerateTradeCacheData {
 
-	public Trade[] createTrade(int number, Map<String, Party> parties,
-			int partyLimit, Map<String, Instrument> instruments,
-			int instrumentLimit) throws Exception {
+	public Trade[] createTrade(int number, Map<String, Party> parties, int partyLimit,
+			Map<String, Instrument> instruments, int instrumentLimit) throws Exception {
+
+		// set the date
+		Calendar cal = Calendar.getInstance();
+		Date date = cal.getTime();
 
 		// generate all the common attributes for both sides of the trade
 		Trade[] matchedTrade = new Trade[2];
@@ -32,13 +36,13 @@ public class GenerateTradeCacheData {
 
 		Party buyParty = getRandomParty(parties, partyLimit);
 		Party sellParty = getRandomParty(parties, partyLimit);
-		Date tradeDate = new Date(System.currentTimeMillis());
+		Date tradeDate = date;
+			System.out.println("Current date and time in Date's toString() is : " + tradeDate + "\n");
 		while (buyParty.equals(sellParty)) {
 			// keep looping till we get a different party
 			sellParty = getRandomParty(parties, partyLimit);
 		}
-		Instrument tradedInstrument = getRandomInstrument(instruments,
-				instrumentLimit);
+		Instrument tradedInstrument = getRandomInstrument(instruments, instrumentLimit);
 		// do the buy
 		String buyKey = UUID.randomUUID().toString();
 		Trade atrade = new Trade();
@@ -58,8 +62,9 @@ public class GenerateTradeCacheData {
 		atrade.setSecondaryTradeId(executionId);
 		atrade.setSettlementDate(tradeDate);
 		atrade.setTradeDate(tradeDate);
-		atrade.setTradeId(executionId);
+		atrade.setTradeId(buyKey);
 		atrade.setTradeType("0");
+		atrade.setSecondaryTradeType("0");
 
 		// trade.put(buyKey, atrade);
 
@@ -82,8 +87,9 @@ public class GenerateTradeCacheData {
 		aSelltrade.setSecondaryTradeId(executionId);
 		aSelltrade.setSettlementDate(tradeDate);
 		aSelltrade.setTradeDate(tradeDate);
-		aSelltrade.setTradeId(executionId);
+		aSelltrade.setTradeId(sellKey);
 		aSelltrade.setTradeType("0");
+		aSelltrade.setSecondaryTradeType("0");
 
 		// trade.put(sellKey, aSelltrade);
 		matchedTrade[0] = atrade;
@@ -93,25 +99,21 @@ public class GenerateTradeCacheData {
 
 	}
 
-	private Party getRandomParty(Map<String, Party> partyList, int limit)
-			throws Exception {
+	private Party getRandomParty(Map<String, Party> partyList, int limit) throws Exception {
 		if (partyList.isEmpty())
 			return null;
 		else {
-			List<String> keysAsArrays = new ArrayList<String>(
-					partyList.keySet());
+			List<String> keysAsArrays = new ArrayList<String>(partyList.keySet());
 			Random r = new Random();
 			if (limit > 0 && limit < keysAsArrays.size())
 				return partyList.get(keysAsArrays.get(r.nextInt(limit)));
 			else
-				return partyList.get(keysAsArrays.get(r.nextInt(keysAsArrays
-						.size())));
+				return partyList.get(keysAsArrays.get(r.nextInt(keysAsArrays.size())));
 		}
 
 	}
 
-	private Instrument getRandomInstrument(Map<String, Instrument> insList,
-			int limit) throws Exception {
+	private Instrument getRandomInstrument(Map<String, Instrument> insList, int limit) throws Exception {
 		if (insList.isEmpty())
 			return null;
 		else {
@@ -120,8 +122,7 @@ public class GenerateTradeCacheData {
 			if (limit > 0 && limit < keysAsArrays.size())
 				return insList.get(keysAsArrays.get(r.nextInt(limit)));
 			else
-				return insList.get(keysAsArrays.get(r.nextInt(keysAsArrays
-						.size())));
+				return insList.get(keysAsArrays.get(r.nextInt(keysAsArrays.size())));
 		}
 
 	}

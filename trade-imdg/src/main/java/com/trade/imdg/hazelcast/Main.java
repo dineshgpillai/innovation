@@ -45,41 +45,41 @@ public class Main {
 	public static final String MAP_INSTRUMENTS = "instrument";
 	public final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-	/*@Bean
+	@Bean
 	HazelcastInstance hzInstance() {
 
 		return Hazelcast.newHazelcastInstance();
 		//return HazelcastClient.newHazelcastClient();
 
 	}
-	*/
-	@Bean
-	JetInstance jet() {
-
-		//JetConfig config = new JetConfig();
-		//config.getInstanceConfig().setCooperativeThreadCount(2);
-		
-		
-		
-		//config.setHazelcastConfig(hzInstance.getConfig());
-		
-		//String groupName = config.getHazelcastConfig().getGroupConfig().getName();
-		//LOG.info("Group name is "+groupName);
-		
-		//JetInstance instance = Jet.newJetInstance(config);
-		return Jet.newJetInstance();
-
-		//return instance;
-
-	}
+	
+//	@Bean
+//	JetInstance jet() {
+//
+//		//JetConfig config = new JetConfig();
+//		//config.getInstanceConfig().setCooperativeThreadCount(2);
+//		
+//		
+//		
+//		//config.setHazelcastConfig(hzInstance.getConfig());
+//		
+//		//String groupName = config.getHazelcastConfig().getGroupConfig().getName();
+//		//LOG.info("Group name is "+groupName);
+//		
+//		//JetInstance instance = Jet.newJetInstance(config);
+//		return Jet.newJetInstance();
+//
+//		//return instance;
+//
+//	}
 
 	
 
-	@Autowired
-	private JetInstance jet;
-
 	//@Autowired
-	//private HazelcastInstance hzInstance;
+	//private JetInstance jet;
+
+	@Autowired
+	private HazelcastInstance hzInstance;
 
 	@PreDestroy
 	public void shutDownCache() {
@@ -104,14 +104,23 @@ public class Main {
 
 	        
 	        LOG.info("Done creating the schema tables");
-			IMap<String, Instrument> instruments = jet
+			IMap<String, Instrument> instruments = hzInstance
 					.getMap(MAP_INSTRUMENTS);
 			LOG.info("Size of Instruments is " + instruments.size());
 			LOG.info("Loading instruments ...");
+			
+			//instruments.loadAll(true);
+			
+			if(instruments.size() > 3000) {
+				
+				LOG.info("Not loading from file " + instruments.size());
+				return;
+			}
+				
 
 			// load the tickers into Map
 			// AAL|American Airlines Group, Inc. - Common Stock|Q|N|N|100|N|N
-			try (BufferedReader reader = new BufferedReader(
+			/*try (BufferedReader reader = new BufferedReader(
 					new InputStreamReader(Main.class
 							.getResourceAsStream("/nasdaqlisted.txt"),
 							StandardCharsets.UTF_8))) {
@@ -125,7 +134,7 @@ public class Main {
 										constructInstrument(t)));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
-			}
+			}*/
 
 			LOG.info("Size of Instruments is " + instruments.size());
 			// instruments.loadAll(false);

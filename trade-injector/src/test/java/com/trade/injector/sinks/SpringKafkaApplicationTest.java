@@ -44,7 +44,7 @@ public class SpringKafkaApplicationTest {
 
   @Test
   public void testReceive() throws Exception {
-    sender.send(KafkaEmbeddedTest.RECEIVER_TOPIC, "Hello Spring Kafka!");
+    sender.send(KafkaEmbeddedTest.RECEIVER_TOPIC, "Hello", "Hello Spring Kafka!");
 
     receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
     // check that the message was received

@@ -45,8 +45,7 @@ public class PriceScheduler {
 	@Value("${kafka.topic.marketData}")
 	private String marketDataTopic;
 
-	@Autowired
-	private TradeReportRepository reportRepo;
+	
 
 	@Autowired
 	private MongoTemplate coreTemplate;
@@ -58,7 +57,7 @@ public class PriceScheduler {
 	 * @throws Exception
 	 */
 
-	@Scheduled(fixedDelay = 60000)
+	//@Scheduled(fixedDelay = 60000)
 	public void generateFrequentPriceData() throws Exception {
 
 		LOG.info("Starting to generate price...");
@@ -76,94 +75,16 @@ public class PriceScheduler {
 		Collection<Instrument> ins = mapInstruments.values();
 		LOG.info("Number of Instruments " + ins.size());
 		ins.stream().forEach(
-				a -> sender.send(marketDataTopic, GeneratePriceData
+				a -> sender.send(marketDataTopic, a.getInstrumentId(), GeneratePriceData
 						.generateRandomDataOnInstruments(a).toJSON()));
 
 		LOG.info("Price generation done");
 	}
+	
+		
 
-	@Scheduled(fixedDelay = 60000)
-	public void getUpdatedPriceData() throws Exception {
 
-		TradeReport tradeReport = coreTemplate
-				.findOne(
-						Query.query(Criteria.where("injectorProfileId").is(
-								REPORT_NAME)), TradeReport.class);
-
-		if (tradeReport == null)
-			tradeReport = createTradeReport();
-
-		LOG.info("Starting to obtain prices...");
-		// first get all the prices from the cache
-		IMap<String, Price> mapPrices = hazelcastInstance
-				.getMap(BusinessServiceCacheNames.PRICE_CACHE);
-
-		// no data do not generate
-		if (mapPrices.size() == 0) {
-			LOG.warn("No prices found");
-			return;
-		}
-
-		List<InstrumentReport> instrumentReport = tradeReport.getInstruments();
-
-		if (instrumentReport.size() == 0)
-			tradeReport.setInstruments(mapPrices.values().stream()
-					.map(p -> createNewInstrumentReport(p))
-					.collect(Collectors.toList()));
-		else {
-			instrumentReport
-					.stream()
-					.forEach(x -> updateInstrumentReportPrice(x, mapPrices.get(x.getId())));
-		}
-		// generate and sink to Kafka
-		Collection<Price> px = mapPrices.values();
-		LOG.info("Number of prices " + px.size());
-		// ins.stream().forEach(a->sender.send(marketDataTopic,GeneratePriceData.generateRandomDataOnInstruments(a).toJSON()));
-
-		reportRepo.save(tradeReport);
-		LOG.info("Prices obtained done");
-	}
-
-	private TradeReport createTradeReport() throws Exception {
-
-		// initialise the report if not found and create the Instrument report
-		// for each price
-
-		// create a new one
-		TradeReport tradeReport = new TradeReport();
-		tradeReport.setCurrentTradeProgress(1);
-		tradeReport.setInjectorProfileId(REPORT_NAME);
-		tradeReport.setName("Report_" + REPORT_NAME);
-		tradeReport.setReportDate(new Date(System.currentTimeMillis()));
-		tradeReport.setTradeCount(1);
-		// tradeReport.setUserId(username);
-
-		// //tradeReport.setInstruments(instruments);
-		List<InstrumentReport> instrumentList = new ArrayList<InstrumentReport>();
-		// instrumentList =
-		// prices.stream().map(p->createNewInstrumentReport(p)).collect(Collectors.toList());
-		tradeReport.setInstruments(instrumentList);
-
-		// now go through each price and update the Instrument report with the
-		// current and previous price
-		return tradeReport;
-
-	}
-
-	private InstrumentReport createNewInstrumentReport(Price aPrice) {
-		InstrumentReport report = new InstrumentReport();
-		report.setId(aPrice.getInstrumentId());
-		report.setPrice(aPrice.getPrice());
-		report.setPrevPrice(aPrice.getPrice());
-		return report;
-	}
-
-	private void updateInstrumentReportPrice(InstrumentReport report,
-			Price aPrice) {
-
-		report.setPrevPrice(report.getPrice());
-		report.setPrice(aPrice.getPrice());
-
-	}
+	
+	
 
 }
