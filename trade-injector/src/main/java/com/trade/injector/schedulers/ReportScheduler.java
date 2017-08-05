@@ -92,7 +92,7 @@ public class ReportScheduler {
 		// first get all the prices from the cache
 		IMap<String, Trade> mapTrades = hazelcastInstance.getMap("trade");
 
-		mapTrades.loadAll(true);
+		mapTrades.loadAll(false);
 		// no data do not generate
 		if (mapTrades.size() == 0) {
 			LOG.warn("No trades found");
@@ -113,7 +113,7 @@ public class ReportScheduler {
 		LOG.info("Starting to obtain prices...");
 		// first get all the prices from the cache
 		IMap<String, Price> mapPrices = hazelcastInstance.getMap(BusinessServiceCacheNames.PRICE_CACHE);
-
+		mapPrices.loadAll(false);	
 		// no data do not generate
 		if (mapPrices.size() == 0) {
 			LOG.warn("No prices found");

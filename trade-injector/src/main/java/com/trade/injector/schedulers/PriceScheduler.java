@@ -57,7 +57,7 @@ public class PriceScheduler {
 	 * @throws Exception
 	 */
 
-	//@Scheduled(fixedDelay = 60000)
+	@Scheduled(fixedDelay = 300000)
 	public void generateFrequentPriceData() throws Exception {
 
 		LOG.info("Starting to generate price...");
