@@ -51,7 +51,7 @@ public class PriceScheduler {
 	private MongoTemplate coreTemplate;
 
 	/**
-	 * This scheduler will generate prices every 1 minute for instruments that
+	 * This scheduler will generate prices every 5 minute for instruments that
 	 * currently exist within the cache
 	 * 
 	 * @throws Exception

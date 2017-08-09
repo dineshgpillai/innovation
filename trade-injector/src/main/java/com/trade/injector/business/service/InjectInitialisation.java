@@ -36,6 +36,9 @@ public class InjectInitialisation {
 		IMap<String, Instrument> instruments = hazelcastInstance
 				.getMap(MAP_INSTRUMENTS);
 		
+		//do not do anything is the map is already populated
+		if(instruments.size() > 3000) return;
+		
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(InjectInitialisation.class
 						.getResourceAsStream("/nasdaqlisted.txt"),
