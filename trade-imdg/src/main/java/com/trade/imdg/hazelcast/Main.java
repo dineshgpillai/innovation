@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.example.mu.database.Schema;
 import com.example.mu.domain.Instrument;
@@ -40,6 +41,7 @@ import com.trade.imdg.jet.implementations.JetKafkaConsume;
 
 @SpringBootApplication(scanBasePackages = "com.trade.imdg")
 @EnableCaching
+@RestController
 public class Main {
 
 	public static final String MAP_INSTRUMENTS = "instrument";
