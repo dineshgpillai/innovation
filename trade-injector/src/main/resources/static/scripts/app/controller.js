@@ -115,76 +115,7 @@ app.controller("TradeInjectCtrl", function($scope, $http, $location,
 
 );
 
-/*
- * app .controller( "TradeInjectTableDisplay", function($scope, $http,
- * $location, TradeInjectorService, ModalService) {
- * 
- * $scope.user = []; $scope.authenticated = false;
- * 
- * $http.get("/user").success(function(data) { $scope.user =
- * data.userAuthentication.details.name; $scope.authenticated = true;
- * }).error(function() { $scope.user = "N/A"; $scope.authenticated = false; });
- * 
- * $scope.tradeInjectMessages = []; // ensure all messages are retrieved first
- * $http.get("/retrieveAllInjects").success(function(data) {
- * $scope.tradeInjectMessages = data; });
- * 
- * $scope.stop = function(injectId) { var data = $.param({ id : injectId });
- * 
- * var config = { headers : { 'Content-Type' :
- * 'application/x-www-form-urlencoded;charset=utf-8;' } }
- * 
- * $http.post('/tradeMessageStop', data, config).success( function(data, status,
- * headers, config) { $scope.PostDataResponse = data; $scope.showGeneration =
- * false; }).error( function(data, status, header, config) {
- * $scope.ResponseDetails = "Data: " + data + "<hr />status: " + status + "<hr />headers: " +
- * header + "<hr />config: " + config; }); // $http.post('/tradeMessageStop'); }
- * 
- * $scope.repeat = function(injectId) { var data = $.param({ id : injectId });
- * 
- * var config = { headers : { 'Content-Type' :
- * 'application/x-www-form-urlencoded;charset=utf-8;' } }
- * 
- * $http .post('/tradeMessageRepeat', data, config) .success( function(data,
- * status, headers, config) { $scope.PostDataResponse = data;
- * $scope.showGeneration = false; }).error( function(data, status, header,
- * config) { $scope.ResponseDetails = "Data: " + data + "<hr />status: " +
- * status + "<hr />headers: " + header + "<hr />config: " + config; }); }
- * 
- * $scope.play = function(injectId) { var data = $.param({ id : injectId });
- * 
- * var config = { headers : { 'Content-Type' :
- * 'application/x-www-form-urlencoded;charset=utf-8;' } }
- * 
- * $http.post('/tradeMessagePlay', data, config).success( function(data, status,
- * headers, config) { $scope.PostDataResponse = data; $scope.showGeneration =
- * false; }).error( function(data, status, header, config) {
- * $scope.ResponseDetails = "Data: " + data + "<hr />status: " + status + "<hr />headers: " +
- * header + "<hr />config: " + config; }); }
- * 
- * $scope.purgeAll = function() { $http .post('/purgeAllInjects') .success(
- * function(data) { // refresh the table list $http .get("/retrieveAllInjects")
- * .success( function(data) {
- * 
- * var newData = data .slice(0); $scope.tradeInjectMessages.length = 0
- * $scope.tradeInjectMessages.push .apply( $scope.tradeInjectMessages, newData);
- * }); }); }; // refresh the entire table $scope.refreshAll = function() {
- * 
- * $http.get("/retrieveAllInjects").success( function(data) {
- * 
- * $scope.tradeInjectMessages = data; }); }; // Receives the trade inject
- * messages //TradeInjectorService.receiveTradeInjectMessage().then(
- * 
- * //null, null, function(data) { //$scope.tradeInjectMessages = data; //}); //
- * show the angular window $scope.showTable = function(injectid) {
- * 
- * ModalService.showModal({ templateUrl : '/showTableData.html', controller :
- * "ModalTableController", inputs : { injectId : injectid }
- * 
- * }).then(function(modal) { modal.element.modal();
- * modal.close.then(function(result) { $scope.message = "You said " + result;
- * }); }); }; });
- */
+
 app
 		.controller(
 				'ModalTableController',
@@ -675,14 +606,18 @@ app.controller("ReportStaticController", function($scope, $http, $location, Trad
 	$scope.pageActive = "A";
 	
 	$scope.allInstrumentsData = [];
+	$scope.allTradeData=[];
+	$scope.allPositionData=[];
 	$scope.tradeCount=[];
+	$scope.showtableView=false;
+	$scope.tableIndex=0;
 	// GET ALL INSTRUMENTS
-	//$http.get("/getAllInstruments").success(function(data) {
+	// $http.get("/getAllInstruments").success(function(data) {
 
-		//$scope.allInstrumentsData = data;
-	//}).error(function(data) {
-		//$scope.showStatus = data;
-	//});
+		// $scope.allInstrumentsData = data;
+	// }).error(function(data) {
+		// $scope.showStatus = data;
+	// });
 	
 	$scope.setTab = function(newTab) {
 		$scope.tab = newTab;
@@ -730,8 +665,75 @@ app.controller("ReportStaticController", function($scope, $http, $location, Trad
 
 		
 	}
+	
+	$scope.refreshTrades = function(){
+		
+		// get the trade data
+		$http({
+			  method: 'GET',
+			  url: 'http://localhost:8093/tradequeryservice/getAllTrades'
+			}).then(function successCallback(response) {
+			    // this callback will be called asynchronously
+			    // when the response is available
+				$scope.allTradeData = response.data;
+				
+			  }, function errorCallback(response) {
+			    // called asynchronously if an error occurs
+			    // or server returns response with an error status.
+				  $scope.ResponseDetails = "Response: "+ response.data + "<hr />";
+			  });
+		
+	}
+	
+	$scope.showtable = function(accountid, instrumentid,  rowIndex){
+		$scope.showtableView=!$scope.showtableView;
+		$scope.tableIndex = rowIndex;
+		
+		if($scope.showtableView===true){
+			$http({
+				  method: 'GET',
+				  url: 'http://localhost:8093/tradequeryservice/getTradesForPositionAccountAndInstrument/'+accountid+'/'+instrumentid
+				}).then(function successCallback(response) {
+				    // this callback will be called asynchronously
+				    // when the response is available
+					console.log("response trade data is "+response);
+					$scope.allTradeData = response.data;
+					
+				  }, function errorCallback(response) {
+				    // called asynchronously if an error occurs
+				    // or server returns response with an error status.
+					  $scope.ResponseDetails = "Response: "+ response.data + "<hr />";
+				  });
+			
+		}
+		
+		
+	}
+	
+	
+	
+	$scope.refreshPositions=function(){
+		
+		// get all the positions
+		$http({
+			  method: 'GET',
+			  url: 'http://localhost:8092/positionqueryservice/getAllPositionAccounts'
+			}).then(function successCallback(response) {
+			    // this callback will be called asynchronously
+			    // when the response is available
+				$scope.allPositionData = response.data;
+				
+			  }, function errorCallback(response) {
+			    // called asynchronously if an error occurs
+			    // or server returns response with an error status.
+				  $scope.ResponseDetails = "Response: "+ response.data + "<hr />";
+			  });
+		
+	}
+	
+	
 
-
+	
 	
 	TradeInjectorService
 	.receive()
@@ -742,39 +744,55 @@ app.controller("ReportStaticController", function($scope, $http, $location, Trad
 			function(data) {
 
 				
-					//run through the instruments and add the price data to it
+					// run through the instruments and add the price data to it
 
-//				var filteredData = $scope.allInstrumentsData.filter(function (data) {
-//				    return (data.instruments[id=="A"]);
-//				});
+// var filteredData = $scope.allInstrumentsData.filter(function (data) {
+// return (data.instruments[id=="A"]);
+// });
 //
 //					
-//					filteredData[0].instruments
-//							.forEach(changeInstrumentData);
+// filteredData[0].instruments
+// .forEach(changeInstrumentData);
 //					
 //					
 //
-//					function changeInstrumentData(
-//							instrument, index,
-//							callback) {
+// function changeInstrumentData(
+// instrument, index,
+// callback) {
 //						
 //													
-//						console.log("the instrument id is "+instrument.id);
-//						if(instrument.id===$scope.allInstrumentsData[index].id){
-//							$scope.allInstrumentsData[index].price = instrument.price;
-//							$scope.allInstrumentsData[index].prevPrice = instrument.prevPrice;
+// console.log("the instrument id is "+instrument.id);
+// if(instrument.id===$scope.allInstrumentsData[index].id){
+// $scope.allInstrumentsData[index].price = instrument.price;
+// $scope.allInstrumentsData[index].prevPrice = instrument.prevPrice;
 //							
-//							//console.log("full instrument data is "+$scope.allInstrumentsData[index].price);
-//							$scope.allInstrumentsData[index].push;
-//						}
+// //console.log("full instrument data is
+// "+$scope.allInstrumentsData[index].price);
+// $scope.allInstrumentsData[index].push;
+// }
 //						
 //											 
 //						
-//					};
+// };
 				
-				//set the trade count
+				// set the trade count
 				$scope.tradeCount = data[0].tradeCount;
-				//console.log("Trade count is "+data[0].tradeCount);
+				// console.log("Trade count is "+data[0].tradeCount);
+				
+				//also refresh the positions
+				$http({
+					  method: 'GET',
+					  url: 'http://localhost:8092/positionqueryservice/getAllPositionAccounts'
+					}).then(function successCallback(response) {
+					    // this callback will be called asynchronously
+					    // when the response is available
+						$scope.allPositionData = response.data;
+						
+					  }, function errorCallback(response) {
+					    // called asynchronously if an error occurs
+					    // or server returns response with an error status.
+						  $scope.ResponseDetails = "Response: "+ response.data + "<hr />";
+					  });
 				
 
 			});
@@ -783,4 +801,6 @@ app.controller("ReportStaticController", function($scope, $http, $location, Trad
 
 		
 });
+
+
 

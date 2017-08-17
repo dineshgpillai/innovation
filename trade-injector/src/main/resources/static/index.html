@@ -290,6 +290,10 @@
 								Data</a></li>
 						<li role="presentation" ng-class="{active: isTab(2)}"
 							ng-click="setTab(2)"><a href="#"><i
+								class="fa fa-microchip fa-fw" aria-hidden="true"></i>Trade
+								Report</a></li>
+						<li role="presentation" ng-class="{active: isTab(3)}"
+							ng-click="setTab(3)"><a href="#"><i
 								class="fa fa-microchip fa-fw" aria-hidden="true"></i>Position
 								Report</a></li>
 
@@ -404,16 +408,137 @@
 							<div class="panel-heading">
 								<div class="row">
 									<div class="col-md-2">
-										<h3 class="panel-title">Positions</h3>
+										<h3 class="panel-title">Trades</h3>
 									</div>
 									<div class="col-md-6"></div>
-									<div class="col-md-2">Trade Registered:{{tradeCount}}</div>
+									<div class="col-md-4">
+										Trade Registered:{{tradeCount}}
+										<button type="button" ng-click="refreshTrades()"
+											class="btn btn-default">
+											<i class="fa fa-refresh fa-fw" aria-hidden="true"></i>
+										</button>
+									</div>
 								</div>
+							</div>
+							<div class="panel-body">
+								<table class="table table-normal table-hover">
+									<thead>
+										<tr>
+											<th>Trade Id</th>
+											<th>Trade Date & Time</th>
+											<th>Instrument Id</th>
+											<th>Position Account</th>
+											<th>Last Qty</th>
+											<th>Last Px</th>
+
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="x in allTradeData">
+
+											<td>{{x.tradeId}}</td>
+											<td>{{x.tradeDate | date:'yyyy-MM-dd HH:mm:ss.sss'}}</td>
+											<td>{{x.instrumentId}}</td>
+											<td>{{x.positionAccountId}}</td>
+											<td>{{x.quantity}}</td>
+											<td>{{x.price}}</td>
+										</tr>
+
+									</tbody>
+								</table>
 							</div>
 						</div>
 					</div>
 				</div>
 				<!-- End of isTab(2) -->
+				<div ng-show="isTab(3)">
+					<div class="container panel panel-default">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<div class="row">
+									<div class="col-md-2">
+										<h3 class="panel-title">Positions</h3>
+									</div>
+									<div class="col-md-6"></div>
+									<div class="col-md-4">
+										Trade Registered:{{tradeCount}}
+										<button type="button" ng-click="refreshPositions()"
+											class="btn btn-default">
+											<i class="fa fa-refresh fa-fw" aria-hidden="true"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+							<div class="panel-body">
+								<table class="table table-normal table-hover">
+									<thead>
+										<tr>
+											<th>Position Account</th>
+											<th>Instrument Id</th>
+											<th>Position Size</th>
+											<th>PnL</th>
+
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="x in allPositionData">
+
+											<td>{{x.accountId}}</td>
+											<td>{{x.instrumentid}}</td>
+											<td>{{x.size}}</td>
+											<td>{{x.pnl}}</td>
+
+
+
+											<td>
+												<button class="btn btn-default" data-toggle="tooltip"
+													title="view trades for this position"
+													ng-click="showtable(x.accountId, x.instrumentid, $index)"
+													type="button">
+													<i ng-show="showtableView" class="fa fa-compress fa-fw" aria-hidden="true"></i>
+													<i ng-show="!showtableView" class="fa fa-expand fa-fw" aria-hidden="true"></i>
+												</button>
+												<table ng-show="showtableView && tableIndex==$index"
+													class="table table-normal table-hover">
+													<!-- button class="btn btn-default" data-toggle="tooltip"
+														title="hide" ng-click="showtableView=!showtableView"
+														type="button">
+														<i class="fa fa-file-text fa-fw" aria-hidden="true"></i>
+													</button-->
+													<thead>
+														<tr>
+															<th>Trade Id</th>
+															<th>Trade Date & Time</th>
+															<th>Instrument Id</th>
+															<th>Position Account</th>
+															<th>Last Qty</th>
+															<th>Last Px</th>
+
+														</tr>
+													</thead>
+													<tbody>
+														<tr ng-repeat="x in allTradeData">
+
+															<td>{{x.tradeId}}</td>
+															<td>{{x.tradeDate | date:'yyyy-MM-dd HH:mm:ss.sss'}}</td>
+															<td>{{x.instrumentId}}</td>
+															<td>{{x.positionAccountId}}</td>
+															<td>{{x.quantity}}</td>
+															<td>{{x.price}}</td>
+														</tr>
+
+													</tbody>
+												</table>
+											</td>
+											
+										</tr>
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<!-- End of ng show Configure -->
