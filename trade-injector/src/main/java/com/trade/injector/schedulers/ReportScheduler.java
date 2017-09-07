@@ -63,7 +63,7 @@ public class ReportScheduler {
 		messageSender.convertAndSend("/topic/tradeMessageInject", listOfProfiles);
 	}
 
-	@Scheduled(fixedDelay = 6000)
+	@Scheduled(fixedDelay = 3000)
 	public void pushCountStatistics() throws Exception {
 
 		TradeReport tradeReport = coreTemplate.findOne(Query.query(Criteria.where("injectorProfileId").is(REPORT_NAME)),

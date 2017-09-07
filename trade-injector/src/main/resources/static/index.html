@@ -486,7 +486,9 @@
 											<td>{{x.accountId}}</td>
 											<td>{{x.instrumentid}}</td>
 											<td>{{x.size}}</td>
-											<td>{{x.pnl}}</td>
+											<td><span ng-if="(x.pnl < 0)" ng-style="{color: 'red'}" >{{x.pnl}}</span>
+												<span ng-if="(x.pnl > 0)" ng-style="{color: 'blue'}" >{{x.pnl}}</span>
+											</td>
 
 
 
@@ -495,8 +497,9 @@
 													title="view trades for this position"
 													ng-click="showtable(x.accountId, x.instrumentid, $index)"
 													type="button">
-													<i ng-show="showtableView" class="fa fa-compress fa-fw" aria-hidden="true"></i>
-													<i ng-show="!showtableView" class="fa fa-expand fa-fw" aria-hidden="true"></i>
+													<i ng-show="showtableView" class="fa fa-compress fa-fw"
+														aria-hidden="true"></i> <i ng-show="!showtableView"
+														class="fa fa-expand fa-fw" aria-hidden="true"></i>
 												</button>
 												<table ng-show="showtableView && tableIndex==$index"
 													class="table table-normal table-hover">
@@ -530,7 +533,7 @@
 													</tbody>
 												</table>
 											</td>
-											
+
 										</tr>
 
 									</tbody>
