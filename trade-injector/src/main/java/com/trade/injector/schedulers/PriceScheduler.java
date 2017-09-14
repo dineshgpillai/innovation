@@ -23,6 +23,8 @@ import com.example.mu.domain.Price;
 import com.example.mu.domain.Trade;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.SqlPredicate;
 import com.trade.injector.business.service.BusinessServiceCacheNames;
 import com.trade.injector.business.service.GeneratePriceData;
 import com.trade.injector.jto.InstrumentReport;
@@ -57,7 +59,7 @@ public class PriceScheduler {
 	 * @throws Exception
 	 */
 
-	//@Scheduled(fixedDelay = 300000)
+	@Scheduled(fixedDelay = 60000)
 	public void generateFrequentPriceData() throws Exception {
 
 		LOG.info("Starting to generate price...");
@@ -72,7 +74,8 @@ public class PriceScheduler {
 		}
 
 		// generate and sink to Kafka
-		Collection<Instrument> ins = mapInstruments.values();
+		Predicate predicate = new SqlPredicate(String.format("instrumentId like %s", "ELECU"));
+		Collection<Instrument> ins = mapInstruments.values(predicate);
 		LOG.info("Number of Instruments " + ins.size());
 		ins.stream().forEach(
 				a -> sender.send(marketDataTopic, a.getInstrumentId(), GeneratePriceData
@@ -81,9 +84,6 @@ public class PriceScheduler {
 		LOG.info("Price generation done");
 	}
 	
-		
-
-
 	
 	
 
