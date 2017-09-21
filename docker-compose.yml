@@ -36,7 +36,7 @@ services:
 
  zookeeper-1:
   container_name: zookeeper-1
-  image: mu_zoo
+  image: dineshpillai/mu_zookeeper
   networks: ["vnet"]
   hostname: zookeeper-1.vnet
   restart: always
@@ -75,9 +75,9 @@ services:
   links: 
     - zookeeper-1:zk
   environment:
-   KAFKA_ADVERTISED_HOST_NAME: 138.68.168.237
+   KAFKA_ADVERTISED_HOST_NAME: 10.34.221.114
    KAFKA_ADVERTISED_PORT: 9092
-   KAFKA_ZOOKEEPER_CONNECT: 138.68.168.237:2182
+   KAFKA_ZOOKEEPER_CONNECT: zookeeper-1.vnet:2182
 
  hazelcast:
   build: .  
@@ -99,10 +99,10 @@ services:
    - mongo
    - kafka
   environment:
-   kafka.bootstrap-servers: 138.68.168.237:9092
-   spring.data.mongodb.host: 138.68.168.237
+   kafka.bootstrap-servers: 178.62.124.180:9092
+   spring.data.mongodb.host: 10.34.221.114
    spring.hazelcast.client.config: mu1-client-config.xml
-   spring.cloud.zookeeper.connectString: 138.68.168.237:2182
+   spring.cloud.zookeeper.connectString: zookeeper-1.vnet:2182
 
  trade-imdg :
   image: dineshpillai/innovation-trade-imdg:0.0.1-SNAPSHOT

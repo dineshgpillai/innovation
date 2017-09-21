@@ -43,27 +43,8 @@ public class MainNoSpringBoot {
 
 	public static void main(String[] args)  throws Exception{
 		
-		System.out.println("Starting up...");
 		
 		MainNoSpringBoot.startUpHz();
-		//Create the Hbase schema tables
-		/*Configuration config =  HBaseConfiguration.create();
-        config.setInt("timeout", 120000);
-        config.set("hbase.master", HBASE_HOST + ":60000");
-        config.set("hbase.zookeeper.quorum",ZK_HOST);
-        config.set("hbase.zookeeper.property.clientPort", "2181");
-        //config.set("hbase.zookeeper.property.dataDir", "/mnt/data/zookeeper");
-        //Schema.createSchemaTables(config);
-*/		
-		
-		//IMap<String, Instrument> map = hz.getMap(Main.MAP_INSTRUMENTS);
-		
-		 
-		
-		
-		
-		System.out.println("Shutting down.");
-	     
 	   
 
 	}
