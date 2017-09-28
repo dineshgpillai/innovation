@@ -75,7 +75,7 @@ services:
   links: 
     - zookeeper-1:zk
   environment:
-   KAFKA_ADVERTISED_HOST_NAME: 10.34.221.114
+   KAFKA_ADVERTISED_HOST_NAME: 10.34.221.221
    KAFKA_ADVERTISED_PORT: 9092
    KAFKA_ZOOKEEPER_CONNECT: zookeeper-1.vnet:2182
 
@@ -100,13 +100,13 @@ services:
    - kafka
   environment:
    kafka.bootstrap-servers: 178.62.124.180:9092
-   spring.data.mongodb.host: 10.34.221.114
+   spring.data.mongodb.host: 10.34.221.221
    spring.hazelcast.client.config: mu1-client-config.xml
    spring.cloud.zookeeper.connectString: zookeeper-1.vnet:2182
 
  trade-imdg :
   image: dineshpillai/innovation-trade-imdg:0.0.1-SNAPSHOT
-  hostname: trade-imdg.vnet
+  #hostname: trade-imdg.vnet
   networks: ["vnet"]
   ports :
     - "8092:8092"
@@ -118,6 +118,19 @@ services:
   image : dineshpillai/mongo-db-repo
   ports :
    - "27017:27017"
+
+ jet-cluster:
+  image: dineshpillai/innovation-mu-streamers
+  networks: ["vnet"]
+  links :
+   - zookeeper-1:zk
+   - trade-imdg
+  environment:
+   hzJetClusterProfile: tradeStreamer=3,priceStreamer=0,positionStreamer=0
+   kafka_url: 178.62.124.180:9092
+   hzHost: localhost
+   runs: 1000 
+   delay: 6000
 
 networks:
   vnet:
