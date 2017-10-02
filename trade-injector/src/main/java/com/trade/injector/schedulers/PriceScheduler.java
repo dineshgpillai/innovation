@@ -59,7 +59,7 @@ public class PriceScheduler {
 	 * @throws Exception
 	 */
 
-	@Scheduled(fixedDelay = 60000)
+	@Scheduled(fixedDelay = 200000)
 	public void generateFrequentPriceData() throws Exception {
 
 		LOG.info("Starting to generate price...");
@@ -74,8 +74,9 @@ public class PriceScheduler {
 		}
 
 		// generate and sink to Kafka
-		Predicate predicate = new SqlPredicate(String.format("instrumentId like %s", "ELECU"));
-		Collection<Instrument> ins = mapInstruments.values(predicate);
+		//Predicate predicate = new SqlPredicate(String.format("instrumentId like %s", "ELECU"));
+		//Collection<Instrument> ins = mapInstruments.values(predicate);
+		Collection<Instrument> ins = mapInstruments.values();
 		LOG.info("Number of Instruments " + ins.size());
 		ins.stream().forEach(
 				a -> sender.send(marketDataTopic, a.getInstrumentId(), GeneratePriceData
