@@ -1,4 +1,4 @@
-version: '2.1' 
+version: '2.1'
 services:
  #jobmanager:
    # image: ${FLINK_DOCKER_IMAGE_NAME:-flink}
@@ -8,7 +8,7 @@ services:
      # - "6123"
     #links:
      # - zookeeper-1:zk
-     # #- trade-imdg:ti    
+     # #- trade-imdg:ti
     #depends_on:
      # - zookeeper-1
     #ports:
@@ -28,7 +28,7 @@ services:
      # - jobmanager
     #command: taskmanager
     #links:
-      #- "jobmanager:jobmanager"      
+      #- "jobmanager:jobmanager"
       #- zookeeper-1:zk
      # #- trade-imdg:ti
     #environment:
@@ -41,11 +41,11 @@ services:
   hostname: zookeeper-1.vnet
   restart: always
   ports:
-    - 2182:2181
+    - 2181:2181
   environment:
     - SERVICE_2181_NAME=zookeeper
     - SERVICE_2888_IGNORE=true
-    - SERVICE_3888_IGNORE=true    
+    - SERVICE_3888_IGNORE=true
 
  #hbase:
   # image: oddpoet/hbase-local
@@ -67,20 +67,20 @@ services:
 
 
  kafka:
-  image: wurstmeister/kafka
+  image: dineshpillai/mu-kafka
   hostname: kafka
   networks: ["vnet"]
   ports:
     - "9092:9092"
-  links: 
+  links:
     - zookeeper-1:zk
   environment:
-   KAFKA_ADVERTISED_HOST_NAME: 10.34.221.221
+   KAFKA_ADVERTISED_HOST_NAME: 192.168.1.176
    KAFKA_ADVERTISED_PORT: 9092
-   KAFKA_ZOOKEEPER_CONNECT: zookeeper-1.vnet:2182
+   KAFKA_ZOOKEEPER_CONNECT: zookeeper-1.vnet:2181
 
  hazelcast:
-  build: .  
+  build: .
   hostname: hazelcast
   networks: ["vnet"]
   ports:
@@ -89,24 +89,24 @@ services:
     - zookeeper-1:zk
   environment:
     JAVA_OPTS: -Dhazelcast.config=hazelcast.xml
-   
+
  trade-injector :
   image : dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
   networks: ["vnet"]
-  ports : 
+  ports :
    - "8090:8090"
   links :
    - mongo
    - kafka
   environment:
-   kafka.bootstrap-servers: 178.62.124.180:9092
-   spring.data.mongodb.host: 10.34.221.221
+   kafka.bootstrap-servers: 192.168.1.176:9092
+   spring.data.mongodb.host: 192.168.1.176
    spring.hazelcast.client.config: mu1-client-config.xml
-   spring.cloud.zookeeper.connectString: zookeeper-1.vnet:2182
+   spring.cloud.zookeeper.connectString: zookeeper-1.vnet:2181
 
  trade-imdg :
   image: dineshpillai/innovation-trade-imdg:0.0.1-SNAPSHOT
-  #hostname: trade-imdg.vnet
+  hostname: trade-imdg.vnet
   networks: ["vnet"]
   ports :
     - "8092:8092"
@@ -122,17 +122,19 @@ services:
  jet-cluster:
   image: dineshpillai/innovation-mu-streamers
   networks: ["vnet"]
+  hostname: jet-cluster.vnet
   links :
    - zookeeper-1:zk
    - trade-imdg
+   - hazelcast
   environment:
    hzJetClusterProfile: tradeStreamer=3,priceStreamer=0,positionStreamer=0
    kafka_url: 178.62.124.180:9092
    hzHost: localhost
-   runs: 1000 
+   runs: 1000
    delay: 6000
 
 networks:
   vnet:
     external:
-      name: vnet 
+      name: vnet
