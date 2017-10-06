@@ -134,6 +134,28 @@ services:
    runs: 1000
    delay: 6000
 
+ positionQueryService:
+  image: dineshpillai/imcs-positionqueryservice:0.0.1-SNAPSHOT
+  hostname: positionQueryService.vnet
+  networks: ["vnet"]
+  ports :
+    - "8093:8093"
+  links:
+    - zookeeper-1:zk
+    - trade-imdg
+    - hazelcast
+
+ tradeQueryService:
+  image: dineshpillai/imcs-tradequeryservice:0.0.1-SNAPSHOT
+  hostname: tradeQueryService.vnet
+  networks: ["vnet"]
+  ports :
+   - "8094:8094"
+  links:
+   - zookeeper-1:zk
+   - trade-imdg
+   - hazelcast
+
 networks:
   vnet:
     external:
