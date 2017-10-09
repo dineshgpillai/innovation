@@ -75,7 +75,7 @@ services:
   links:
     - zookeeper-1:zk
   environment:
-   KAFKA_ADVERTISED_HOST_NAME: 192.168.1.176
+   KAFKA_ADVERTISED_HOST_NAME: 178.62.124.180
    KAFKA_ADVERTISED_PORT: 9092
    KAFKA_ZOOKEEPER_CONNECT: zookeeper-1.vnet:2181
 
@@ -99,7 +99,7 @@ services:
    - mongo
    - kafka
   environment:
-   kafka.bootstrap-servers: 192.168.1.176:9092
+   kafka.bootstrap-servers: 178.62.124.180:9092
    spring.data.mongodb.host: 192.168.1.176
    spring.hazelcast.client.config: mu1-client-config.xml
    spring.cloud.zookeeper.connectString: zookeeper-1.vnet:2181
