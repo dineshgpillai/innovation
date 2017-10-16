@@ -437,7 +437,7 @@ public class TradeInjectorController extends WebSecurityConfigurerAdapter {
 			Thread.sleep(profile.getSimulatedWaitTime());
 
 			// if the kill flag is set by the UI return the process.
-			if (profileRepo.findOne(profile.id).getRun_mode() == TradeInjectRunModes.STOP
+			if (profileRepo.findById(profile.id).get().getRun_mode() == TradeInjectRunModes.STOP
 					.getRunMode())
 
 				// kill it and return

@@ -42,7 +42,7 @@ public class TradeMessageInjectorMessageTest {
 		System.out.println("Preparing Test data");
 		TradeInjectorMessage message = new TradeInjectorMessage();
 		DBObject dbObject = createDBObject(message);
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.createCollection("tradeInjector", dbObject);
 
 		// if there is anything in the repository please delete it
@@ -62,7 +62,7 @@ public class TradeMessageInjectorMessageTest {
 
 	@Test
 	public void testIfCollectionExists() {
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 
 		assertNotNull(coll);
@@ -71,7 +71,7 @@ public class TradeMessageInjectorMessageTest {
 
 	@Test
 	public void testInsertion() {
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 
 		// create one new document
@@ -105,7 +105,7 @@ public class TradeMessageInjectorMessageTest {
 
 	@Test
 	public void testDelete() {
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 
 		// create one new document
@@ -150,7 +150,7 @@ public class TradeMessageInjectorMessageTest {
 
 	@Test
 	public void testReadAll() {
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 		assertEquals(0, coll.count());
 
@@ -198,7 +198,7 @@ public class TradeMessageInjectorMessageTest {
 	@Test
 	public void testReadOne() {
 
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 		assertEquals(0, coll.count());
 
@@ -249,7 +249,7 @@ public class TradeMessageInjectorMessageTest {
 
 	@Test
 	public void testFindByUserId() {
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 		assertEquals(0, coll.count());
 
@@ -282,7 +282,7 @@ public class TradeMessageInjectorMessageTest {
 	@Test
 	public void testUpdateOne() {
 
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 		assertEquals(0, coll.count());
 
@@ -436,14 +436,14 @@ public class TradeMessageInjectorMessageTest {
 		message.setUserId("testRepoUser");
 
 		TradeInjectorMessage messageSaved = repo.save(message);
-		assertEquals(messageSaved.id, repo.findOne(messageSaved.id).id);
+		assertEquals(messageSaved.id, repo.findById(messageSaved.id).get().id);
 	}
 
 	@After
 	public void deleteAll() {
 		System.out.println("Destroying data");
 
-		DB db = template.getDbFactory().getDb();
+		DB db = (DB) template.getDbFactory().getDb();
 		DBCollection coll = db.getCollection("tradeInjector");
 		// drop the entire collection
 

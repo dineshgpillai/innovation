@@ -9,7 +9,7 @@ public class Listener {
 
 	public final CountDownLatch countDownLatch1 = new CountDownLatch(1);
 
-	@KafkaListener(id = "priceListener", topics = "maket_data", group = "demo")
+	@KafkaListener(id = "priceListener", topics = "maket_data", groupId = "demo")
 	public void listen(ConsumerRecord<?, ?> record) {
 		System.out.println(record);
 		countDownLatch1.countDown();

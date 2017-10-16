@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.example.mu.database.Schema;
 import com.example.mu.domain.Instrument;
 import com.example.mu.domain.Party;
+import com.example.mu.domain.Price;
 import com.example.mu.domain.Trade;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -20,32 +21,34 @@ import com.hazelcast.jet.JetInstance;
 
 public class MainNoSpringBoot {
 	public static final String MAP_INSTRUMENTS = "instrument";
+	private final static String PRICE_MAP = "price";
 	public static final Logger LOG = LoggerFactory.getLogger(MainNoSpringBoot.class);
 	public static HazelcastInstance hz = Hazelcast.newHazelcastInstance();
-	
-	
-	public static void startUpHz()throws Exception{
-		 LOG.info("Done creating the schema tables");
-			IMap<String, Instrument> instruments = hz
-					.getMap(MAP_INSTRUMENTS);
-			LOG.info("Size of Instruments is " + instruments.size());
-			LOG.info("Loading instruments ...");
-			
-			//instruments.loadAll(true);
-			
-			if(instruments.size() > 3000) {
-				
-				LOG.info("Not loading from file " + instruments.size());
-				return;
-			}
-		
+
+	public static void startUpHz() throws Exception {
+
+		// load up prices as well
+		IMap<String, Price> prices = hz.getMap(PRICE_MAP);
+		LOG.info("Size of prices is " + prices.size());
+		LOG.info("Loading prices ...");
+
+		IMap<String, Instrument> instruments = hz.getMap(MAP_INSTRUMENTS);
+		LOG.info("Size of Instruments is " + instruments.size());
+		LOG.info("Loading instruments ...");
+
+		// instruments.loadAll(true);
+
+		if (instruments.size() > 3000) {
+
+			LOG.info("Not loading from file " + instruments.size());
+			return;
+		}
+
 	}
 
-	public static void main(String[] args)  throws Exception{
-		
-		
+	public static void main(String[] args) throws Exception {
+
 		MainNoSpringBoot.startUpHz();
-	   
 
 	}
 

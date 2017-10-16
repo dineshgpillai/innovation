@@ -64,7 +64,7 @@ public class InstrumentTest {
 		
 		//now check if the instrument has the above update
 		Instrument testInstrument = repo.findByIdentifier("INSTEST1");
-		assertEquals("This is exchange for testing", partyRepo.findOne(testInstrument.getExchange()).getPartyName());
+		assertEquals("This is exchange for testing", partyRepo.findById(testInstrument.getExchange()).get().getPartyName());
 		
 	}
 	

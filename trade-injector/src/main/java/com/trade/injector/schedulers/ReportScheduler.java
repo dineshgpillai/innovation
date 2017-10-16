@@ -10,12 +10,15 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.example.mu.domain.Price;
 import com.example.mu.domain.Trade;
@@ -54,6 +57,14 @@ public class ReportScheduler {
 
 	@Autowired
 	private MongoTemplate coreTemplate;
+
+	@Value("${webservices.priceservice.baseURL}")
+	private String webServicesPriceBaseURL;
+
+	@Bean
+	WebClient priceQueryClient() {
+		return WebClient.create(webServicesPriceBaseURL);
+	}
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -113,7 +124,7 @@ public class ReportScheduler {
 		LOG.info("Starting to obtain prices...");
 		// first get all the prices from the cache
 		IMap<String, Price> mapPrices = hazelcastInstance.getMap(BusinessServiceCacheNames.PRICE_CACHE);
-		//mapPrices.loadAll(false);	
+		// mapPrices.loadAll(false);
 		// no data do not generate
 		if (mapPrices.size() == 0) {
 			LOG.warn("No prices found");
@@ -178,4 +189,22 @@ public class ReportScheduler {
 		return report;
 	}
 
+	private void createOrUpdateInstrumentReport(Price aPrice, TradeReport report) {
+
+		//initialise the list first
+		if(report.getInstruments().size() <1) {
+			report.getInstruments().add(createNewInstrumentReport(aPrice));
+			return;
+		}
+			
+		
+		report.getInstruments().stream().forEach(x -> {
+			if (x.getId().equals(aPrice.getInstrumentId()))
+				updateInstrumentReportPrice(x, aPrice);
+			else
+				report.getInstruments().add(createNewInstrumentReport(aPrice));
+		});
+
+		
+	}
 }
