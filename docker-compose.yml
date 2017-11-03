@@ -100,7 +100,7 @@ services:
    - kafka
   environment:
    kafka.bootstrap-servers: 178.62.124.180:9092
-   spring.data.mongodb.host: 192.168.1.176
+   spring.data.mongodb.host: 10.34.212.240
    spring.hazelcast.client.config: mu1-client-config.xml
    spring.cloud.zookeeper.connectString: zookeeper-1.vnet:2181
 
@@ -144,6 +144,17 @@ services:
     - zookeeper-1:zk
     - trade-imdg
     - hazelcast
+
+ priceQueryService:
+   image: dineshpillai/mu-pricequery-service:0.0.1-SNAPSHOT
+   hostname: priceQueryService.vnet
+   networks: ["vnet"]
+   ports :
+     - "8095:8095"
+   links:
+     - zookeeper-1:zk
+     - trade-imdg
+     - hazelcast
 
  tradeQueryService:
   image: dineshpillai/imcs-tradequeryservice:0.0.1-SNAPSHOT
