@@ -80,7 +80,7 @@ services:
    KAFKA_ZOOKEEPER_CONNECT: zookeeper-1.vnet:2181
 
  hazelcast:
-  image: hazelcast
+  image: innovation_hazelcast
   #hostname: hazelcast
   #networks: ["vnet"]
   ports:
