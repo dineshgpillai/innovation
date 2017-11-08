@@ -1,0 +1,31 @@
+
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: trade-injector-controller
+spec:
+  replicas: 1
+  selector:
+    app: trade-injector
+  template:
+    metadata:
+      labels:
+        app: trade-injector
+    spec:
+      containers:
+      - name: trade-injector
+        image: dineshpillai/innovation-trade-injector
+        ports:
+        - containerPort: 8090
+        env:
+        - name: kafka.bootstrap-servers
+          value: 192.168.64.5:9092
+        - name: spring.data.mongodb.host
+          value: mongo
+        - name: spring.hazelcast.client.config
+          value: mu1-client-config.xml
+        - name: spring.cloud.zookeeper.connectString
+          value: zoo1:2181,zoo2:2181,zoo3:2181
+        
+          
