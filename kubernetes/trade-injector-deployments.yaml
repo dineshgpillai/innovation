@@ -1,13 +1,16 @@
 
 ---
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1beta2
+kind: Deployment
 metadata:
   name: trade-injector-controller
+  labels:
+    app: trade-injector
 spec:
   replicas: 1
   selector:
-    app: trade-injector
+    matchLabels:
+      app: trade-injector
   template:
     metadata:
       labels:
@@ -15,7 +18,7 @@ spec:
     spec:
       containers:
       - name: trade-injector
-        image: dineshpillai/innovation-trade-injector
+        image: dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
         ports:
         - containerPort: 8090
         env:

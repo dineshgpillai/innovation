@@ -7,10 +7,6 @@ metadata:
     app: trade-imdg
 spec:
   ports:
-  - port: 1111
-    name: trade-imdg-port
-    targetPort: 1111
-    protocol: TCP
+    - port: 5701
   selector:
     app: trade-imdg
-  type: LoadBalancer
