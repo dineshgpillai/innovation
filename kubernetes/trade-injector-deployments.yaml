@@ -1,6 +1,6 @@
 
 ---
-apiVersion: apps/v1beta2
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: trade-injector-controller
@@ -19,16 +19,17 @@ spec:
       containers:
       - name: trade-injector
         image: dineshpillai/innovation-trade-injector:0.0.1-SNAPSHOT
+        imagePullPolicy: Always
         ports:
         - containerPort: 8090
         env:
         - name: kafka.bootstrap-servers
-          value: 192.168.64.5:9092
+          value: 178.62.124.180:9092
         - name: spring.data.mongodb.host
           value: mongo
         - name: spring.hazelcast.client.config
           value: mu1-client-config.xml
         - name: spring.cloud.zookeeper.connectString
-          value: zoo1:2181,zoo2:2181,zoo3:2181
+          value: zoo1:2181
         
           
