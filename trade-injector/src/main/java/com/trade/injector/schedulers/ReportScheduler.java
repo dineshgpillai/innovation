@@ -58,13 +58,13 @@ public class ReportScheduler {
 	@Autowired
 	private MongoTemplate coreTemplate;
 
-	@Value("${webservices.priceservice.baseURL}")
-	private String webServicesPriceBaseURL;
+	//@Value("${webservices.priceservice.baseURL}")
+	//private String webServicesPriceBaseURL;
 
-	@Bean
-	WebClient priceQueryClient() {
-		return WebClient.create(webServicesPriceBaseURL);
-	}
+	//@Bean
+	//WebClient priceQueryClient() {
+		//return WebClient.create(webServicesPriceBaseURL);
+	//}
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
