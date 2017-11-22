@@ -81,6 +81,7 @@ public class MainNoSpringBoot {
 		aInstrument.setInstrumentId(instrumentData.get(0));
 		aInstrument.setIssuer(instrumentData.get(1));
 		aInstrument.setSymbol(instrumentData.get(0));
+		aInstrument.setProduct(instrumentData.get(0));
 
 		return aInstrument;
 	}
