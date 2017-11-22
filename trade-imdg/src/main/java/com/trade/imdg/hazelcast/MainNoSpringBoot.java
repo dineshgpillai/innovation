@@ -81,6 +81,8 @@ public class MainNoSpringBoot {
 		aInstrument.setInstrumentId(instrumentData.get(0));
 		aInstrument.setIssuer(instrumentData.get(1));
 		aInstrument.setSymbol(instrumentData.get(0));
+		
+		//Added as part of this defect
 		aInstrument.setProduct(instrumentData.get(0));
 
 		return aInstrument;
