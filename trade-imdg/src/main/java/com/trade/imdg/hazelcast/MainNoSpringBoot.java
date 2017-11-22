@@ -3,6 +3,13 @@ package com.trade.imdg.hazelcast;
 import static com.example.mu.database.MuSchemaConstants.HBASE_HOST;
 import static com.example.mu.database.MuSchemaConstants.ZK_HOST;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.slf4j.Logger;
@@ -43,7 +50,39 @@ public class MainNoSpringBoot {
 			LOG.info("Not loading from file " + instruments.size());
 			return;
 		}
+		
+		// Seed the instruments
+		//Group, Inc. - Common Stock|Q|N|N|100|N|N
+		
+			LOG.info("Loading from file nasdaqlisted.txt");
+					try (BufferedReader reader = new BufferedReader(
+							new InputStreamReader(Main.class
+									.getResourceAsStream("/nasdaqlisted.txt"),
+									StandardCharsets.UTF_8))) {
 
+						reader.lines()
+								.skip(1)
+								// .limit(100)
+								.map(l -> Arrays.asList(l.split("\\|")))
+								.forEach(
+										t -> instruments.put(t.get(0),
+												constructInstrument(t)));
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+
+					LOG.info("Size of Instruments is " + instruments.size());
+
+	}
+	
+	private static Instrument constructInstrument(List<String> instrumentData) {
+		Instrument aInstrument = new Instrument();
+		aInstrument.setAssetClass(instrumentData.get(0));
+		aInstrument.setInstrumentId(instrumentData.get(0));
+		aInstrument.setIssuer(instrumentData.get(1));
+		aInstrument.setSymbol(instrumentData.get(0));
+
+		return aInstrument;
 	}
 
 	public static void main(String[] args) throws Exception {
