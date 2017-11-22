@@ -26,7 +26,7 @@ spec:
         - name: kafka.bootstrap-servers
           value: kafka-service:30005
         - name: spring.data.mongodb.host
-          value: mongo
+          value: db
         - name: spring.hazelcast.client.config
           value: mu1-client-config.xml
         - name: spring.cloud.zookeeper.connectString
