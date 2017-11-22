@@ -12,4 +12,4 @@ spec:
     protocol: TCP
   selector:
     app: kafka
-  type: NodePort
+  type: LoadBalancer
