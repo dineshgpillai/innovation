@@ -24,7 +24,7 @@ spec:
         - containerPort: 8090
         env:
         - name: kafka.bootstrap-servers
-          value: kafka-service:30005
+          value: kafka-service:32676
         - name: spring.data.mongodb.host
           value: db
         - name: spring.hazelcast.client.config
