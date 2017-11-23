@@ -4,6 +4,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: trade-injector-controller
+  namespace: mu-architecture-demo
   labels:
     app: trade-injector
 spec:
@@ -24,7 +25,7 @@ spec:
         - containerPort: 8090
         env:
         - name: kafka.bootstrap-servers
-          value: kafka-service:32676
+          value: kafka:9092
         - name: spring.data.mongodb.host
           value: db
         - name: spring.hazelcast.client.config
