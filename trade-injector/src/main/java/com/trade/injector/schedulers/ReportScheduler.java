@@ -137,6 +137,7 @@ public class ReportScheduler {
 			report.setInstruments(
 					mapPrices.values().stream().map(p -> createNewInstrumentReport(p)).collect(Collectors.toList()));
 		else {
+			if(mapPrices.size() !=0)
 			instrumentReport.stream().forEach(x -> updateInstrumentReportPrice(x, mapPrices.get(x.getId())));
 		}
 		// generate and sink to Kafka
